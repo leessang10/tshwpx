@@ -55,4 +55,34 @@ describe("PowerShellBridge", () => {
     expect(write.mock.calls[0]?.[0]).toContain('"method":"init"');
     expect(write.mock.calls[1]?.[0]).toContain('"method":"insertText"');
   });
+
+  it("sends structured parameter set payloads for execute calls", async () => {
+    const { bridge, write } = createBridge();
+
+    await bridge.execute("CharShape", {
+      parameterSetId: "CharShape",
+      values: { Height: 1200 },
+    });
+
+    const executePayload = JSON.parse(write.mock.calls[1]?.[0] ?? "{}");
+    expect(executePayload).toMatchObject({
+      method: "execute",
+      params: {
+        actionName: "CharShape",
+        parameterSet: {
+          parameterSetId: "CharShape",
+          values: { Height: 1200 },
+        },
+      },
+    });
+  });
+
+  it("rejects raw JavaScript parameter set objects", async () => {
+    const { bridge, write } = createBridge();
+
+    await expect(bridge.execute("CharShape", { Height: 1200 })).rejects.toThrow(
+      "PowerShell bridge only accepts structured ParameterSetPayload objects",
+    );
+    expect(write).not.toHaveBeenCalled();
+  });
 });

@@ -28,6 +28,9 @@ describe("App", () => {
     expect(app.raw).toBe(bridge.raw);
     expect(app.doc).toBeTruthy();
     expect(app.low).toBeTruthy();
+    expect(app.actions).toBeTruthy();
+    expect(app.params).toBeTruthy();
+    expect(app.events).toBeTruthy();
   });
 
   it("supports Hwp as an alias", () => {

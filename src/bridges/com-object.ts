@@ -1,4 +1,5 @@
 import type { HwpComObject } from "../com/types";
+import { isParameterSetPayload } from "../spec";
 import type { OpenOptions, SaveFormat } from "../app";
 import type { HwpBridge } from "./types";
 
@@ -71,10 +72,30 @@ export class ComObjectBridge implements HwpBridge {
   }
 
   async execute(actionName: string, parameterSet?: unknown): Promise<boolean> {
-    const ok = this.raw.HAction?.Execute(actionName, parameterSet);
+    const resolvedParameterSet = this.resolveParameterSet(parameterSet);
+    const ok = this.raw.HAction?.Execute(actionName, resolvedParameterSet);
     if (ok === false) {
       throw new Error(`HAction.Execute returned false for ${actionName}`);
     }
     return ok ?? true;
+  }
+
+  private resolveParameterSet(parameterSet?: unknown): unknown {
+    if (!isParameterSetPayload(parameterSet)) {
+      return parameterSet;
+    }
+
+    const rawParameterSet = this.raw.HParameterSet?.[parameterSet.parameterSetId] as
+      | (Record<string, unknown> & { HSet?: unknown })
+      | undefined;
+    if (!rawParameterSet) {
+      throw new Error(`HParameterSet.${parameterSet.parameterSetId} is not available.`);
+    }
+
+    for (const [key, value] of Object.entries(parameterSet.values)) {
+      rawParameterSet[key] = value;
+    }
+
+    return rawParameterSet.HSet;
   }
 }

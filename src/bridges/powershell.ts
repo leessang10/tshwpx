@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
 import { HwpAutomationError } from "../com/errors";
+import { isParameterSetPayload } from "../spec";
 import type { OpenOptions, SaveFormat } from "../app";
 import type { HwpBridge } from "./types";
 
@@ -115,15 +116,15 @@ export class PowerShellBridge implements HwpBridge {
   }
 
   async execute(actionName: string, parameterSet?: unknown): Promise<boolean> {
-    if (parameterSet !== undefined) {
+    if (parameterSet !== undefined && !isParameterSetPayload(parameterSet)) {
       throw new HwpAutomationError(
         "ACTION_FAILED",
-        "PowerShell bridge does not accept JavaScript COM parameter set objects. Use a high-level method or run(actionName).",
+        "PowerShell bridge only accepts structured ParameterSetPayload objects. Use app.params.create(...) or run(actionName).",
       );
     }
 
     await this.init();
-    return (await this.request("execute", { actionName })) as boolean;
+    return (await this.request("execute", { actionName, parameterSet })) as boolean;
   }
 
   private ensureProcess(): void {
@@ -270,7 +271,17 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
         Send-Response $id ([bool]$result) ([bool]$result) "HWP action returned false."
       }
       "execute" {
-        $result = $hwp.HAction.Execute([string]$params.actionName)
+        if ($null -ne $params.parameterSet) {
+          $parameterSetId = [string]$params.parameterSet.parameterSetId
+          $pset = $hwp.HParameterSet.$parameterSetId
+          foreach ($property in $params.parameterSet.values.PSObject.Properties) {
+            $name = [string]$property.Name
+            $pset.$name = $property.Value
+          }
+          $result = $hwp.HAction.Execute([string]$params.actionName, $pset.HSet)
+        } else {
+          $result = $hwp.HAction.Execute([string]$params.actionName)
+        }
         Send-Response $id ([bool]$result) ([bool]$result) "HWP action returned false."
       }
       default {
