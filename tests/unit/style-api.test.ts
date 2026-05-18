@@ -1,38 +1,36 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionsApi } from "../../src/actions";
 import { DocumentApi } from "../../src/doc";
-import { ParameterSetsApi } from "../../src/params";
+import { getParameterSetDefinition } from "../../src/internal/parameter-sets";
+import { actionDefinitions } from "../../src/spec";
+
+const ACTION_MAP = new Map(actionDefinitions.map((action) => [action.id, action]));
 
 describe("style API", () => {
-  it("exposes documented style actions and parameter sets through the low-level catalogs", () => {
-    const bridge = createBridge();
-    const actions = new ActionsApi(bridge);
-    const params = new ParameterSetsApi();
-
-    expect(actions.get("Style")).toMatchObject({ id: "Style", parameterSetId: "Style" });
-    expect(actions.get("StyleAdd")).toMatchObject({ id: "StyleAdd", parameterSetId: "Style" });
-    expect(actions.get("StyleEdit")).toMatchObject({ id: "StyleEdit", parameterSetId: "Style" });
-    expect(actions.get("StyleEx")).toMatchObject({ id: "StyleEx", parameterSetId: "Style" });
-    expect(actions.get("StyleDelete")).toMatchObject({ id: "StyleDelete", parameterSetId: "StyleDelete" });
-    expect(actions.get("StyleTemplate")).toMatchObject({ id: "StyleTemplate", parameterSetId: "StyleTemplate" });
-    expect(actions.get("StyleChangeToCurrentShape")).toMatchObject({
+  it("uses documented style actions and parameter sets internally", () => {
+    expect(ACTION_MAP.get("Style")).toMatchObject({ id: "Style", parameterSetId: "Style" });
+    expect(ACTION_MAP.get("StyleAdd")).toMatchObject({ id: "StyleAdd", parameterSetId: "Style" });
+    expect(ACTION_MAP.get("StyleEdit")).toMatchObject({ id: "StyleEdit", parameterSetId: "Style" });
+    expect(ACTION_MAP.get("StyleEx")).toMatchObject({ id: "StyleEx", parameterSetId: "Style" });
+    expect(ACTION_MAP.get("StyleDelete")).toMatchObject({ id: "StyleDelete", parameterSetId: "StyleDelete" });
+    expect(ACTION_MAP.get("StyleTemplate")).toMatchObject({ id: "StyleTemplate", parameterSetId: "StyleTemplate" });
+    expect(ACTION_MAP.get("StyleChangeToCurrentShape")).toMatchObject({
       id: "StyleChangeToCurrentShape",
       parameterSetId: "StyleItem",
     });
-    expect(actions.get("StyleParaNumberBullet")).toMatchObject({
+    expect(ACTION_MAP.get("StyleParaNumberBullet")).toMatchObject({
       id: "StyleParaNumberBullet",
       parameterSetId: "ParaShape",
     });
-    expect(actions.get("StyleClearCharStyle")).toMatchObject({ id: "StyleClearCharStyle" });
+    expect(ACTION_MAP.get("StyleClearCharStyle")).toMatchObject({ id: "StyleClearCharStyle" });
 
     for (let index = 1; index <= 10; index += 1) {
-      expect(actions.get(`StyleShortcut${index}`)).toMatchObject({ id: `StyleShortcut${index}` });
+      expect(ACTION_MAP.get(`StyleShortcut${index}`)).toMatchObject({ id: `StyleShortcut${index}` });
     }
 
-    expect(params.get("Style")?.items.map((item) => item.id)).toEqual(["Apply"]);
-    expect(params.get("StyleDelete")?.items.map((item) => item.id)).toEqual(["Target", "Alternation"]);
-    expect(params.get("StyleTemplate")?.items.map((item) => item.id)).toEqual(["FileName"]);
-    expect(params.get("StyleItem")?.items.map((item) => item.id)).toEqual([
+    expect(getParameterSetDefinition("Style")?.items.map((item) => item.id)).toEqual(["Apply"]);
+    expect(getParameterSetDefinition("StyleDelete")?.items.map((item) => item.id)).toEqual(["Target", "Alternation"]);
+    expect(getParameterSetDefinition("StyleTemplate")?.items.map((item) => item.id)).toEqual(["FileName"]);
+    expect(getParameterSetDefinition("StyleItem")?.items.map((item) => item.id)).toEqual([
       "Type",
       "NameLocal",
       "NameEng",

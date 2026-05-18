@@ -1,15 +1,13 @@
 import type { HwpBridge } from "../bridges/types";
-import { ParameterSetsApi } from "../params";
+import { createParameterSetPayload } from "../internal/parameter-sets";
 import { createParagraphShapeValues } from "./values";
 import type { ParagraphShapeOptions } from "./types";
 
 export class DocumentParagraphShapeApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async set(options: ParagraphShapeOptions): Promise<void> {
-    await this.bridge.execute("ParagraphShape", this.params.create("ParaShape", createParagraphShapeValues(options)));
+    await this.bridge.execute("ParagraphShape", createParameterSetPayload("ParaShape", createParagraphShapeValues(options)));
   }
 }
 

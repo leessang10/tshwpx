@@ -1,5 +1,6 @@
 import type { HwpBridge } from "../bridges/types";
-import { executeFileAction, FILE_PARAMS } from "./helpers";
+import { createParameterSetPayload } from "../internal/parameter-sets";
+import { executeFileAction } from "./helpers";
 import type { FileSecurityOptions } from "./types";
 import { createFileSecurityValues } from "./values";
 
@@ -14,7 +15,7 @@ export class FileSecurityApi {
       this.bridge,
       this.ensureReady,
       "FileSetSecurity",
-      FILE_PARAMS.create("FileSetSecurity", createFileSecurityValues(options)),
+      createParameterSetPayload("FileSetSecurity", createFileSecurityValues(options)),
     );
   }
 }

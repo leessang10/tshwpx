@@ -1,5 +1,6 @@
 import type { HwpBridge } from "../bridges/types";
-import { executeFileAction, FILE_PARAMS } from "./helpers";
+import { createParameterSetPayload } from "../internal/parameter-sets";
+import { executeFileAction } from "./helpers";
 import type { FileImageOptions } from "./types";
 import { createFileImageValues } from "./values";
 
@@ -14,7 +15,7 @@ export class FileImageApi {
       this.bridge,
       this.ensureReady,
       "FileSaveAsImage",
-      FILE_PARAMS.create("Print", createFileImageValues(options)),
+      createParameterSetPayload("Print", createFileImageValues(options)),
     );
   }
 
@@ -23,7 +24,7 @@ export class FileImageApi {
       this.bridge,
       this.ensureReady,
       "FileSaveAsImageOption",
-      FILE_PARAMS.create("Print", createFileImageValues(options)),
+      createParameterSetPayload("Print", createFileImageValues(options)),
     );
   }
 }

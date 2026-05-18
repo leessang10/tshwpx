@@ -1,5 +1,4 @@
 export { App, Hwp } from "./app";
-export { ActionsApi } from "./actions";
 export {
   CharacterShapeAdjustApi,
   CharacterShapeApi,
@@ -63,7 +62,6 @@ export {
   DocumentTableRowsApi,
   DocumentTablesApi,
 } from "./doc";
-export { EventsApi } from "./events";
 export {
   FileApi,
   FileDialogApi,
@@ -74,11 +72,8 @@ export {
   FileSecurityApi,
   FileTemplateApi,
 } from "./file";
-export { LowLevelApi } from "./low/low-level-api";
-export { ParameterSetsApi } from "./params";
 export { PowerShellBridge } from "./bridges/powershell";
 export { HwpAutomationError } from "./com/errors";
-export { actionDefinitions, eventDefinitions, isParameterSetPayload, parameterSetDefinitions } from "./spec";
 export type { AppOptions, OpenOptions, SaveFormat } from "./app";
 export type {
   CharShapeOptions,
@@ -102,11 +97,3 @@ export type {
 } from "./doc";
 export type { FileImageOptions, FileOpenParameterOptions, FilePasswordOptions, FileSecurityOptions } from "./file";
 export type { CursorPosition, CursorTextPosition, CursorTextRange, HwpBridge } from "./bridges/types";
-export type {
-  ActionDefinition,
-  HwpEventDefinition,
-  ParameterItemDefinition,
-  ParameterSetDefinition,
-  ParameterSetPayload,
-  ParameterSetValues,
-} from "./spec";

@@ -1,46 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionsApi } from "../../src/actions";
 import { DocumentApi } from "../../src/doc";
-import { LowLevelApi } from "../../src/low/low-level-api";
-import { ParameterSetsApi } from "../../src/params";
+import { getParameterSetDefinition } from "../../src/internal/parameter-sets";
+import { actionDefinitions } from "../../src/spec";
+
+const ACTION_MAP = new Map(actionDefinitions.map((action) => [action.id, action]));
 
 describe("cursor API", () => {
-  it("exposes documented cursor actions and position parameter set through the low-level catalogs", () => {
-    const bridge = createBridge();
-    const actions = new ActionsApi(bridge);
-    const params = new ParameterSetsApi();
+  it("uses documented cursor actions and position parameter set internally", () => {
+    expect(ACTION_MAP.get("MoveDocBegin")).toMatchObject({ id: "MoveDocBegin" });
+    expect(ACTION_MAP.get("MoveDocEnd")).toMatchObject({ id: "MoveDocEnd" });
+    expect(ACTION_MAP.get("MoveNextWord")).toMatchObject({ id: "MoveNextWord" });
+    expect(ACTION_MAP.get("MovePrevWord")).toMatchObject({ id: "MovePrevWord" });
+    expect(ACTION_MAP.get("MoveSelNextWord")).toMatchObject({ id: "MoveSelNextWord" });
+    expect(ACTION_MAP.get("MoveSelDocEnd")).toMatchObject({ id: "MoveSelDocEnd" });
+    expect(ACTION_MAP.get("Select")).toMatchObject({ id: "Select" });
+    expect(ACTION_MAP.get("SelectAll")).toMatchObject({ id: "SelectAll" });
+    expect(ACTION_MAP.get("SelectColumn")).toMatchObject({ id: "SelectColumn" });
+    expect(ACTION_MAP.get("SelectCtrlFront")).toMatchObject({ id: "SelectCtrlFront" });
+    expect(ACTION_MAP.get("SelectCtrlReverse")).toMatchObject({ id: "SelectCtrlReverse" });
+    expect(ACTION_MAP.get("Cancel")).toMatchObject({ id: "Cancel" });
 
-    expect(actions.get("MoveDocBegin")).toMatchObject({ id: "MoveDocBegin" });
-    expect(actions.get("MoveDocEnd")).toMatchObject({ id: "MoveDocEnd" });
-    expect(actions.get("MoveNextWord")).toMatchObject({ id: "MoveNextWord" });
-    expect(actions.get("MovePrevWord")).toMatchObject({ id: "MovePrevWord" });
-    expect(actions.get("MoveSelNextWord")).toMatchObject({ id: "MoveSelNextWord" });
-    expect(actions.get("MoveSelDocEnd")).toMatchObject({ id: "MoveSelDocEnd" });
-    expect(actions.get("Select")).toMatchObject({ id: "Select" });
-    expect(actions.get("SelectAll")).toMatchObject({ id: "SelectAll" });
-    expect(actions.get("SelectColumn")).toMatchObject({ id: "SelectColumn" });
-    expect(actions.get("SelectCtrlFront")).toMatchObject({ id: "SelectCtrlFront" });
-    expect(actions.get("SelectCtrlReverse")).toMatchObject({ id: "SelectCtrlReverse" });
-    expect(actions.get("Cancel")).toMatchObject({ id: "Cancel" });
-
-    expect(params.get("ListParaPos")?.items.map((item) => item.id)).toEqual(["List", "Para", "Pos"]);
-  });
-
-  it("exposes automation cursor methods through the low-level API", async () => {
-    const bridge = createBridge();
-    const low = new LowLevelApi(bridge);
-
-    await expect(low.movePos(3)).resolves.toBe(true);
-    await expect(low.getPosBySet()).resolves.toEqual({ list: 1, para: 2, pos: 3 });
-    await expect(low.setPosBySet({ list: 4, para: 5, pos: 6 })).resolves.toBe(true);
-    await expect(low.setPos({ list: 7, para: 8, pos: 9 })).resolves.toBeUndefined();
-    await expect(low.selectText({ start: { para: 1, pos: 2 }, end: { para: 3, pos: 4 } })).resolves.toBe(true);
-
-    expect(bridge.movePos).toHaveBeenCalledWith(3, undefined, undefined);
-    expect(bridge.getPosBySet).toHaveBeenCalled();
-    expect(bridge.setPosBySet).toHaveBeenCalledWith({ list: 4, para: 5, pos: 6 });
-    expect(bridge.setPos).toHaveBeenCalledWith({ list: 7, para: 8, pos: 9 });
-    expect(bridge.selectText).toHaveBeenCalledWith({ start: { para: 1, pos: 2 }, end: { para: 3, pos: 4 } });
+    expect(getParameterSetDefinition("ListParaPos")?.items.map((item) => item.id)).toEqual(["List", "Para", "Pos"]);
   });
 
   it("runs common cursor movement actions from high-level helpers", async () => {

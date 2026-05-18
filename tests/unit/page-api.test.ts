@@ -1,24 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionsApi } from "../../src/actions";
 import { DocumentApi } from "../../src/doc";
-import { ParameterSetsApi } from "../../src/params";
+import { getParameterSetDefinition } from "../../src/internal/parameter-sets";
+import { actionDefinitions } from "../../src/spec";
+
+const ACTION_MAP = new Map(actionDefinitions.map((action) => [action.id, action]));
 
 describe("page API", () => {
-  it("exposes documented page actions and parameter sets through the low-level catalogs", () => {
-    const bridge = {
-      run: vi.fn(async (_actionId: string) => undefined),
-      execute: vi.fn(async () => true),
-    };
-    const actions = new ActionsApi(bridge);
-    const params = new ParameterSetsApi();
-
-    expect(actions.get("BreakPage")).toMatchObject({ id: "BreakPage" });
-    expect(actions.get("DeletePage")).toMatchObject({ id: "DeletePage", parameterSetId: "DeletePage" });
-    expect(actions.get("PageSetup")).toMatchObject({ id: "PageSetup", parameterSetId: "SecDef" });
-    expect(actions.get("PageNumPos")).toMatchObject({ id: "PageNumPos", parameterSetId: "PageNumPos" });
-    expect(params.get("DeletePage")?.items.map((item) => item.id)).toEqual(["Range", "RangeCustom", "UsingPagenum"]);
-    expect(params.get("PageNumPos")?.items.some((item) => item.id === "DrawPos")).toBe(true);
-    expect(params.get("SecDef")?.items.some((item) => item.id === "PageDef")).toBe(true);
+  it("uses documented page actions and parameter sets internally", () => {
+    expect(ACTION_MAP.get("BreakPage")).toMatchObject({ id: "BreakPage" });
+    expect(ACTION_MAP.get("DeletePage")).toMatchObject({ id: "DeletePage", parameterSetId: "DeletePage" });
+    expect(ACTION_MAP.get("PageSetup")).toMatchObject({ id: "PageSetup", parameterSetId: "SecDef" });
+    expect(ACTION_MAP.get("PageNumPos")).toMatchObject({ id: "PageNumPos", parameterSetId: "PageNumPos" });
+    expect(getParameterSetDefinition("DeletePage")?.items.map((item) => item.id)).toEqual([
+      "Range",
+      "RangeCustom",
+      "UsingPagenum",
+    ]);
+    expect(getParameterSetDefinition("PageNumPos")?.items.some((item) => item.id === "DrawPos")).toBe(true);
+    expect(getParameterSetDefinition("SecDef")?.items.some((item) => item.id === "PageDef")).toBe(true);
   });
 
   it("runs page break, section break, copy, paste, and page movement actions", async () => {

@@ -1,5 +1,5 @@
 import type { HwpBridge } from "../bridges/types";
-import { ParameterSetsApi } from "../params";
+import { createParameterSetPayload } from "../internal/parameter-sets";
 import { createPageDeleteValues, createPageNumberingPositionValues, createPageSetupValues } from "./values";
 import type { PageDeleteOptions, PageNumberingPositionOptions, PageSetupOptions } from "./types";
 
@@ -8,8 +8,6 @@ export class DocumentPagesApi {
   readonly numbering: DocumentPageNumberingApi;
   readonly orientation: DocumentPageOrientationApi;
   readonly sections: DocumentPageSectionsApi;
-
-  private readonly params = new ParameterSetsApi();
 
   constructor(private readonly bridge: Pick<HwpBridge, "run" | "execute">) {
     this.move = new DocumentPageMoveApi(bridge);
@@ -31,11 +29,11 @@ export class DocumentPagesApi {
   }
 
   async delete(options: PageDeleteOptions = {}): Promise<void> {
-    await this.bridge.execute("DeletePage", this.params.create("DeletePage", createPageDeleteValues(options)));
+    await this.bridge.execute("DeletePage", createParameterSetPayload("DeletePage", createPageDeleteValues(options)));
   }
 
   async setup(options: PageSetupOptions = {}): Promise<void> {
-    await this.bridge.execute("PageSetup", this.params.create("SecDef", createPageSetupValues(options)));
+    await this.bridge.execute("PageSetup", createParameterSetPayload("SecDef", createPageSetupValues(options)));
   }
 }
 
@@ -84,25 +82,21 @@ export class DocumentPageNumberingApi {
 }
 
 export class DocumentPageNumberingPositionApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async set(options: PageNumberingPositionOptions): Promise<void> {
-    await this.bridge.execute("PageNumPos", this.params.create("PageNumPos", createPageNumberingPositionValues(options)));
+    await this.bridge.execute("PageNumPos", createParameterSetPayload("PageNumPos", createPageNumberingPositionValues(options)));
   }
 }
 
 export class DocumentPageOrientationApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async landscape(): Promise<void> {
-    await this.bridge.execute("PageLandscape", this.params.create("SecDef"));
+    await this.bridge.execute("PageLandscape", createParameterSetPayload("SecDef"));
   }
 
   async portrait(): Promise<void> {
-    await this.bridge.execute("PagePortrait", this.params.create("SecDef"));
+    await this.bridge.execute("PagePortrait", createParameterSetPayload("SecDef"));
   }
 }

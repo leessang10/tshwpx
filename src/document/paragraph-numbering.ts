@@ -1,13 +1,11 @@
 import type { HwpBridge } from "../bridges/types";
-import { ParameterSetsApi } from "../params";
+import { createParameterSetPayload } from "../internal/parameter-sets";
 import { createParagraphNumberingValues, createParagraphShapeValues } from "./values";
 import type { ParagraphNumberingOptions, ParagraphNumberingSetOptions } from "./types";
 
 export class DocumentParagraphNumberingApi {
   readonly defaults: DocumentParagraphNumberingDefaultsApi;
   readonly dialog: DocumentParagraphNumberingDialogApi;
-
-  private readonly params = new ParameterSetsApi();
 
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {
     this.defaults = new DocumentParagraphNumberingDefaultsApi(bridge);
@@ -17,7 +15,7 @@ export class DocumentParagraphNumberingApi {
   async set(options: ParagraphNumberingSetOptions): Promise<void> {
     await this.bridge.execute(
       "ParagraphShape",
-      this.params.create("ParaShape", createParagraphNumberingValues(options)),
+      createParameterSetPayload("ParaShape", createParagraphNumberingValues(options)),
     );
   }
 
@@ -58,27 +56,23 @@ export class DocumentParagraphNumberingApi {
   }
 
   private async execute(actionId: string, options: ParagraphNumberingOptions): Promise<void> {
-    await this.bridge.execute(actionId, this.params.create("ParaShape", createParagraphShapeValues(options)));
+    await this.bridge.execute(actionId, createParameterSetPayload("ParaShape", createParagraphShapeValues(options)));
   }
 }
 
 export class DocumentParagraphNumberingDefaultsApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async bullet(): Promise<void> {
-    await this.bridge.execute("GetDefaultBullet", this.params.create("ParaShape"));
+    await this.bridge.execute("GetDefaultBullet", createParameterSetPayload("ParaShape"));
   }
 
   async paragraph(): Promise<void> {
-    await this.bridge.execute("GetDefaultParaNumber", this.params.create("ParaShape"));
+    await this.bridge.execute("GetDefaultParaNumber", createParameterSetPayload("ParaShape"));
   }
 }
 
 export class DocumentParagraphNumberingDialogApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async bullet(options: ParagraphNumberingOptions = {}): Promise<void> {
@@ -94,6 +88,6 @@ export class DocumentParagraphNumberingDialogApi {
   }
 
   private async execute(actionId: string, options: ParagraphNumberingOptions): Promise<void> {
-    await this.bridge.execute(actionId, this.params.create("ParaShape", createParagraphShapeValues(options)));
+    await this.bridge.execute(actionId, createParameterSetPayload("ParaShape", createParagraphShapeValues(options)));
   }
 }

@@ -121,7 +121,7 @@ export class PowerShellBridge implements HwpBridge {
     if (parameterSet !== undefined && !isParameterSetPayload(parameterSet)) {
       throw new HwpAutomationError(
         "ACTION_FAILED",
-        "PowerShell bridge only accepts structured ParameterSetPayload objects. Use app.params.create(...) or run(actionName).",
+        "PowerShell bridge only accepts internal structured ParameterSetPayload objects.",
       );
     }
 

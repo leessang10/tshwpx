@@ -21,16 +21,17 @@ function createFakeBridge() {
 }
 
 describe("App", () => {
-  it("exposes doc, low, and raw layers", () => {
+  it("exposes high-level document and file APIs plus raw bridge access", () => {
     const bridge = createFakeBridge();
     const app = new App({ bridge });
 
     expect(app.raw).toBe(bridge.raw);
     expect(app.doc).toBeTruthy();
-    expect(app.low).toBeTruthy();
-    expect(app.actions).toBeTruthy();
-    expect(app.params).toBeTruthy();
-    expect(app.events).toBeTruthy();
+    expect(app.file).toBeTruthy();
+    expect("low" in app).toBe(false);
+    expect("actions" in app).toBe(false);
+    expect("params" in app).toBe(false);
+    expect("events" in app).toBe(false);
   });
 
   it("supports Hwp as an alias", () => {

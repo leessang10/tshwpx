@@ -1,14 +1,12 @@
 import type { HwpBridge } from "../bridges/types";
 import { setArrayValue, setBooleanValue, setValue, type ParameterValues } from "../internal/parameter-values";
-import { ParameterSetsApi } from "../params";
+import { createParameterSetPayload } from "../internal/parameter-sets";
 import type { TableCellSplitOptions, TableInsertOptions } from "./types";
 
 export class DocumentTablesApi {
   readonly rows: DocumentTableRowsApi;
   readonly columns: DocumentTableColumnsApi;
   readonly cells: DocumentTableCellsApi;
-
-  private readonly params = new ParameterSetsApi();
 
   constructor(private readonly bridge: Pick<HwpBridge, "run" | "execute">) {
     this.rows = new DocumentTableRowsApi(bridge);
@@ -31,21 +29,19 @@ export class DocumentTablesApi {
     setValue(values, "TableTemplateValue", options.tableTemplateValue);
     setBooleanValue(values, "TextSelect", options.textSelect);
 
-    await this.bridge.execute("TableCreate", this.params.create("TableCreation", values));
+    await this.bridge.execute("TableCreate", createParameterSetPayload("TableCreation", values));
   }
 }
 
 export class DocumentTableRowsApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "run" | "execute">) {}
 
   async insertAbove(count = 1): Promise<void> {
-    await this.bridge.execute("TableInsertUpperRow", this.params.create("TableInsertLine", { Count: count }));
+    await this.bridge.execute("TableInsertUpperRow", createParameterSetPayload("TableInsertLine", { Count: count }));
   }
 
   async insertBelow(count = 1): Promise<void> {
-    await this.bridge.execute("TableInsertLowerRow", this.params.create("TableInsertLine", { Count: count }));
+    await this.bridge.execute("TableInsertLowerRow", createParameterSetPayload("TableInsertLine", { Count: count }));
   }
 
   async append(): Promise<void> {
@@ -53,31 +49,27 @@ export class DocumentTableRowsApi {
   }
 
   async delete(): Promise<void> {
-    await this.bridge.execute("TableDeleteRow", this.params.create("TableDeleteLine", { Type: 0 }));
+    await this.bridge.execute("TableDeleteRow", createParameterSetPayload("TableDeleteLine", { Type: 0 }));
   }
 }
 
 export class DocumentTableColumnsApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async insertLeft(count = 1): Promise<void> {
-    await this.bridge.execute("TableInsertLeftColumn", this.params.create("TableInsertLine", { Count: count }));
+    await this.bridge.execute("TableInsertLeftColumn", createParameterSetPayload("TableInsertLine", { Count: count }));
   }
 
   async insertRight(count = 1): Promise<void> {
-    await this.bridge.execute("TableInsertRightColumn", this.params.create("TableInsertLine", { Count: count }));
+    await this.bridge.execute("TableInsertRightColumn", createParameterSetPayload("TableInsertLine", { Count: count }));
   }
 
   async delete(): Promise<void> {
-    await this.bridge.execute("TableDeleteColumn", this.params.create("TableDeleteLine", { Type: 1 }));
+    await this.bridge.execute("TableDeleteColumn", createParameterSetPayload("TableDeleteLine", { Type: 1 }));
   }
 }
 
 export class DocumentTableCellsApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "run" | "execute">) {}
 
   async merge(): Promise<void> {
@@ -93,7 +85,7 @@ export class DocumentTableCellsApi {
     setBooleanValue(values, "Merge", options.mergeBeforeSplit);
     setBooleanValue(values, "Mode2", options.keepAdjust);
 
-    await this.bridge.execute("TableSplitCell", this.params.create("TableSplitCell", values));
+    await this.bridge.execute("TableSplitCell", createParameterSetPayload("TableSplitCell", values));
   }
 
   async delete(): Promise<void> {

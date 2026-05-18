@@ -1,27 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionsApi } from "../../src/actions";
 import { App } from "../../src/app";
-import { ParameterSetsApi } from "../../src/params";
+import { getParameterSetDefinition } from "../../src/internal/parameter-sets";
+import { actionDefinitions } from "../../src/spec";
+
+const ACTION_MAP = new Map(actionDefinitions.map((action) => [action.id, action]));
 
 describe("file API", () => {
-  it("exposes documented file actions and parameter sets through the low-level catalogs", () => {
-    const bridge = createBridge();
-    const actions = new ActionsApi(bridge);
-    const params = new ParameterSetsApi();
-
-    expect(actions.get("FileClose")).toMatchObject({ id: "FileClose" });
-    expect(actions.get("FileNew")).toMatchObject({ id: "FileNew" });
-    expect(actions.get("FilePassword")).toMatchObject({ id: "FilePassword", parameterSetId: "Password" });
-    expect(actions.get("FileSetSecurity")).toMatchObject({
+  it("uses documented file actions and parameter sets internally", () => {
+    expect(ACTION_MAP.get("FileClose")).toMatchObject({ id: "FileClose" });
+    expect(ACTION_MAP.get("FileNew")).toMatchObject({ id: "FileNew" });
+    expect(ACTION_MAP.get("FilePassword")).toMatchObject({ id: "FilePassword", parameterSetId: "Password" });
+    expect(ACTION_MAP.get("FileSetSecurity")).toMatchObject({
       id: "FileSetSecurity",
       parameterSetId: "FileSetSecurity",
     });
-    expect(actions.get("FileSaveAsImage")).toMatchObject({ id: "FileSaveAsImage", parameterSetId: "Print" });
-    expect(actions.get("FileTemplate")).toMatchObject({ id: "FileTemplate", parameterSetId: "FileOpen" });
-    expect(params.get("FileOpen")?.items.some((item) => item.id === "SaveFileName")).toBe(true);
-    expect(params.get("Password")?.items.some((item) => item.id === "String")).toBe(true);
-    expect(params.get("FileSetSecurity")?.items.map((item) => item.id)).toEqual(["Password", "NoPrint", "NoCopy"]);
-    expect(params.get("Print")?.items.some((item) => item.id === "FileName")).toBe(true);
+    expect(ACTION_MAP.get("FileSaveAsImage")).toMatchObject({ id: "FileSaveAsImage", parameterSetId: "Print" });
+    expect(ACTION_MAP.get("FileTemplate")).toMatchObject({ id: "FileTemplate", parameterSetId: "FileOpen" });
+    expect(getParameterSetDefinition("FileOpen")?.items.some((item) => item.id === "SaveFileName")).toBe(true);
+    expect(getParameterSetDefinition("Password")?.items.some((item) => item.id === "String")).toBe(true);
+    expect(getParameterSetDefinition("FileSetSecurity")?.items.map((item) => item.id)).toEqual([
+      "Password",
+      "NoPrint",
+      "NoCopy",
+    ]);
+    expect(getParameterSetDefinition("Print")?.items.some((item) => item.id === "FileName")).toBe(true);
   });
 
   it("wraps direct file operations through the app bridge", async () => {

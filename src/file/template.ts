@@ -1,5 +1,6 @@
 import type { HwpBridge } from "../bridges/types";
-import { executeFileAction, FILE_PARAMS } from "./helpers";
+import { createParameterSetPayload } from "../internal/parameter-sets";
+import { executeFileAction } from "./helpers";
 import type { FileOpenParameterOptions } from "./types";
 import { createFileOpenValues } from "./values";
 
@@ -14,7 +15,7 @@ export class FileTemplateApi {
       this.bridge,
       this.ensureReady,
       "FileTemplate",
-      FILE_PARAMS.create("FileOpen", createFileOpenValues(options)),
+      createParameterSetPayload("FileOpen", createFileOpenValues(options)),
     );
   }
 }

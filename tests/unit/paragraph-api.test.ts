@@ -1,34 +1,32 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionsApi } from "../../src/actions";
 import { DocumentApi } from "../../src/doc";
-import { ParameterSetsApi } from "../../src/params";
+import { getParameterSetDefinition } from "../../src/internal/parameter-sets";
+import { actionDefinitions } from "../../src/spec";
+
+const ACTION_MAP = new Map(actionDefinitions.map((action) => [action.id, action]));
 
 describe("paragraph API", () => {
-  it("exposes documented paragraph actions and parameter sets through the low-level catalogs", () => {
-    const bridge = createBridge();
-    const actions = new ActionsApi(bridge);
-    const params = new ParameterSetsApi();
-
-    expect(actions.get("ParagraphShape")).toMatchObject({ id: "ParagraphShape", parameterSetId: "ParaShape" });
-    expect(actions.get("ParagraphShapeAlignLeft")).toMatchObject({ id: "ParagraphShapeAlignLeft" });
-    expect(actions.get("ParagraphShapeIncreaseLine")).toMatchObject({ id: "ParagraphShapeIncreaseLine" });
-    expect(actions.get("PutBullet")).toMatchObject({ id: "PutBullet", parameterSetId: "ParaShape" });
-    expect(actions.get("PutNewParaNumber")).toMatchObject({ id: "PutNewParaNumber", parameterSetId: "ParaShape" });
-    expect(actions.get("PutParaNumber")).toMatchObject({ id: "PutParaNumber", parameterSetId: "ParaShape" });
-    expect(actions.get("PutOutlineNumber")).toMatchObject({ id: "PutOutlineNumber", parameterSetId: "ParaShape" });
-    expect(actions.get("GetDefaultBullet")).toMatchObject({ id: "GetDefaultBullet", parameterSetId: "ParaShape" });
-    expect(actions.get("GetDefaultParaNumber")).toMatchObject({ id: "GetDefaultParaNumber", parameterSetId: "ParaShape" });
-    expect(actions.get("BulletDlg")).toMatchObject({ id: "BulletDlg", parameterSetId: "ParaShape" });
-    expect(actions.get("ParaNumberDlg")).toMatchObject({ id: "ParaNumberDlg", parameterSetId: "ParaShape" });
-    expect(actions.get("PictureBulletDlg")).toMatchObject({ id: "PictureBulletDlg", parameterSetId: "ParaShape" });
-    expect(actions.get("OutlineNumber")).toMatchObject({ id: "OutlineNumber", parameterSetId: "SecDef" });
-    expect(actions.get("ParaNumberBulletLevelUp")).toMatchObject({
+  it("uses documented paragraph actions and parameter sets internally", () => {
+    expect(ACTION_MAP.get("ParagraphShape")).toMatchObject({ id: "ParagraphShape", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("ParagraphShapeAlignLeft")).toMatchObject({ id: "ParagraphShapeAlignLeft" });
+    expect(ACTION_MAP.get("ParagraphShapeIncreaseLine")).toMatchObject({ id: "ParagraphShapeIncreaseLine" });
+    expect(ACTION_MAP.get("PutBullet")).toMatchObject({ id: "PutBullet", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("PutNewParaNumber")).toMatchObject({ id: "PutNewParaNumber", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("PutParaNumber")).toMatchObject({ id: "PutParaNumber", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("PutOutlineNumber")).toMatchObject({ id: "PutOutlineNumber", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("GetDefaultBullet")).toMatchObject({ id: "GetDefaultBullet", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("GetDefaultParaNumber")).toMatchObject({ id: "GetDefaultParaNumber", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("BulletDlg")).toMatchObject({ id: "BulletDlg", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("ParaNumberDlg")).toMatchObject({ id: "ParaNumberDlg", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("PictureBulletDlg")).toMatchObject({ id: "PictureBulletDlg", parameterSetId: "ParaShape" });
+    expect(ACTION_MAP.get("OutlineNumber")).toMatchObject({ id: "OutlineNumber", parameterSetId: "SecDef" });
+    expect(ACTION_MAP.get("ParaNumberBulletLevelUp")).toMatchObject({
       id: "ParaNumberBulletLevelUp",
       parameterSetId: "ParaShape",
     });
-    expect(params.get("ParaShape")?.items.some((item) => item.id === "AlignType")).toBe(true);
-    expect(params.get("ParaShape")?.items.some((item) => item.id === "LineSpacing")).toBe(true);
-    expect(params.get("ParaShape")?.items.some((item) => item.id === "HeadingType")).toBe(true);
+    expect(getParameterSetDefinition("ParaShape")?.items.some((item) => item.id === "AlignType")).toBe(true);
+    expect(getParameterSetDefinition("ParaShape")?.items.some((item) => item.id === "LineSpacing")).toBe(true);
+    expect(getParameterSetDefinition("ParaShape")?.items.some((item) => item.id === "HeadingType")).toBe(true);
   });
 
   it("sets paragraph shape through the documented ParagraphShape action and ParaShape parameter set", async () => {

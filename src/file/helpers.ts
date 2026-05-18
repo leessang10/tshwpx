@@ -1,9 +1,7 @@
 import type { HwpBridge } from "../bridges/types";
-import { ParameterSetsApi } from "../params";
+import { createParameterSetPayload } from "../internal/parameter-sets";
 import type { FilePasswordOptions } from "./types";
 import { createPasswordValues } from "./values";
-
-export const FILE_PARAMS = new ParameterSetsApi();
 
 export async function runFileAction(
   bridge: Pick<HwpBridge, "run">,
@@ -30,5 +28,5 @@ export async function executePasswordAction(
   actionId: string,
   options: FilePasswordOptions,
 ): Promise<void> {
-  await executeFileAction(bridge, ensureReady, actionId, FILE_PARAMS.create("Password", createPasswordValues(options)));
+  await executeFileAction(bridge, ensureReady, actionId, createParameterSetPayload("Password", createPasswordValues(options)));
 }

@@ -1,14 +1,12 @@
 import type { HwpBridge } from "../bridges/types";
 import { setValue, type ParameterValues } from "../internal/parameter-values";
-import { ParameterSetsApi } from "../params";
+import { createParameterSetPayload } from "../internal/parameter-sets";
 import { createParagraphNumberingValues, createStyleItemValues } from "./values";
 import type { ParagraphNumberingSetOptions, StyleApplyOptions, StyleDeleteOptions, StyleItemOptions } from "./types";
 
 export class DocumentStylesApi {
   readonly numbering: DocumentStyleNumberingApi;
   readonly template: DocumentStyleTemplateApi;
-
-  private readonly params = new ParameterSetsApi();
 
   constructor(private readonly bridge: Pick<HwpBridge, "run" | "execute">) {
     this.numbering = new DocumentStyleNumberingApi(bridge);
@@ -37,11 +35,11 @@ export class DocumentStylesApi {
       values.Alternation = options.alternation;
     }
 
-    await this.bridge.execute("StyleDelete", this.params.create("StyleDelete", values));
+    await this.bridge.execute("StyleDelete", createParameterSetPayload("StyleDelete", values));
   }
 
   async changeToCurrentShape(options: StyleItemOptions): Promise<void> {
-    await this.bridge.execute("StyleChangeToCurrentShape", this.params.create("StyleItem", createStyleItemValues(options)));
+    await this.bridge.execute("StyleChangeToCurrentShape", createParameterSetPayload("StyleItem", createStyleItemValues(options)));
   }
 
   async clearCharStyle(): Promise<void> {
@@ -58,30 +56,26 @@ export class DocumentStylesApi {
 
   private async executeStyle(actionId: string, index: number | undefined): Promise<void> {
     const values = index === undefined ? {} : { Apply: index };
-    await this.bridge.execute(actionId, this.params.create("Style", values));
+    await this.bridge.execute(actionId, createParameterSetPayload("Style", values));
   }
 }
 
 export class DocumentStyleNumberingApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async set(options: ParagraphNumberingSetOptions): Promise<void> {
     await this.bridge.execute(
       "StyleParaNumberBullet",
-      this.params.create("ParaShape", createParagraphNumberingValues(options)),
+      createParameterSetPayload("ParaShape", createParagraphNumberingValues(options)),
     );
   }
 }
 
 export class DocumentStyleTemplateApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "execute">) {}
 
   async open(fileName: string): Promise<void> {
-    await this.bridge.execute("StyleTemplate", this.params.create("StyleTemplate", { FileName: fileName }));
+    await this.bridge.execute("StyleTemplate", createParameterSetPayload("StyleTemplate", { FileName: fileName }));
   }
 }
 

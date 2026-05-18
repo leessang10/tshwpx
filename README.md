@@ -150,44 +150,17 @@ The `charShape` group covers the documented `CharShape*` actions, including pres
 `app.doc.styles.*` is backed by documented style actions such as `StyleEx`, `StyleAdd`, `StyleEdit`, `StyleDelete`, `StyleShortcut*`, `StyleChangeToCurrentShape`, `StyleParaNumberBullet`, and `StyleTemplate`.
 `app.doc.cursor.*` is backed by documented cursor actions such as `Move*`, `MoveSel*`, `Select*`, plus automation methods such as `MovePos`, `GetPosBySet`, `SetPosBySet`, and `SelectText`.
 `app.file.*` wraps direct bridge file operations and documented file actions such as `FileNew`, `FileOpen`, `FilePassword`, `FileSetSecurity`, `FileSaveAsImage`, and `FileTemplate`. Existing `app.open(...)`, `app.save(...)`, `app.saveAs(...)`, `app.close()`, and `app.quit()` remain as compatibility aliases.
+`app.doc.insertText(text)` is a high-level text insertion helper backed by HWP's `InsertText` action and `HInsertText` ParameterSet.
 
-## Low-Level Access
-
-```ts
-const app = new App();
-await app.low.run("MoveDocBegin");
-await app.quit();
-```
-
-The default bridge is PowerShell-based and keeps HWP state in a child process. Direct JavaScript COM object access is only available when a custom bridge exposes it through `app.raw`.
-
-## Catalog-Backed API
-
-`tshwpx` includes local metadata extracted from Hancom's official 2504 HwpAutomation PDF tables.
+## Raw Bridge Access
 
 ```ts
 const app = new App();
-
-const action = app.actions.get("CharShape");
-const charShape = app.params.create("CharShape", {
-  Height: 1200,
-  Bold: 1,
-});
-
-await app.actions.execute("CharShape", charShape);
-
-const events = app.events.list();
-const dispose = app.events.on("DocumentAfterOpen", (documentId) => {
-  console.log(documentId);
-});
-
-dispose();
+const raw = app.raw;
 await app.quit();
 ```
 
-- `app.actions` exposes ActionTable entries and delegates `run`/`execute` to the active bridge.
-- `app.params` exposes ParameterSetTable entries and creates structured parameter payloads.
-- `app.events` exposes documented event metadata and local listener registration. Native event delivery depends on bridge support.
+The public API is intentionally high-level. `app.raw` is the only escape hatch for unsupported automation. The default PowerShell bridge keeps HWP state in a child process, so direct JavaScript COM object access is only available when a custom bridge exposes it through `app.raw`.
 
 Converted local references are available under `docs/api/`.
 

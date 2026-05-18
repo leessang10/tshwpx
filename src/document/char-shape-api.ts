@@ -1,5 +1,5 @@
 import type { HwpBridge } from "../bridges/types";
-import { ParameterSetsApi } from "../params";
+import { createParameterSetPayload } from "../internal/parameter-sets";
 import {
   CharacterShapeAdjustApi,
   CharacterShapeApplyApi,
@@ -35,8 +35,6 @@ export class CharacterShapeApi {
   readonly width: CharacterShapeWidthApi;
   readonly script: CharacterShapeScriptApi;
 
-  private readonly params = new ParameterSetsApi();
-
   constructor(private readonly bridge: Pick<HwpBridge, "run" | "execute">) {
     this.bold = new CharacterShapeToggleApi(bridge, "CharShapeBold");
     this.centerline = new CharacterShapeToggleApi(bridge, "CharShapeCenterline");
@@ -64,6 +62,6 @@ export class CharacterShapeApi {
   }
 
   async set(options: CharShapeOptions): Promise<void> {
-    await this.bridge.execute("CharShape", this.params.create("CharShape", createCharShapeValues(options)));
+    await this.bridge.execute("CharShape", createParameterSetPayload("CharShape", createCharShapeValues(options)));
   }
 }
