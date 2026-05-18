@@ -3,9 +3,9 @@ import { HwpAutomationError } from "./com/errors";
 import { actionDefinitions } from "./spec";
 import type { ActionDefinition } from "./spec";
 
-export class ActionsApi {
-  private readonly actionMap = new Map(actionDefinitions.map((action) => [action.id, action]));
+const ACTION_MAP = new Map(actionDefinitions.map((action) => [action.id, action]));
 
+export class ActionsApi {
   constructor(private readonly bridge: Pick<HwpBridge, "run" | "execute">) {}
 
   list(): readonly ActionDefinition[] {
@@ -13,11 +13,11 @@ export class ActionsApi {
   }
 
   get(actionId: string): ActionDefinition | undefined {
-    return this.actionMap.get(actionId);
+    return ACTION_MAP.get(actionId);
   }
 
   has(actionId: string): boolean {
-    return this.actionMap.has(actionId);
+    return ACTION_MAP.has(actionId);
   }
 
   async run(actionId: string): Promise<void> {

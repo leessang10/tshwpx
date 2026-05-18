@@ -46,6 +46,8 @@ export type FileImageOptions = {
 
 type FileBridge = Pick<HwpBridge, "open" | "save" | "saveAs" | "close" | "quit" | "run" | "execute">;
 
+const FILE_PARAMS = new ParameterSetsApi();
+
 export class FileApi {
   readonly dialog: FileDialogApi;
   readonly image: FileImageApi;
@@ -137,8 +139,6 @@ export class FilePreviewApi {
 }
 
 export class FileTemplateApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(
     private readonly bridge: Pick<HwpBridge, "execute">,
     private readonly ensureReady: () => Promise<void>,
@@ -149,14 +149,13 @@ export class FileTemplateApi {
       this.bridge,
       this.ensureReady,
       "FileTemplate",
-      this.params.create("FileOpen", createFileOpenValues(options)),
+      FILE_PARAMS.create("FileOpen", createFileOpenValues(options)),
     );
   }
 }
 
 export class FilePasswordApi {
   readonly readWrite: FileReadWritePasswordApi;
-  private readonly params = new ParameterSetsApi();
 
   constructor(
     private readonly bridge: Pick<HwpBridge, "execute">,
@@ -166,52 +165,30 @@ export class FilePasswordApi {
   }
 
   async set(options: FilePasswordOptions): Promise<void> {
-    await this.executePasswordAction("FilePassword", options);
+    await executePasswordAction(this.bridge, this.ensureReady, "FilePassword", options);
   }
 
   async change(options: FilePasswordOptions): Promise<void> {
-    await this.executePasswordAction("FilePasswordChange", options);
-  }
-
-  private async executePasswordAction(actionId: string, options: FilePasswordOptions): Promise<void> {
-    await executeFileAction(
-      this.bridge,
-      this.ensureReady,
-      actionId,
-      this.params.create("Password", createPasswordValues(options)),
-    );
+    await executePasswordAction(this.bridge, this.ensureReady, "FilePasswordChange", options);
   }
 }
 
 export class FileReadWritePasswordApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(
     private readonly bridge: Pick<HwpBridge, "execute">,
     private readonly ensureReady: () => Promise<void>,
   ) {}
 
   async set(options: FilePasswordOptions): Promise<void> {
-    await this.executePasswordAction("FileRWPasswordNew", options);
+    await executePasswordAction(this.bridge, this.ensureReady, "FileRWPasswordNew", options);
   }
 
   async change(options: FilePasswordOptions): Promise<void> {
-    await this.executePasswordAction("FileRWPasswordChange", options);
-  }
-
-  private async executePasswordAction(actionId: string, options: FilePasswordOptions): Promise<void> {
-    await executeFileAction(
-      this.bridge,
-      this.ensureReady,
-      actionId,
-      this.params.create("Password", createPasswordValues(options)),
-    );
+    await executePasswordAction(this.bridge, this.ensureReady, "FileRWPasswordChange", options);
   }
 }
 
 export class FileSecurityApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(
     private readonly bridge: Pick<HwpBridge, "execute">,
     private readonly ensureReady: () => Promise<void>,
@@ -222,14 +199,12 @@ export class FileSecurityApi {
       this.bridge,
       this.ensureReady,
       "FileSetSecurity",
-      this.params.create("FileSetSecurity", createFileSecurityValues(options)),
+      FILE_PARAMS.create("FileSetSecurity", createFileSecurityValues(options)),
     );
   }
 }
 
 export class FileImageApi {
-  private readonly params = new ParameterSetsApi();
-
   constructor(
     private readonly bridge: Pick<HwpBridge, "execute">,
     private readonly ensureReady: () => Promise<void>,
@@ -240,7 +215,7 @@ export class FileImageApi {
       this.bridge,
       this.ensureReady,
       "FileSaveAsImage",
-      this.params.create("Print", createFileImageValues(options)),
+      FILE_PARAMS.create("Print", createFileImageValues(options)),
     );
   }
 
@@ -249,7 +224,7 @@ export class FileImageApi {
       this.bridge,
       this.ensureReady,
       "FileSaveAsImageOption",
-      this.params.create("Print", createFileImageValues(options)),
+      FILE_PARAMS.create("Print", createFileImageValues(options)),
     );
   }
 }
@@ -327,4 +302,13 @@ async function executeFileAction(
 ): Promise<void> {
   await ensureReady();
   await bridge.execute(actionId, parameterSet);
+}
+
+async function executePasswordAction(
+  bridge: Pick<HwpBridge, "execute">,
+  ensureReady: () => Promise<void>,
+  actionId: string,
+  options: FilePasswordOptions,
+): Promise<void> {
+  await executeFileAction(bridge, ensureReady, actionId, FILE_PARAMS.create("Password", createPasswordValues(options)));
 }
