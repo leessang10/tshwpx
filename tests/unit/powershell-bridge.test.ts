@@ -165,7 +165,7 @@ describe("PowerShellBridge", () => {
     const { bridge, write } = createBridge();
 
     await expect(bridge.execute("CharShape", { Height: 1200 })).rejects.toThrow(
-      "PowerShell bridge only accepts structured ParameterSetPayload objects",
+      "PowerShell bridge only accepts internal structured ParameterSetPayload objects.",
     );
     expect(write).not.toHaveBeenCalled();
   });

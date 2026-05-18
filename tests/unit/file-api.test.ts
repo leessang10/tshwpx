@@ -79,6 +79,18 @@ describe("file API", () => {
     ]);
   });
 
+  it("initializes the bridge before high-level file action helpers", async () => {
+    const bridge = createBridge();
+    const app = new App({ bridge });
+
+    await app.file.dialog.open();
+    await app.file.template.open({ saveFileName: "C:/tmp/template.hwt" });
+
+    expect(bridge.init).toHaveBeenCalledTimes(2);
+    expect(bridge.init.mock.invocationCallOrder[0]).toBeLessThan(bridge.run.mock.invocationCallOrder[0]);
+    expect(bridge.init.mock.invocationCallOrder[1]).toBeLessThan(bridge.execute.mock.invocationCallOrder[0]);
+  });
+
   it("executes file template, password, security, and image actions with documented parameter sets", async () => {
     const bridge = createBridge();
     const app = new App({ bridge });

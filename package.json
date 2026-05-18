@@ -19,6 +19,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "demo": "tsup src/test.ts --format esm --out-dir dist-demo --clean && node dist-demo/test.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

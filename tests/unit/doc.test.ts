@@ -51,6 +51,37 @@ describe("DocumentApi", () => {
     });
   });
 
+  it("supports table defaults without leaking undefined values into parameter payloads", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.insert();
+    await doc.tables.rows.insertAbove();
+    await doc.tables.columns.insertRight();
+    await doc.tables.cells.split();
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "TableCreate", {
+      parameterSetId: "TableCreation",
+      values: {},
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "TableInsertUpperRow", {
+      parameterSetId: "TableInsertLine",
+      values: { Count: 1 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(3, "TableInsertRightColumn", {
+      parameterSetId: "TableInsertLine",
+      values: { Count: 1 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(4, "TableSplitCell", {
+      parameterSetId: "TableSplitCell",
+      values: {},
+    });
+  });
+
   it("inserts and deletes table rows through documented table line actions", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),

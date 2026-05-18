@@ -20,4 +20,26 @@ describe("package metadata", () => {
     expect("parameterSetDefinitions" in tshwpx).toBe(false);
     expect("isParameterSetPayload" in tshwpx).toBe(false);
   });
+
+  it("keeps the high-level document and file APIs on the public package surface", () => {
+    expect(tshwpx).toMatchObject({
+      App: expect.any(Function),
+      Hwp: expect.any(Function),
+      DocumentApi: expect.any(Function),
+      CharacterShapeApi: expect.any(Function),
+      DocumentCursorApi: expect.any(Function),
+      DocumentPagesApi: expect.any(Function),
+      DocumentParagraphApi: expect.any(Function),
+      DocumentStylesApi: expect.any(Function),
+      DocumentTablesApi: expect.any(Function),
+      FileApi: expect.any(Function),
+      FileDialogApi: expect.any(Function),
+      FileImageApi: expect.any(Function),
+      FilePasswordApi: expect.any(Function),
+      FileSecurityApi: expect.any(Function),
+      FileTemplateApi: expect.any(Function),
+      PowerShellBridge: expect.any(Function),
+      HwpAutomationError: expect.any(Function),
+    });
+  });
 });
