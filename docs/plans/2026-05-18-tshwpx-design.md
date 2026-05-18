@@ -5,7 +5,10 @@ Date: 2026-05-18
 ## Goal
 
 Build `tshwpx`, a Windows-only TypeScript/JavaScript wrapper for Hancom HwpAutomation.
-The first release should feel similar to `pyhwpx`: users create an `Hwp` instance and call simple methods such as `insertText`, `open`, `saveAs`, and `quit`.
+The first release should use a two-layer API:
+
+- `App` and `app.doc` for everyday document automation.
+- `app.low` and `app.raw` for direct HwpAutomation access.
 
 The library should avoid a Python dependency. It will call the installed Hancom HWP COM/OLE automation object directly through a Node COM bridge.
 
@@ -14,12 +17,20 @@ The library should avoid a Python dependency. It will call the installed Hancom 
 The MVP targets this usage:
 
 ```ts
-import { Hwp } from "tshwpx";
+import { App } from "tshwpx";
 
-const hwp = new Hwp({ visible: true });
-hwp.insertText("Hello world");
-hwp.saveAs("C:/tmp/hello.hwp");
-hwp.quit();
+const app = new App({ visible: true });
+app.open("C:/tmp/input.hwp");
+app.doc.insertText("Hello world");
+app.saveAs("C:/tmp/output.hwp");
+app.quit();
+```
+
+Low-level access remains explicit:
+
+```ts
+app.low.run("MoveDocBegin");
+app.raw.HAction.Run("MoveDocBegin");
 ```
 
 The package is explicitly limited to:
@@ -33,53 +44,66 @@ It does not parse HWP/HWPX files directly and does not provide a browser runtime
 
 ## Architecture
 
-The public surface starts with one primary class, `Hwp`. Internally the package separates COM loading, action execution, parameter helpers, and feature methods.
+The public surface starts with `App`, not `Hwp`. `App` owns the COM application lifecycle, file operations, and window visibility. Document-scoped operations live under `app.doc`. Direct HwpAutomation access lives under `app.low` and `app.raw`.
 
 ```text
 src/
   index.ts
-  hwp.ts
+  app.ts
+  doc.ts
   com/
     bridge.ts
     errors.ts
     types.ts
-  actions/
-    action-runner.ts
-    parameter-set.ts
+  low/
+    actions.ts
+    parameter-sets.ts
+    engine.ts
   features/
-    app.ts
     file.ts
     text.ts
 ```
 
-`Hwp` composes these internal modules and exposes a small ergonomic API. The raw COM object remains available for users who need the official HwpAutomation API directly.
+Layer boundaries:
 
-```ts
-const hwp = new Hwp();
+```text
+App
+- lifecycle: visible, quit
+- files: open, save, saveAs, close
+- document facade: app.doc
+- low-level facade: app.low
+- raw COM handle: app.raw
 
-hwp.insertText("Hello");
-hwp.saveAs("C:/tmp/a.hwp");
+Document
+- insertText
+- future fields/bookmarks/tables/paragraphs collections
 
-hwp.raw.HAction.Run("MoveDocBegin");
+LowLevelApi
+- run
+- execute
+- HAction
+- HParameterSet
 ```
+
+This mirrors the useful part of Python `hwpapi`: a small ergonomic top layer and a documented escape hatch. It also keeps the MVP smaller than a full action/ParameterSet generator.
 
 ## Public API
 
-The MVP uses TypeScript-friendly camelCase method names instead of copying Python snake_case names.
+The MVP uses TypeScript-friendly camelCase method names.
 
 ```ts
-type HwpOptions = {
+type AppOptions = {
   visible?: boolean;
   reuseExisting?: boolean;
   registerSecurityModule?: boolean;
 };
 
-class Hwp {
-  constructor(options?: HwpOptions);
+class App {
+  constructor(options?: AppOptions);
 
   readonly raw: HwpComObject;
-  readonly HAction: unknown;
-  readonly HParameterSet: unknown;
+  readonly low: LowLevelApi;
+  readonly doc: DocumentApi;
 
   setVisible(visible: boolean): void;
   quit(): void;
@@ -88,22 +112,51 @@ class Hwp {
   save(): void;
   saveAs(path: string, format?: SaveFormat): void;
   close(): void;
+}
 
+class DocumentApi {
   insertText(text: string): void;
+}
+
+class LowLevelApi {
+  readonly HAction: unknown;
+  readonly HParameterSet: unknown;
 
   run(actionName: string): void;
   execute(actionName: string, parameterSet?: unknown): boolean;
 }
 ```
 
-The README should include a small migration table for `pyhwpx` users.
+The package may export `Hwp` as an alias of `App` only if we want a compatibility path for users coming from `pyhwpx`. The recommended docs should use `App`.
+
+```ts
+export { App };
+export const Hwp = App;
+```
+
+The README should include a small migration table.
 
 ```text
 pyhwpx       tshwpx
-insert_text insertText
-save_as     saveAs
-quit        quit
+Hwp          App
+insert_text app.doc.insertText
+save_as     app.saveAs
+quit        app.quit
 ```
+
+## Future Collections
+
+The two-layer structure reserves space for document-scoped collections without forcing them into the MVP.
+
+```ts
+app.doc.fields["author"] = "Hong";
+app.doc.bookmarks.add("intro");
+for (const table of app.doc.tables) {
+  console.log(table.rows, table.cols);
+}
+```
+
+Collections should be added incrementally after the core COM bridge is stable. Each collection needs fake-COM unit tests plus at least one opt-in Windows integration test.
 
 ## COM Bridge
 
@@ -117,26 +170,26 @@ const hwp = new winax.Object("HWPFrame.HwpObject");
 The constructor creates a new HWP automation object by default. `reuseExisting` can later attempt to attach to an existing instance if the bridge supports it reliably.
 
 ```ts
-new Hwp();
-new Hwp({ visible: true });
-new Hwp({ reuseExisting: true });
+new App();
+new App({ visible: true });
+new App({ reuseExisting: true });
 ```
 
 Security module registration is optional:
 
 ```ts
-new Hwp({ registerSecurityModule: true });
+new App({ registerSecurityModule: true });
 ```
 
 The MVP should treat this as a best-effort operation because registration behavior may depend on the installed HWP version and local environment.
 
 ## Error Handling
 
-Convenience methods should wrap raw bridge or COM failures in `HwpAutomationError`.
+Public top-layer calls should wrap raw bridge or COM failures in `HwpAutomationError`.
 
 ```ts
 try {
-  hwp.open("missing.hwp");
+  app.open("missing.hwp");
 } catch (error) {
   if (error instanceof HwpAutomationError) {
     console.error(error.code, error.message, error.cause);
@@ -155,7 +208,7 @@ FILE_OPERATION_FAILED
 SECURITY_MODULE_FAILED
 ```
 
-The raw escape hatch should preserve original COM behavior as much as possible.
+`app.low` should also wrap action failures, but `app.raw` should preserve original COM behavior as much as possible.
 
 ## Testing
 
@@ -166,8 +219,10 @@ Unit tests must run without Windows or HWP by using fake COM objects:
 ```text
 tests/
   unit/
-    hwp.test.ts
-    action-runner.test.ts
+    app.test.ts
+    doc.test.ts
+    low-actions.test.ts
+    bridge.test.ts
     errors.test.ts
 ```
 
@@ -194,6 +249,7 @@ README.md
 docs/
   getting-started.md
   pyhwpx-migration.md
+  low-level-api.md
   automation-notes.md
 ```
 
@@ -211,22 +267,27 @@ Start with `0.x` releases.
 
 ```text
 0.1.0
-- Hwp class
+- App class
+- app.doc DocumentApi
+- app.low LowLevelApi
+- app.raw escape hatch
 - open/save/saveAs/close/quit
-- insertText
-- run/execute
-- raw/HAction/HParameterSet escape hatch
+- app.doc.insertText
+- app.low.run/app.low.execute
 - basic error handling
 
 0.2.x
-- selection and cursor helpers
+- selection and cursor helpers under app.doc
 
 0.3.x
-- table helpers
+- fields and bookmarks collections
 
 0.4.x
-- field, replace, and mail-merge helpers
+- table helpers and table collection
+
+0.5.x
+- replace and mail-merge helpers
 
 1.0.0
-- stabilized core API
+- stabilized two-layer core API
 ```

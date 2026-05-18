@@ -1,10 +1,10 @@
-# tshwpx Implementation Plan
+# tshwpx Two-Layer API Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build the first `tshwpx` MVP: a TypeScript `Hwp` class that wraps Hancom HwpAutomation through a Windows COM bridge.
+**Goal:** Build the first `tshwpx` MVP with a two-layer API: `App`/`app.doc` for everyday automation and `app.low`/`app.raw` for direct HwpAutomation access.
 
-**Architecture:** The package exposes one public `Hwp` class and keeps COM loading, error normalization, action execution, and feature methods in separate internal modules. Unit tests use fake COM objects so the core behavior can be verified without Windows or Hancom HWP.
+**Architecture:** `App` owns the HWP COM object lifecycle, window visibility, and file operations. `DocumentApi` owns document-scoped helpers such as `insertText`. `LowLevelApi` wraps `HAction` and `HParameterSet`, while `app.raw` exposes the original COM object.
 
 **Tech Stack:** TypeScript, Node.js, Vitest, tsup, `winax` as an optional Windows COM bridge dependency.
 
@@ -12,13 +12,16 @@
 
 ## Notes Before Starting
 
-This workspace is currently not a git repository. Initialize git before using the commit steps:
+This repository already has a remote at `git@github.com:leessang10/tshwpx.git`.
 
-```bash
-git init
-```
+Runtime support is intentionally narrow:
 
-The package is Windows-only at runtime, but unit tests should run without Hancom HWP installed.
+- Windows
+- Node.js 18+
+- Installed Hancom HWP
+- Working Node COM bridge, initially `winax`
+
+Unit tests must not require Windows or Hancom HWP.
 
 ---
 
@@ -29,12 +32,12 @@ The package is Windows-only at runtime, but unit tests should run without Hancom
 - Create: `tsconfig.json`
 - Create: `tsup.config.ts`
 - Create: `vitest.config.ts`
-- Create: `.gitignore`
+- Modify: `.gitignore`
 - Create: `src/index.ts`
 
 **Step 1: Create package metadata**
 
-Write `package.json`:
+Write `package.json` with ESM/CJS exports, build scripts, test scripts, and optional `winax` dependency.
 
 ```json
 {
@@ -52,28 +55,14 @@ Write `package.json`:
       "require": "./dist/index.cjs"
     }
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": [
-    "hwp",
-    "hwpx",
-    "hancom",
-    "automation",
-    "com"
-  ],
+  "keywords": ["hwp", "hwpx", "hancom", "automation", "com"],
   "license": "MIT",
-  "peerDependenciesMeta": {
-    "winax": {
-      "optional": true
-    }
-  },
   "optionalDependencies": {
     "winax": "^3.6.1"
   },
@@ -89,7 +78,7 @@ Write `package.json`:
 }
 ```
 
-**Step 2: Create TypeScript config**
+**Step 2: Add TypeScript and build config**
 
 Write `tsconfig.json`:
 
@@ -109,8 +98,6 @@ Write `tsconfig.json`:
   "include": ["src", "tests"]
 }
 ```
-
-**Step 3: Create build and test config**
 
 Write `tsup.config.ts`:
 
@@ -138,47 +125,43 @@ export default defineConfig({
 });
 ```
 
-Write `.gitignore`:
+Ensure `.gitignore` contains:
 
 ```gitignore
+.idea/
 node_modules
 dist
 coverage
 *.tsbuildinfo
 ```
 
-**Step 4: Create the public entry file**
+**Step 3: Create public entry exports**
 
 Write `src/index.ts`:
 
 ```ts
-export { Hwp } from "./hwp";
+export { App, Hwp } from "./app";
+export { DocumentApi } from "./doc";
+export { LowLevelApi } from "./low/low-level-api";
 export { HwpAutomationError } from "./com/errors";
-export type { HwpOptions, SaveFormat, OpenOptions } from "./hwp";
+export type { AppOptions, OpenOptions, SaveFormat } from "./app";
 ```
 
-**Step 5: Install dependencies**
+`Hwp` is an alias for `App`; docs should prefer `App`.
+
+**Step 4: Install and verify scaffold**
 
 Run:
 
 ```bash
 npm install
-```
-
-Expected: dependencies install successfully. On non-Windows systems, `winax` may be skipped or fail depending on optional dependency handling.
-
-**Step 6: Run checks**
-
-Run:
-
-```bash
 npm run typecheck
 npm test
 ```
 
-Expected: typecheck may fail until later tasks create referenced files. Test command should start Vitest once tests exist.
+Expected: dependency installation succeeds. Typecheck may fail until later tasks create referenced files.
 
-**Step 7: Commit**
+**Step 5: Commit**
 
 ```bash
 git add package.json tsconfig.json tsup.config.ts vitest.config.ts .gitignore src/index.ts
@@ -195,8 +178,6 @@ git commit -m "chore: scaffold tshwpx package"
 
 **Step 1: Write the failing test**
 
-Write `tests/unit/errors.test.ts`:
-
 ```ts
 import { describe, expect, it } from "vitest";
 import { HwpAutomationError } from "../../src/com/errors";
@@ -204,16 +185,11 @@ import { HwpAutomationError } from "../../src/com/errors";
 describe("HwpAutomationError", () => {
   it("stores code, message, and cause", () => {
     const cause = new Error("native failure");
-    const error = new HwpAutomationError(
-      "HWP_NOT_INSTALLED",
-      "Hancom HWP automation object could not be created.",
-      cause,
-    );
+    const error = new HwpAutomationError("HWP_NOT_INSTALLED", "Cannot create HWP.", cause);
 
     expect(error).toBeInstanceOf(Error);
     expect(error.name).toBe("HwpAutomationError");
     expect(error.code).toBe("HWP_NOT_INSTALLED");
-    expect(error.message).toContain("Hancom HWP");
     expect(error.cause).toBe(cause);
   });
 });
@@ -229,9 +205,7 @@ npx vitest run tests/unit/errors.test.ts
 
 Expected: FAIL because `src/com/errors.ts` does not exist.
 
-**Step 3: Write minimal implementation**
-
-Write `src/com/errors.ts`:
+**Step 3: Implement error class**
 
 ```ts
 export type HwpAutomationErrorCode =
@@ -253,7 +227,7 @@ export class HwpAutomationError extends Error {
 }
 ```
 
-**Step 4: Run test to verify it passes**
+**Step 4: Verify and commit**
 
 Run:
 
@@ -263,7 +237,7 @@ npx vitest run tests/unit/errors.test.ts
 
 Expected: PASS.
 
-**Step 5: Commit**
+Commit:
 
 ```bash
 git add src/com/errors.ts tests/unit/errors.test.ts
@@ -281,8 +255,6 @@ git commit -m "feat: add hwp automation error model"
 
 **Step 1: Write the failing test**
 
-Write `tests/unit/bridge.test.ts`:
-
 ```ts
 import { describe, expect, it, vi } from "vitest";
 import { createHwpObject } from "../../src/com/bridge";
@@ -298,8 +270,8 @@ describe("createHwpObject", () => {
     ).toThrow(HwpAutomationError);
   });
 
-  it("creates HWPFrame.HwpObject through the bridge", () => {
-    const raw = { XHwpWindows: { Item: vi.fn() } };
+  it("creates HWPFrame.HwpObject through winax", () => {
+    const raw = {};
     const ObjectCtor = vi.fn(() => raw);
 
     const result = createHwpObject({
@@ -313,24 +285,17 @@ describe("createHwpObject", () => {
 });
 ```
 
-**Step 2: Run test to verify it fails**
-
-Run:
-
-```bash
-npx vitest run tests/unit/bridge.test.ts
-```
-
-Expected: FAIL because bridge files do not exist.
-
-**Step 3: Write minimal implementation**
-
-Write `src/com/types.ts`:
+**Step 2: Implement COM types**
 
 ```ts
+export type HActionLike = {
+  Run(actionName: string): boolean;
+  Execute(actionName: string, parameterSet?: unknown): boolean;
+};
+
 export type HwpComObject = {
-  HAction?: unknown;
-  HParameterSet?: unknown;
+  HAction?: HActionLike;
+  HParameterSet?: Record<string, unknown>;
   RegisterModule?: (moduleType: string, moduleName: string) => boolean;
   Quit?: () => void;
   Open?: (...args: unknown[]) => boolean;
@@ -349,11 +314,14 @@ export type WinaxBridge = {
 };
 ```
 
-Write `src/com/bridge.ts`:
+**Step 3: Implement bridge loader**
 
 ```ts
+import { createRequire } from "node:module";
 import { HwpAutomationError } from "./errors";
 import type { HwpComObject, WinaxBridge } from "./types";
+
+const require = createRequire(import.meta.url);
 
 type BridgeOptions = {
   platform?: NodeJS.Platform;
@@ -396,7 +364,7 @@ export function createHwpObject(options: BridgeOptions = {}): HwpComObject {
 }
 ```
 
-**Step 4: Run test to verify it passes**
+**Step 4: Verify and commit**
 
 Run:
 
@@ -406,7 +374,7 @@ npx vitest run tests/unit/bridge.test.ts
 
 Expected: PASS.
 
-**Step 5: Commit**
+Commit:
 
 ```bash
 git add src/com/types.ts src/com/bridge.ts tests/unit/bridge.test.ts
@@ -415,203 +383,262 @@ git commit -m "feat: add windows com bridge loader"
 
 ---
 
-### Task 4: Action Runner
+### Task 4: Low-Level API
 
 **Files:**
-- Create: `src/actions/action-runner.ts`
-- Test: `tests/unit/action-runner.test.ts`
+- Create: `src/low/low-level-api.ts`
+- Test: `tests/unit/low-level-api.test.ts`
 
 **Step 1: Write the failing test**
 
-Write `tests/unit/action-runner.test.ts`:
-
 ```ts
 import { describe, expect, it, vi } from "vitest";
-import { ActionRunner } from "../../src/actions/action-runner";
+import { LowLevelApi } from "../../src/low/low-level-api";
 import { HwpAutomationError } from "../../src/com/errors";
 
-describe("ActionRunner", () => {
+describe("LowLevelApi", () => {
+  it("exposes HAction and HParameterSet", () => {
+    const raw = {
+      HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => true) },
+      HParameterSet: { HInsertText: {} },
+    };
+
+    const low = new LowLevelApi(raw);
+
+    expect(low.HAction).toBe(raw.HAction);
+    expect(low.HParameterSet).toBe(raw.HParameterSet);
+  });
+
   it("runs an action by name", () => {
-    const run = vi.fn(() => true);
-    const runner = new ActionRunner({ Run: run, Execute: vi.fn() });
+    const raw = {
+      HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => true) },
+      HParameterSet: {},
+    };
 
-    runner.run("MoveDocBegin");
+    new LowLevelApi(raw).run("MoveDocBegin");
 
-    expect(run).toHaveBeenCalledWith("MoveDocBegin");
+    expect(raw.HAction.Run).toHaveBeenCalledWith("MoveDocBegin");
   });
 
   it("wraps failed execute calls", () => {
-    const runner = new ActionRunner({
-      Run: vi.fn(),
-      Execute: vi.fn(() => false),
-    });
+    const raw = {
+      HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => false) },
+      HParameterSet: {},
+    };
 
-    expect(() => runner.execute("InsertText", {})).toThrow(HwpAutomationError);
+    expect(() => new LowLevelApi(raw).execute("InsertText", {})).toThrow(HwpAutomationError);
   });
 });
 ```
 
-**Step 2: Run test to verify it fails**
-
-Run:
-
-```bash
-npx vitest run tests/unit/action-runner.test.ts
-```
-
-Expected: FAIL because `ActionRunner` does not exist.
-
-**Step 3: Write minimal implementation**
-
-Write `src/actions/action-runner.ts`:
+**Step 2: Implement `LowLevelApi`**
 
 ```ts
 import { HwpAutomationError } from "../com/errors";
+import type { HActionLike, HwpComObject } from "../com/types";
 
-type HActionLike = {
-  Run(actionName: string): boolean;
-  Execute(actionName: string, parameterSet?: unknown): boolean;
-};
+export class LowLevelApi {
+  readonly HAction: HActionLike;
+  readonly HParameterSet: Record<string, unknown>;
 
-export class ActionRunner {
-  constructor(private readonly action: HActionLike) {}
+  constructor(private readonly raw: HwpComObject) {
+    if (!raw.HAction) {
+      throw new HwpAutomationError("HWP_NOT_INSTALLED", "HWP HAction is not available.");
+    }
+
+    this.HAction = raw.HAction;
+    this.HParameterSet = raw.HParameterSet ?? {};
+  }
 
   run(actionName: string): void {
     try {
-      const ok = this.action.Run(actionName);
+      const ok = this.HAction.Run(actionName);
       if (ok === false) {
         throw new Error(`HAction.Run returned false for ${actionName}`);
       }
     } catch (error) {
-      throw new HwpAutomationError(
-        "ACTION_FAILED",
-        `Failed to run HWP action: ${actionName}`,
-        error,
-      );
+      throw new HwpAutomationError("ACTION_FAILED", `Failed to run HWP action: ${actionName}`, error);
     }
   }
 
   execute(actionName: string, parameterSet?: unknown): boolean {
     try {
-      const ok = this.action.Execute(actionName, parameterSet);
+      const ok = this.HAction.Execute(actionName, parameterSet);
       if (ok === false) {
         throw new Error(`HAction.Execute returned false for ${actionName}`);
       }
       return ok;
     } catch (error) {
-      throw new HwpAutomationError(
-        "ACTION_FAILED",
-        `Failed to execute HWP action: ${actionName}`,
-        error,
-      );
+      throw new HwpAutomationError("ACTION_FAILED", `Failed to execute HWP action: ${actionName}`, error);
     }
   }
 }
 ```
 
-**Step 4: Run test to verify it passes**
+**Step 3: Verify and commit**
 
 Run:
 
 ```bash
-npx vitest run tests/unit/action-runner.test.ts
+npx vitest run tests/unit/low-level-api.test.ts
 ```
 
 Expected: PASS.
 
-**Step 5: Commit**
+Commit:
 
 ```bash
-git add src/actions/action-runner.ts tests/unit/action-runner.test.ts
-git commit -m "feat: add hwp action runner"
+git add src/low/low-level-api.ts tests/unit/low-level-api.test.ts
+git commit -m "feat: add low-level hwp automation api"
 ```
 
 ---
 
-### Task 5: Hwp Class Core
+### Task 5: Document API
 
 **Files:**
-- Create: `src/hwp.ts`
-- Test: `tests/unit/hwp.test.ts`
-- Modify: `src/index.ts`
+- Create: `src/doc.ts`
+- Test: `tests/unit/doc.test.ts`
 
 **Step 1: Write the failing test**
 
-Write `tests/unit/hwp.test.ts`:
-
 ```ts
 import { describe, expect, it, vi } from "vitest";
-import { Hwp } from "../../src/hwp";
+import { DocumentApi } from "../../src/doc";
+import { LowLevelApi } from "../../src/low/low-level-api";
 
-function createFakeRaw() {
-  return {
-    HAction: {
-      Run: vi.fn(() => true),
-      Execute: vi.fn(() => true),
-    },
-    HParameterSet: {
-      HInsertText: {
-        Text: "",
-        HSet: {},
-      },
-    },
-    XHwpWindows: {
-      Item: vi.fn(() => ({ Visible: false })),
-    },
-    Quit: vi.fn(),
-  };
-}
+describe("DocumentApi", () => {
+  it("inserts text through HInsertText", () => {
+    const parameterSet = { Text: "", HSet: { id: "set" } };
+    const raw = {
+      HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => true) },
+      HParameterSet: { HInsertText: parameterSet },
+    };
 
-describe("Hwp", () => {
-  it("exposes raw automation handles", () => {
-    const raw = createFakeRaw();
-    const hwp = new Hwp({ createObject: () => raw });
+    const doc = new DocumentApi(new LowLevelApi(raw));
+    doc.insertText("Hello");
 
-    expect(hwp.raw).toBe(raw);
-    expect(hwp.HAction).toBe(raw.HAction);
-    expect(hwp.HParameterSet).toBe(raw.HParameterSet);
-  });
-
-  it("sets visible option on construction", () => {
-    const window = { Visible: false };
-    const raw = createFakeRaw();
-    raw.XHwpWindows.Item = vi.fn(() => window);
-
-    new Hwp({ visible: true, createObject: () => raw });
-
-    expect(window.Visible).toBe(true);
-  });
-
-  it("quits the application", () => {
-    const raw = createFakeRaw();
-    const hwp = new Hwp({ createObject: () => raw });
-
-    hwp.quit();
-
-    expect(raw.Quit).toHaveBeenCalled();
+    expect(parameterSet.Text).toBe("Hello");
+    expect(raw.HAction.Execute).toHaveBeenCalledWith("InsertText", parameterSet.HSet);
   });
 });
 ```
 
-**Step 2: Run test to verify it fails**
+**Step 2: Implement `DocumentApi`**
+
+```ts
+import { HwpAutomationError } from "./com/errors";
+import { LowLevelApi } from "./low/low-level-api";
+
+type InsertTextParameterSet = {
+  Text: string;
+  HSet: unknown;
+};
+
+export class DocumentApi {
+  constructor(private readonly low: LowLevelApi) {}
+
+  insertText(text: string): void {
+    const parameterSet = this.low.HParameterSet.HInsertText as InsertTextParameterSet | undefined;
+
+    if (!parameterSet) {
+      throw new HwpAutomationError("ACTION_FAILED", "HInsertText parameter set is not available.");
+    }
+
+    parameterSet.Text = text;
+    this.low.execute("InsertText", parameterSet.HSet);
+  }
+}
+```
+
+**Step 3: Verify and commit**
 
 Run:
 
 ```bash
-npx vitest run tests/unit/hwp.test.ts
+npx vitest run tests/unit/doc.test.ts
 ```
 
-Expected: FAIL because `src/hwp.ts` does not exist.
+Expected: PASS.
 
-**Step 3: Write minimal implementation**
+Commit:
 
-Write `src/hwp.ts`:
+```bash
+git add src/doc.ts tests/unit/doc.test.ts
+git commit -m "feat: add document text api"
+```
+
+---
+
+### Task 6: App Core and File Operations
+
+**Files:**
+- Create: `src/app.ts`
+- Test: `tests/unit/app.test.ts`
+- Modify: `src/index.ts`
+
+**Step 1: Write the failing test**
 
 ```ts
-import { ActionRunner } from "./actions/action-runner";
+import { describe, expect, it, vi } from "vitest";
+import { App, Hwp } from "../../src/app";
+import { HwpAutomationError } from "../../src/com/errors";
+
+function createFakeRaw() {
+  return {
+    HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => true) },
+    HParameterSet: { HInsertText: { Text: "", HSet: {} } },
+    XHwpWindows: { Item: vi.fn(() => ({ Visible: false })) },
+    Open: vi.fn(() => true),
+    Save: vi.fn(() => true),
+    SaveAs: vi.fn(() => true),
+    Quit: vi.fn(),
+  };
+}
+
+describe("App", () => {
+  it("exposes doc, low, and raw layers", () => {
+    const raw = createFakeRaw();
+    const app = new App({ createObject: () => raw });
+
+    expect(app.raw).toBe(raw);
+    expect(app.doc).toBeTruthy();
+    expect(app.low.HAction).toBe(raw.HAction);
+  });
+
+  it("supports Hwp as an alias", () => {
+    expect(Hwp).toBe(App);
+  });
+
+  it("opens and saves files", () => {
+    const raw = createFakeRaw();
+    const app = new App({ createObject: () => raw });
+
+    app.open("C:/tmp/a.hwp");
+    app.saveAs("C:/tmp/a.hwpx", "HWPX");
+
+    expect(raw.Open).toHaveBeenCalledWith("C:/tmp/a.hwp", "", "");
+    expect(raw.SaveAs).toHaveBeenCalledWith("C:/tmp/a.hwpx", "HWPX", "");
+  });
+
+  it("wraps failed file operations", () => {
+    const raw = createFakeRaw();
+    raw.Open = vi.fn(() => false);
+    const app = new App({ createObject: () => raw });
+
+    expect(() => app.open("C:/tmp/missing.hwp")).toThrow(HwpAutomationError);
+  });
+});
+```
+
+**Step 2: Implement `App`**
+
+```ts
 import { createHwpObject } from "./com/bridge";
 import { HwpAutomationError } from "./com/errors";
 import type { HwpComObject } from "./com/types";
+import { DocumentApi } from "./doc";
+import { LowLevelApi } from "./low/low-level-api";
 
 export type SaveFormat = "HWP" | "HWPX" | "PDF";
 
@@ -620,25 +647,22 @@ export type OpenOptions = {
   arg?: string;
 };
 
-export type HwpOptions = {
+export type AppOptions = {
   visible?: boolean;
   reuseExisting?: boolean;
   registerSecurityModule?: boolean;
   createObject?: () => HwpComObject;
 };
 
-export class Hwp {
+export class App {
   readonly raw: HwpComObject;
-  readonly HAction: unknown;
-  readonly HParameterSet: unknown;
+  readonly low: LowLevelApi;
+  readonly doc: DocumentApi;
 
-  private readonly actions: ActionRunner;
-
-  constructor(options: HwpOptions = {}) {
+  constructor(options: AppOptions = {}) {
     this.raw = options.createObject?.() ?? createHwpObject();
-    this.HAction = this.raw.HAction;
-    this.HParameterSet = this.raw.HParameterSet;
-    this.actions = new ActionRunner(this.raw.HAction as never);
+    this.low = new LowLevelApi(this.raw);
+    this.doc = new DocumentApi(this.low);
 
     if (options.visible !== undefined) {
       this.setVisible(options.visible);
@@ -656,16 +680,35 @@ export class Hwp {
     }
   }
 
+  open(path: string, options: OpenOptions = {}): void {
+    this.fileOperation("open", () => this.raw.Open?.(path, options.format ?? "", options.arg ?? ""));
+  }
+
+  save(): void {
+    this.fileOperation("save", () => this.raw.Save?.());
+  }
+
+  saveAs(path: string, format: SaveFormat = "HWP", arg = ""): void {
+    this.fileOperation("saveAs", () => this.raw.SaveAs?.(path, format, arg));
+  }
+
+  close(): void {
+    this.low.run("FileClose");
+  }
+
   quit(): void {
     this.raw.Quit?.();
   }
 
-  run(actionName: string): void {
-    this.actions.run(actionName);
-  }
-
-  execute(actionName: string, parameterSet?: unknown): boolean {
-    return this.actions.execute(actionName, parameterSet);
+  private fileOperation(name: string, operation: () => unknown): void {
+    try {
+      const ok = operation();
+      if (ok === false) {
+        throw new Error(`${name} returned false`);
+      }
+    } catch (error) {
+      throw new HwpAutomationError("FILE_OPERATION_FAILED", `HWP file operation failed: ${name}`, error);
+    }
   }
 
   private registerSecurityModule(): void {
@@ -683,253 +726,41 @@ export class Hwp {
     }
   }
 }
+
+export const Hwp = App;
 ```
 
-**Step 4: Run test to verify it passes**
+**Step 3: Verify exports**
+
+Ensure `src/index.ts` exports `App`, `Hwp`, `DocumentApi`, `LowLevelApi`, and public types.
+
+**Step 4: Verify and commit**
 
 Run:
 
 ```bash
-npx vitest run tests/unit/hwp.test.ts
-```
-
-Expected: PASS.
-
-**Step 5: Run typecheck**
-
-Run:
-
-```bash
+npx vitest run tests/unit/app.test.ts
 npm run typecheck
 ```
 
-Expected: PASS after any type issues are corrected.
-
-**Step 6: Commit**
-
-```bash
-git add src/hwp.ts src/index.ts tests/unit/hwp.test.ts
-git commit -m "feat: add hwp class core"
-```
-
----
-
-### Task 6: Text Feature
-
-**Files:**
-- Modify: `src/hwp.ts`
-- Test: `tests/unit/hwp-text.test.ts`
-
-**Step 1: Write the failing test**
-
-Write `tests/unit/hwp-text.test.ts`:
-
-```ts
-import { describe, expect, it, vi } from "vitest";
-import { Hwp } from "../../src/hwp";
-
-describe("Hwp text methods", () => {
-  it("inserts text through HInsertText parameter set", () => {
-    const parameterSet = {
-      Text: "",
-      HSet: { id: "set" },
-    };
-    const raw = {
-      HAction: {
-        Run: vi.fn(() => true),
-        Execute: vi.fn(() => true),
-      },
-      HParameterSet: {
-        HInsertText: parameterSet,
-      },
-    };
-
-    const hwp = new Hwp({ createObject: () => raw });
-    hwp.insertText("Hello");
-
-    expect(parameterSet.Text).toBe("Hello");
-    expect(raw.HAction.Execute).toHaveBeenCalledWith("InsertText", parameterSet.HSet);
-  });
-});
-```
-
-**Step 2: Run test to verify it fails**
-
-Run:
-
-```bash
-npx vitest run tests/unit/hwp-text.test.ts
-```
-
-Expected: FAIL because `insertText` does not exist.
-
-**Step 3: Write minimal implementation**
-
-Add to `Hwp`:
-
-```ts
-  insertText(text: string): void {
-    const parameterSet = (this.raw.HParameterSet as any)?.HInsertText;
-    parameterSet.Text = text;
-    this.execute("InsertText", parameterSet.HSet);
-  }
-```
-
-**Step 4: Run test to verify it passes**
-
-Run:
-
-```bash
-npx vitest run tests/unit/hwp-text.test.ts
-```
-
 Expected: PASS.
 
-**Step 5: Commit**
+Commit:
 
 ```bash
-git add src/hwp.ts tests/unit/hwp-text.test.ts
-git commit -m "feat: add insert text helper"
+git add src/app.ts src/index.ts tests/unit/app.test.ts
+git commit -m "feat: add two-layer app facade"
 ```
 
 ---
 
-### Task 7: File Feature
-
-**Files:**
-- Modify: `src/hwp.ts`
-- Test: `tests/unit/hwp-file.test.ts`
-
-**Step 1: Write the failing test**
-
-Write `tests/unit/hwp-file.test.ts`:
-
-```ts
-import { describe, expect, it, vi } from "vitest";
-import { Hwp } from "../../src/hwp";
-import { HwpAutomationError } from "../../src/com/errors";
-
-function createRaw() {
-  return {
-    HAction: {
-      Run: vi.fn(() => true),
-      Execute: vi.fn(() => true),
-    },
-    HParameterSet: {},
-    Open: vi.fn(() => true),
-    Save: vi.fn(() => true),
-    SaveAs: vi.fn(() => true),
-    Run: vi.fn(),
-  };
-}
-
-describe("Hwp file methods", () => {
-  it("opens a file", () => {
-    const raw = createRaw();
-    const hwp = new Hwp({ createObject: () => raw });
-
-    hwp.open("C:/tmp/a.hwp");
-
-    expect(raw.Open).toHaveBeenCalledWith("C:/tmp/a.hwp", "", "");
-  });
-
-  it("saves as a target format", () => {
-    const raw = createRaw();
-    const hwp = new Hwp({ createObject: () => raw });
-
-    hwp.saveAs("C:/tmp/a.hwpx", "HWPX");
-
-    expect(raw.SaveAs).toHaveBeenCalledWith("C:/tmp/a.hwpx", "HWPX", "");
-  });
-
-  it("wraps failed file operations", () => {
-    const raw = createRaw();
-    raw.Open = vi.fn(() => false);
-    const hwp = new Hwp({ createObject: () => raw });
-
-    expect(() => hwp.open("C:/tmp/missing.hwp")).toThrow(HwpAutomationError);
-  });
-});
-```
-
-**Step 2: Run test to verify it fails**
-
-Run:
-
-```bash
-npx vitest run tests/unit/hwp-file.test.ts
-```
-
-Expected: FAIL because file methods are incomplete.
-
-**Step 3: Write minimal implementation**
-
-Add to `Hwp`:
-
-```ts
-  open(path: string, options: OpenOptions = {}): void {
-    this.fileOperation("open", () =>
-      this.raw.Open?.(path, options.format ?? "", options.arg ?? ""),
-    );
-  }
-
-  save(): void {
-    this.fileOperation("save", () => this.raw.Save?.());
-  }
-
-  saveAs(path: string, format: SaveFormat = "HWP", arg = ""): void {
-    this.fileOperation("saveAs", () => this.raw.SaveAs?.(path, format, arg));
-  }
-
-  close(): void {
-    this.run("FileClose");
-  }
-
-  private fileOperation(name: string, operation: () => unknown): void {
-    try {
-      const ok = operation();
-      if (ok === false) {
-        throw new Error(`${name} returned false`);
-      }
-    } catch (error) {
-      throw new HwpAutomationError(
-        "FILE_OPERATION_FAILED",
-        `HWP file operation failed: ${name}`,
-        error,
-      );
-    }
-  }
-```
-
-**Step 4: Run test to verify it passes**
-
-Run:
-
-```bash
-npx vitest run tests/unit/hwp-file.test.ts
-```
-
-Expected: PASS.
-
-**Step 5: Commit**
-
-```bash
-git add src/hwp.ts tests/unit/hwp-file.test.ts
-git commit -m "feat: add file operation helpers"
-```
-
----
-
-### Task 8: README and Integration Smoke Test
+### Task 7: README and Integration Smoke Test
 
 **Files:**
 - Create: `README.md`
 - Create: `tests/integration/smoke.test.ts`
-- Modify: `vitest.config.ts`
 
 **Step 1: Write README**
-
-Write `README.md`:
 
 ```md
 # tshwpx
@@ -945,63 +776,54 @@ TypeScript wrapper for Hancom HwpAutomation.
 
 Hancom HwpAutomation may have separate commercial-use terms. Check Hancom's official policy before using this package commercially.
 
-## Install
-
-\`\`\`bash
-npm install tshwpx
-\`\`\`
-
 ## Quick Start
 
 \`\`\`ts
-import { Hwp } from "tshwpx";
+import { App } from "tshwpx";
 
-const hwp = new Hwp({ visible: true });
-hwp.insertText("Hello world");
-hwp.saveAs("C:/tmp/hello.hwp");
-hwp.quit();
+const app = new App({ visible: true });
+app.open("C:/tmp/input.hwp");
+app.doc.insertText("Hello world");
+app.saveAs("C:/tmp/output.hwp");
+app.quit();
 \`\`\`
 
-## Escape Hatch
+## Low-Level Access
 
 \`\`\`ts
-const hwp = new Hwp();
-hwp.raw.HAction.Run("MoveDocBegin");
+const app = new App();
+app.low.run("MoveDocBegin");
+app.raw.HAction.Run("MoveDocBegin");
 \`\`\`
 
 ## pyhwpx Mapping
 
 | pyhwpx | tshwpx |
 | --- | --- |
-| `insert_text` | `insertText` |
-| `save_as` | `saveAs` |
-| `quit` | `quit` |
+| `Hwp` | `App` |
+| `insert_text` | `app.doc.insertText` |
+| `save_as` | `app.saveAs` |
+| `quit` | `app.quit` |
 ```
 
-**Step 2: Add integration test**
-
-Write `tests/integration/smoke.test.ts`:
+**Step 2: Add integration smoke test**
 
 ```ts
 import { describe, expect, it } from "vitest";
-import { Hwp } from "../../src";
+import { App } from "../../src";
 
 const runIntegration = process.env.HWP_INTEGRATION === "1";
 
 describe.skipIf(!runIntegration)("HWP integration smoke test", () => {
   it("starts HWP automation and quits", () => {
-    const hwp = new Hwp({ visible: false });
-    expect(hwp.raw).toBeTruthy();
-    hwp.quit();
+    const app = new App({ visible: false });
+    expect(app.raw).toBeTruthy();
+    app.quit();
   });
 });
 ```
 
-**Step 3: Update test config**
-
-Keep `vitest.config.ts` including all tests because integration tests are skipped unless `HWP_INTEGRATION=1`.
-
-**Step 4: Run unit tests**
+**Step 3: Verify and commit**
 
 Run:
 
@@ -1011,26 +833,16 @@ npm test
 
 Expected: unit tests PASS, integration test SKIPPED.
 
-**Step 5: Run integration smoke test on a Windows HWP machine**
-
-Run:
+Commit:
 
 ```bash
-HWP_INTEGRATION=1 npx vitest run tests/integration/smoke.test.ts
-```
-
-Expected: PASS if Hancom HWP and COM automation are installed correctly.
-
-**Step 6: Commit**
-
-```bash
-git add README.md tests/integration/smoke.test.ts vitest.config.ts
-git commit -m "docs: add usage guide and integration smoke test"
+git add README.md tests/integration/smoke.test.ts
+git commit -m "docs: add two-layer usage guide"
 ```
 
 ---
 
-### Task 9: Final Verification
+### Task 8: Final Verification
 
 **Files:**
 - Modify as needed based on failures.
@@ -1055,11 +867,12 @@ Run:
 npm pack --dry-run
 ```
 
-Expected: package includes `dist`, `README.md`, and package metadata only.
+Expected: package includes `dist`, `README.md`, and package metadata.
 
-**Step 3: Commit final fixes**
+**Step 3: Commit and push final state**
 
 ```bash
 git add .
-git commit -m "chore: verify tshwpx mvp package"
+git commit -m "chore: verify tshwpx two-layer mvp package"
+git push
 ```
