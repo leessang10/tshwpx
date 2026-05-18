@@ -1,2 +1,6 @@
 .idea/
 .worktrees/
+node_modules
+dist
+coverage
+*.tsbuildinfo

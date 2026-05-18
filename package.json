@@ -1,0 +1,45 @@
+{
+  "name": "tshwpx",
+  "version": "0.1.0",
+  "description": "TypeScript wrapper for Hancom HwpAutomation.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "hwp",
+    "hwpx",
+    "hancom",
+    "automation",
+    "com"
+  ],
+  "license": "MIT",
+  "optionalDependencies": {
+    "winax": "^3.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
