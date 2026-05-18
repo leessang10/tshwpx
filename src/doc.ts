@@ -1,4 +1,10 @@
 import type { CursorPosition, CursorTextRange, HwpBridge } from "./bridges/types";
+import {
+  setArrayValue,
+  setBooleanValue,
+  setValue,
+  type ParameterValues,
+} from "./internal/parameter-values";
 import { ParameterSetsApi } from "./params";
 import type { ParameterSetValues } from "./spec";
 
@@ -715,7 +721,7 @@ export class DocumentStylesApi {
 
   async delete(input: number | StyleDeleteOptions, alternation?: number): Promise<void> {
     const options = normalizeStyleDeleteInput(input, alternation);
-    const values: Record<string, unknown> = { Target: options.target };
+    const values: ParameterValues = { Target: options.target };
 
     if (options.alternation !== undefined) {
       values.Alternation = options.alternation;
@@ -1111,51 +1117,19 @@ export class DocumentTablesApi {
   }
 
   async insert(options: TableInsertOptions = {}): Promise<void> {
-    const values: Record<string, unknown> = {};
+    const values: ParameterValues = {};
 
-    if (options.rows !== undefined) {
-      values.Rows = options.rows;
-    }
-
-    if (options.cols !== undefined) {
-      values.Cols = options.cols;
-    }
-
-    if (options.rowHeight !== undefined) {
-      values.RowHeight = [...options.rowHeight];
-    }
-
-    if (options.colWidth !== undefined) {
-      values.ColWidth = [...options.colWidth];
-    }
-
-    if (options.cellInfo !== undefined) {
-      values.CellInfo = [...options.cellInfo];
-    }
-
-    if (options.widthType !== undefined) {
-      values.WidthType = options.widthType;
-    }
-
-    if (options.heightType !== undefined) {
-      values.HeightType = options.heightType;
-    }
-
-    if (options.widthValue !== undefined) {
-      values.WidthValue = options.widthValue;
-    }
-
-    if (options.heightValue !== undefined) {
-      values.HeightValue = options.heightValue;
-    }
-
-    if (options.tableTemplateValue !== undefined) {
-      values.TableTemplateValue = options.tableTemplateValue;
-    }
-
-    if (options.textSelect !== undefined) {
-      values.TextSelect = toHwpBoolean(options.textSelect);
-    }
+    setValue(values, "Rows", options.rows);
+    setValue(values, "Cols", options.cols);
+    setArrayValue(values, "RowHeight", options.rowHeight);
+    setArrayValue(values, "ColWidth", options.colWidth);
+    setArrayValue(values, "CellInfo", options.cellInfo);
+    setValue(values, "WidthType", options.widthType);
+    setValue(values, "HeightType", options.heightType);
+    setValue(values, "WidthValue", options.widthValue);
+    setValue(values, "HeightValue", options.heightValue);
+    setValue(values, "TableTemplateValue", options.tableTemplateValue);
+    setBooleanValue(values, "TextSelect", options.textSelect);
 
     await this.bridge.execute("TableCreate", this.params.create("TableCreation", values));
   }
@@ -1211,27 +1185,13 @@ export class DocumentTableCellsApi {
   }
 
   async split(options: TableCellSplitOptions = {}): Promise<void> {
-    const values: Record<string, unknown> = {};
+    const values: ParameterValues = {};
 
-    if (options.rows !== undefined) {
-      values.Rows = options.rows;
-    }
-
-    if (options.cols !== undefined) {
-      values.Cols = options.cols;
-    }
-
-    if (options.distributeHeight !== undefined) {
-      values.DistributeHeight = toHwpBoolean(options.distributeHeight);
-    }
-
-    if (options.mergeBeforeSplit !== undefined) {
-      values.Merge = toHwpBoolean(options.mergeBeforeSplit);
-    }
-
-    if (options.keepAdjust !== undefined) {
-      values.Mode2 = toHwpBoolean(options.keepAdjust);
-    }
+    setValue(values, "Rows", options.rows);
+    setValue(values, "Cols", options.cols);
+    setBooleanValue(values, "DistributeHeight", options.distributeHeight);
+    setBooleanValue(values, "Merge", options.mergeBeforeSplit);
+    setBooleanValue(values, "Mode2", options.keepAdjust);
 
     await this.bridge.execute("TableSplitCell", this.params.create("TableSplitCell", values));
   }
@@ -1454,20 +1414,12 @@ const TEXT_COLOR_ACTIONS: Record<CharShapePresetColor, string> = {
   yellow: "CharShapeTextColorYellow",
 };
 
-function createCharShapeValues(options: CharShapeOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createCharShapeValues(options: CharShapeOptions): ParameterValues {
+  const values: ParameterValues = {};
 
-  if (options.height !== undefined) {
-    values.Height = options.height;
-  }
-
-  if (options.bold !== undefined) {
-    values.Bold = toHwpBoolean(options.bold);
-  }
-
-  if (options.italic !== undefined) {
-    values.Italic = toHwpBoolean(options.italic);
-  }
+  setValue(values, "Height", options.height);
+  setBooleanValue(values, "Bold", options.bold);
+  setBooleanValue(values, "Italic", options.italic);
 
   if (options.faceName !== undefined) {
     for (const itemId of FACE_NAME_ITEM_IDS) {
@@ -1475,15 +1427,13 @@ function createCharShapeValues(options: CharShapeOptions): Record<string, unknow
     }
   }
 
-  if (options.textColor !== undefined) {
-    values.TextColor = options.textColor;
-  }
+  setValue(values, "TextColor", options.textColor);
 
   return values;
 }
 
-function createParagraphShapeValues(options: ParagraphShapeOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createParagraphShapeValues(options: ParagraphShapeOptions): ParameterValues {
+  const values: ParameterValues = {};
 
   setValue(values, "LeftMargin", options.leftMargin);
   setValue(values, "RightMargin", options.rightMargin);
@@ -1517,7 +1467,7 @@ function createParagraphShapeValues(options: ParagraphShapeOptions): Record<stri
   return values;
 }
 
-function createParagraphNumberingValues(options: ParagraphNumberingSetOptions): Record<string, unknown> {
+function createParagraphNumberingValues(options: ParagraphNumberingSetOptions): ParameterValues {
   const values = createParagraphShapeValues(options);
 
   if (options.type !== undefined) {
@@ -1527,8 +1477,8 @@ function createParagraphNumberingValues(options: ParagraphNumberingSetOptions): 
   return values;
 }
 
-function createStyleItemValues(options: StyleItemOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createStyleItemValues(options: StyleItemOptions): ParameterValues {
+  const values: ParameterValues = {};
 
   setValue(values, "Type", options.type);
   setValue(values, "NameLocal", options.localName);
@@ -1541,135 +1491,54 @@ function createStyleItemValues(options: StyleItemOptions): Record<string, unknow
   return values;
 }
 
-function createPageDeleteValues(options: PageDeleteOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createPageDeleteValues(options: PageDeleteOptions): ParameterValues {
+  const values: ParameterValues = {};
 
-  if (options.range !== undefined) {
-    values.Range = options.range;
-  }
-
-  if (options.rangeCustom !== undefined) {
-    values.RangeCustom = options.rangeCustom;
-  }
-
-  if (options.usingPageNumber !== undefined) {
-    values.UsingPagenum = toHwpBoolean(options.usingPageNumber);
-  }
+  setValue(values, "Range", options.range);
+  setValue(values, "RangeCustom", options.rangeCustom);
+  setBooleanValue(values, "UsingPagenum", options.usingPageNumber);
 
   return values;
 }
 
-function createPageNumberingPositionValues(options: PageNumberingPositionOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createPageNumberingPositionValues(options: PageNumberingPositionOptions): ParameterValues {
+  const values: ParameterValues = {};
 
-  if (options.numberFormat !== undefined) {
-    values.NumberFormat = options.numberFormat;
-  }
-
-  if (options.userChar !== undefined) {
-    values.UserChar = options.userChar;
-  }
-
-  if (options.prefixChar !== undefined) {
-    values.PrefixChar = options.prefixChar;
-  }
-
-  if (options.suffixChar !== undefined) {
-    values.SuffixChar = options.suffixChar;
-  }
-
-  if (options.sideChar !== undefined) {
-    values.SideChar = options.sideChar;
-  }
-
-  if (options.drawPos !== undefined) {
-    values.DrawPos = options.drawPos;
-  }
-
-  if (options.newNumber !== undefined) {
-    values.NewNumber = options.newNumber;
-  }
+  setValue(values, "NumberFormat", options.numberFormat);
+  setValue(values, "UserChar", options.userChar);
+  setValue(values, "PrefixChar", options.prefixChar);
+  setValue(values, "SuffixChar", options.suffixChar);
+  setValue(values, "SideChar", options.sideChar);
+  setValue(values, "DrawPos", options.drawPos);
+  setValue(values, "NewNumber", options.newNumber);
 
   return values;
 }
 
-function createPageSetupValues(options: PageSetupOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
-  const pageDef: Record<string, unknown> = {};
+function createPageSetupValues(options: PageSetupOptions): ParameterValues {
+  const values: ParameterValues = {};
+  const pageDef: ParameterValues = {};
 
-  if (options.paperWidth !== undefined) {
-    pageDef.PaperWidth = options.paperWidth;
-  }
-
-  if (options.paperHeight !== undefined) {
-    pageDef.PaperHeight = options.paperHeight;
-  }
-
-  if (options.landscape !== undefined) {
-    pageDef.Landscape = toHwpBoolean(options.landscape);
-  }
-
-  if (options.margins?.left !== undefined) {
-    pageDef.LeftMargin = options.margins.left;
-  }
-
-  if (options.margins?.right !== undefined) {
-    pageDef.RightMargin = options.margins.right;
-  }
-
-  if (options.margins?.top !== undefined) {
-    pageDef.TopMargin = options.margins.top;
-  }
-
-  if (options.margins?.bottom !== undefined) {
-    pageDef.BottomMargin = options.margins.bottom;
-  }
-
-  if (options.headerLength !== undefined) {
-    pageDef.HeaderLen = options.headerLength;
-  }
-
-  if (options.footerLength !== undefined) {
-    pageDef.FooterLen = options.footerLength;
-  }
-
-  if (options.gutterLength !== undefined) {
-    pageDef.GutterLen = options.gutterLength;
-  }
-
-  if (options.gutterType !== undefined) {
-    pageDef.GutterType = options.gutterType;
-  }
+  setValue(pageDef, "PaperWidth", options.paperWidth);
+  setValue(pageDef, "PaperHeight", options.paperHeight);
+  setBooleanValue(pageDef, "Landscape", options.landscape);
+  setValue(pageDef, "LeftMargin", options.margins?.left);
+  setValue(pageDef, "RightMargin", options.margins?.right);
+  setValue(pageDef, "TopMargin", options.margins?.top);
+  setValue(pageDef, "BottomMargin", options.margins?.bottom);
+  setValue(pageDef, "HeaderLen", options.headerLength);
+  setValue(pageDef, "FooterLen", options.footerLength);
+  setValue(pageDef, "GutterLen", options.gutterLength);
+  setValue(pageDef, "GutterType", options.gutterType);
 
   if (Object.keys(pageDef).length > 0) {
     values.PageDef = pageDef;
   }
 
-  if (options.applyTo !== undefined) {
-    values.ApplyTo = options.applyTo;
-  }
-
-  if (options.applyClass !== undefined) {
-    values.ApplyClass = options.applyClass;
-  }
+  setValue(values, "ApplyTo", options.applyTo);
+  setValue(values, "ApplyClass", options.applyClass);
 
   return values;
-}
-
-function toHwpBoolean(value: boolean): 0 | 1 {
-  return value ? 1 : 0;
-}
-
-function setValue(values: Record<string, unknown>, key: string, value: unknown): void {
-  if (value !== undefined) {
-    values[key] = value;
-  }
-}
-
-function setBooleanValue(values: Record<string, unknown>, key: string, value: boolean | undefined): void {
-  if (value !== undefined) {
-    values[key] = toHwpBoolean(value);
-  }
 }
 
 function normalizeStyleApplyInput(input: number | StyleApplyOptions): StyleApplyOptions {

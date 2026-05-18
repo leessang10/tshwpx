@@ -1,6 +1,7 @@
 import type { OpenOptions, SaveFormat } from "./app";
 import type { HwpBridge } from "./bridges/types";
 import { HwpAutomationError } from "./com/errors";
+import { setBooleanValue, setValue, type ParameterValues } from "./internal/parameter-values";
 import { ParameterSetsApi } from "./params";
 
 export type FileOpenParameterOptions = {
@@ -253,8 +254,8 @@ export class FileImageApi {
   }
 }
 
-function createFileOpenValues(options: FileOpenParameterOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createFileOpenValues(options: FileOpenParameterOptions): ParameterValues {
+  const values: ParameterValues = {};
 
   setValue(values, "SaveFileName", options.saveFileName);
   setValue(values, "OpenFormat", options.openFormat);
@@ -271,8 +272,8 @@ function createFileOpenValues(options: FileOpenParameterOptions): Record<string,
   return values;
 }
 
-function createPasswordValues(options: FilePasswordOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createPasswordValues(options: FilePasswordOptions): ParameterValues {
+  const values: ParameterValues = {};
 
   setValue(values, "String", options.password);
   setBooleanValue(values, "FullRange", options.fullRange);
@@ -286,8 +287,8 @@ function createPasswordValues(options: FilePasswordOptions): Record<string, unkn
   return values;
 }
 
-function createFileSecurityValues(options: FileSecurityOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createFileSecurityValues(options: FileSecurityOptions): ParameterValues {
+  const values: ParameterValues = {};
 
   setValue(values, "Password", options.password);
   setBooleanValue(values, "NoPrint", options.noPrint);
@@ -296,8 +297,8 @@ function createFileSecurityValues(options: FileSecurityOptions): Record<string, 
   return values;
 }
 
-function createFileImageValues(options: FileImageOptions): Record<string, unknown> {
-  const values: Record<string, unknown> = {};
+function createFileImageValues(options: FileImageOptions): ParameterValues {
+  const values: ParameterValues = {};
 
   setValue(values, "FileName", options.fileName);
   setValue(values, "Range", options.range);
@@ -326,16 +327,4 @@ async function executeFileAction(
 ): Promise<void> {
   await ensureReady();
   await bridge.execute(actionId, parameterSet);
-}
-
-function setValue(values: Record<string, unknown>, key: string, value: unknown): void {
-  if (value !== undefined) {
-    values[key] = value;
-  }
-}
-
-function setBooleanValue(values: Record<string, unknown>, key: string, value: boolean | undefined): void {
-  if (value !== undefined) {
-    values[key] = value ? 1 : 0;
-  }
 }
