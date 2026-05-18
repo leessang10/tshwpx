@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { PassThrough } from "node:stream";
+import { readFileSync } from "node:fs";
 import { PowerShellBridge } from "../../src/bridges/powershell";
 
 describe("PowerShellBridge", () => {
@@ -75,6 +76,89 @@ describe("PowerShellBridge", () => {
         },
       },
     });
+  });
+
+  it("sends nested structured parameter set payloads for execute calls", async () => {
+    const { bridge, write } = createBridge();
+
+    await bridge.execute("PageSetup", {
+      parameterSetId: "SecDef",
+      values: {
+        PageDef: {
+          PaperWidth: 59528,
+          Landscape: 1,
+        },
+      },
+    });
+
+    const executePayload = JSON.parse(write.mock.calls[1]?.[0] ?? "{}");
+    expect(executePayload).toMatchObject({
+      method: "execute",
+      params: {
+        actionName: "PageSetup",
+        parameterSet: {
+          parameterSetId: "SecDef",
+          values: {
+            PageDef: {
+              PaperWidth: 59528,
+              Landscape: 1,
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it("generates powershell script support for nested parameter set payloads", async () => {
+    const { bridge, spawn } = createBridge();
+
+    await bridge.init();
+
+    const spawnArgs = (spawn.mock.calls[0] as unknown[] | undefined)?.[1] as string[] | undefined;
+    const scriptPath = spawnArgs?.[spawnArgs.length - 1];
+    expect(typeof scriptPath).toBe("string");
+    const script = readFileSync(scriptPath as string, "utf8");
+    expect(script).toContain("$nestedSet = $pset.CreateItemSet($name, $name)");
+    expect(script).toContain("$nestedSet.$nestedName = $nestedProperty.Value");
+  });
+
+  it("sends cursor automation method requests through JSON-RPC", async () => {
+    const { bridge, write } = createBridge();
+
+    await bridge.movePos(3);
+    await bridge.setPosBySet({ list: 1, para: 2, pos: 3 });
+    await bridge.selectText({ start: { para: 1, pos: 2 }, end: { para: 3, pos: 4 } });
+
+    expect(JSON.parse(write.mock.calls[1]?.[0] ?? "{}")).toMatchObject({
+      method: "movePos",
+      params: { moveId: 3 },
+    });
+    expect(JSON.parse(write.mock.calls[2]?.[0] ?? "{}")).toMatchObject({
+      method: "setPosBySet",
+      params: { position: { list: 1, para: 2, pos: 3 } },
+    });
+    expect(JSON.parse(write.mock.calls[3]?.[0] ?? "{}")).toMatchObject({
+      method: "selectText",
+      params: { range: { start: { para: 1, pos: 2 }, end: { para: 3, pos: 4 } } },
+    });
+  });
+
+  it("generates powershell script support for cursor automation methods", async () => {
+    const { bridge, spawn } = createBridge();
+
+    await bridge.init();
+
+    const spawnArgs = (spawn.mock.calls[0] as unknown[] | undefined)?.[1] as string[] | undefined;
+    const scriptPath = spawnArgs?.[spawnArgs.length - 1];
+    const script = readFileSync(scriptPath as string, "utf8");
+    expect(script).toContain('"movePos"');
+    expect(script).toContain("$hwp.MovePos");
+    expect(script).toContain('"getPosBySet"');
+    expect(script).toContain("$hwp.GetPosBySet()");
+    expect(script).toContain('"setPosBySet"');
+    expect(script).toContain("$hwp.SetPosBySet($pset.HSet)");
+    expect(script).toContain('"selectText"');
+    expect(script).toContain("$hwp.SelectText");
   });
 
   it("rejects raw JavaScript parameter set objects", async () => {

@@ -6,6 +6,7 @@ import { PowerShellBridge } from "./bridges/powershell";
 import type { HwpBridge } from "./bridges/types";
 import { DocumentApi } from "./doc";
 import { EventsApi } from "./events";
+import { FileApi } from "./file";
 import { LowLevelApi } from "./low/low-level-api";
 import { ParameterSetsApi } from "./params";
 
@@ -29,6 +30,7 @@ export class App {
   readonly raw: unknown;
   readonly low: LowLevelApi;
   readonly doc: DocumentApi;
+  readonly file: FileApi;
   readonly actions: ActionsApi;
   readonly params: ParameterSetsApi;
   readonly events: EventsApi;
@@ -39,6 +41,11 @@ export class App {
     this.raw = this.bridge.raw ?? this.bridge;
     this.low = new LowLevelApi(this.bridge);
     this.doc = new DocumentApi(this.bridge);
+    this.file = new FileApi(
+      this.bridge,
+      () => this.ensureReady(),
+      () => this.ready,
+    );
     this.actions = new ActionsApi(this.bridge);
     this.params = new ParameterSetsApi();
     this.events = new EventsApi();
@@ -51,24 +58,23 @@ export class App {
   }
 
   async open(path: string, options: OpenOptions = {}): Promise<void> {
-    await this.fileOperation("open", () => this.bridge.open(path, options));
+    await this.file.open(path, options);
   }
 
   async save(): Promise<void> {
-    await this.fileOperation("save", () => this.bridge.save());
+    await this.file.save();
   }
 
   async saveAs(path: string, format: SaveFormat = "HWP", arg = ""): Promise<void> {
-    await this.fileOperation("saveAs", () => this.bridge.saveAs(path, format, arg));
+    await this.file.saveAs(path, format, arg);
   }
 
   async close(): Promise<void> {
-    await this.fileOperation("close", () => this.bridge.close());
+    await this.file.close();
   }
 
   async quit(): Promise<void> {
-    await this.ready;
-    await this.bridge.quit();
+    await this.file.quit();
   }
 
   private async initialize(options: AppOptions): Promise<void> {
@@ -90,15 +96,6 @@ export class App {
   private async ensureReady(): Promise<void> {
     await this.ready;
     await this.bridge.init?.();
-  }
-
-  private async fileOperation(name: string, operation: () => Promise<unknown>): Promise<void> {
-    try {
-      await this.ensureReady();
-      await operation();
-    } catch (error) {
-      throw new HwpAutomationError("FILE_OPERATION_FAILED", `HWP file operation failed: ${name}`, error);
-    }
   }
 
   private async registerSecurityModule(): Promise<void> {

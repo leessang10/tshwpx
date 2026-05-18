@@ -1,5 +1,21 @@
 import type { OpenOptions, SaveFormat } from "../app";
 
+export type CursorPosition = {
+  list: number;
+  para: number;
+  pos: number;
+};
+
+export type CursorTextPosition = {
+  para: number;
+  pos: number;
+};
+
+export type CursorTextRange = {
+  start: CursorTextPosition;
+  end: CursorTextPosition;
+};
+
 export type HwpBridge = {
   readonly kind: string;
   readonly raw?: unknown;
@@ -15,4 +31,9 @@ export type HwpBridge = {
   insertText(text: string): Promise<void>;
   run(actionName: string): Promise<void>;
   execute(actionName: string, parameterSet?: unknown): Promise<boolean>;
+  movePos?(moveId: number, para?: number, pos?: number): Promise<boolean>;
+  getPosBySet?(): Promise<CursorPosition>;
+  setPos?(position: CursorPosition): Promise<void>;
+  setPosBySet?(position: CursorPosition): Promise<boolean>;
+  selectText?(range: CursorTextRange): Promise<boolean>;
 };

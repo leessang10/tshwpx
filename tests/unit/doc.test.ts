@@ -15,6 +15,126 @@ describe("DocumentApi", () => {
     expect(bridge.insertText).toHaveBeenCalledWith("Hello");
   });
 
+  it("inserts tables through the documented TableCreate action and TableCreation parameter set", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.insert({
+      rows: 3,
+      cols: 4,
+      rowHeight: [1200, 1200, 1200],
+      colWidth: [3000, 3000, 3000, 3000],
+      widthType: 2,
+      heightType: 1,
+      widthValue: 12000,
+      heightValue: 3600,
+      textSelect: true,
+    });
+
+    expect(bridge.execute).toHaveBeenCalledWith("TableCreate", {
+      parameterSetId: "TableCreation",
+      values: {
+        Rows: 3,
+        Cols: 4,
+        RowHeight: [1200, 1200, 1200],
+        ColWidth: [3000, 3000, 3000, 3000],
+        WidthType: 2,
+        HeightType: 1,
+        WidthValue: 12000,
+        HeightValue: 3600,
+        TextSelect: 1,
+      },
+    });
+  });
+
+  it("inserts and deletes table rows through documented table line actions", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.rows.insertAbove(2);
+    await doc.tables.rows.insertBelow(3);
+    await doc.tables.rows.append();
+    await doc.tables.rows.delete();
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "TableInsertUpperRow", {
+      parameterSetId: "TableInsertLine",
+      values: { Count: 2 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "TableInsertLowerRow", {
+      parameterSetId: "TableInsertLine",
+      values: { Count: 3 },
+    });
+    expect(bridge.run).toHaveBeenCalledWith("TableAppendRow");
+    expect(bridge.execute).toHaveBeenNthCalledWith(3, "TableDeleteRow", {
+      parameterSetId: "TableDeleteLine",
+      values: { Type: 0 },
+    });
+  });
+
+  it("inserts and deletes table columns through documented table line actions", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.columns.insertLeft(2);
+    await doc.tables.columns.insertRight(3);
+    await doc.tables.columns.delete();
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "TableInsertLeftColumn", {
+      parameterSetId: "TableInsertLine",
+      values: { Count: 2 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "TableInsertRightColumn", {
+      parameterSetId: "TableInsertLine",
+      values: { Count: 3 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(3, "TableDeleteColumn", {
+      parameterSetId: "TableDeleteLine",
+      values: { Type: 1 },
+    });
+  });
+
+  it("merges, splits, deletes, and distributes table cells", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.cells.merge();
+    await doc.tables.cells.split({ rows: 2, cols: 3, distributeHeight: true, mergeBeforeSplit: false, keepAdjust: true });
+    await doc.tables.cells.delete();
+    await doc.tables.cells.distributeHeight();
+    await doc.tables.cells.distributeWidth();
+
+    expect(bridge.run).toHaveBeenNthCalledWith(1, "TableMergeCell");
+    expect(bridge.execute).toHaveBeenCalledWith("TableSplitCell", {
+      parameterSetId: "TableSplitCell",
+      values: {
+        Rows: 2,
+        Cols: 3,
+        DistributeHeight: 1,
+        Merge: 0,
+        Mode2: 1,
+      },
+    });
+    expect(bridge.run).toHaveBeenNthCalledWith(2, "TableDeleteCell");
+    expect(bridge.run).toHaveBeenNthCalledWith(3, "TableDistributeCellHeight");
+    expect(bridge.run).toHaveBeenNthCalledWith(4, "TableDistributeCellWidth");
+  });
+
   it("sets character shape through doc.charShape.set", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),

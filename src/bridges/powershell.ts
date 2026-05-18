@@ -7,6 +7,7 @@ import { HwpAutomationError } from "../com/errors";
 import { isParameterSetPayload } from "../spec";
 import type { OpenOptions, SaveFormat } from "../app";
 import type { HwpBridge } from "./types";
+import type { CursorPosition, CursorTextRange } from "./types";
 
 type PowerShellBridgeOptions = {
   executable?: string;
@@ -125,6 +126,31 @@ export class PowerShellBridge implements HwpBridge {
 
     await this.init();
     return (await this.request("execute", { actionName, parameterSet })) as boolean;
+  }
+
+  async movePos(moveId: number, para?: number, pos?: number): Promise<boolean> {
+    await this.init();
+    return (await this.request("movePos", { moveId, para, pos })) as boolean;
+  }
+
+  async getPosBySet(): Promise<CursorPosition> {
+    await this.init();
+    return (await this.request("getPosBySet")) as CursorPosition;
+  }
+
+  async setPos(position: CursorPosition): Promise<void> {
+    await this.init();
+    await this.request("setPos", { position });
+  }
+
+  async setPosBySet(position: CursorPosition): Promise<boolean> {
+    await this.init();
+    return (await this.request("setPosBySet", { position })) as boolean;
+  }
+
+  async selectText(range: CursorTextRange): Promise<boolean> {
+    await this.init();
+    return (await this.request("selectText", { range })) as boolean;
   }
 
   private ensureProcess(): void {
@@ -276,13 +302,57 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
           $pset = $hwp.HParameterSet.$parameterSetId
           foreach ($property in $params.parameterSet.values.PSObject.Properties) {
             $name = [string]$property.Name
-            $pset.$name = $property.Value
+            if ($null -ne $property.Value -and $property.Value -is [System.Management.Automation.PSCustomObject]) {
+              $nestedSet = $pset.CreateItemSet($name, $name)
+              foreach ($nestedProperty in $property.Value.PSObject.Properties) {
+                $nestedName = [string]$nestedProperty.Name
+                $nestedSet.$nestedName = $nestedProperty.Value
+              }
+            } else {
+              $pset.$name = $property.Value
+            }
           }
           $result = $hwp.HAction.Execute([string]$params.actionName, $pset.HSet)
         } else {
           $result = $hwp.HAction.Execute([string]$params.actionName)
         }
         Send-Response $id ([bool]$result) ([bool]$result) "HWP action returned false."
+      }
+      "movePos" {
+        if ($null -ne $params.para -and $null -ne $params.pos) {
+          $result = $hwp.MovePos([uint32]$params.moveId, [uint32]$params.para, [uint32]$params.pos)
+        } else {
+          $result = $hwp.MovePos([uint32]$params.moveId)
+        }
+        Send-Response $id ([bool]$result) ([bool]$result) "HWP MovePos returned false."
+      }
+      "getPosBySet" {
+        $pset = $hwp.GetPosBySet()
+        $result = [ordered]@{
+          list = [int]$pset.Item("List")
+          para = [int]$pset.Item("Para")
+          pos = [int]$pset.Item("Pos")
+        }
+        Send-Response $id $true $result $null
+      }
+      "setPos" {
+        $position = $params.position
+        $hwp.SetPos([int]$position.list, [int]$position.para, [int]$position.pos)
+        Send-Response $id $true $true $null
+      }
+      "setPosBySet" {
+        $position = $params.position
+        $pset = $hwp.HParameterSet.ListParaPos
+        $pset.List = [int]$position.list
+        $pset.Para = [int]$position.para
+        $pset.Pos = [int]$position.pos
+        $result = $hwp.SetPosBySet($pset.HSet)
+        Send-Response $id ([bool]$result) ([bool]$result) "HWP SetPosBySet returned false."
+      }
+      "selectText" {
+        $range = $params.range
+        $result = $hwp.SelectText([int]$range.start.para, [int]$range.start.pos, [int]$range.end.para, [int]$range.end.pos)
+        Send-Response $id ([bool]$result) ([bool]$result) "HWP SelectText returned false."
       }
       default {
         throw "Unknown bridge method: $method"

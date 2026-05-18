@@ -2,6 +2,7 @@ import type { HwpComObject } from "../com/types";
 import { isParameterSetPayload } from "../spec";
 import type { OpenOptions, SaveFormat } from "../app";
 import type { HwpBridge } from "./types";
+import type { CursorPosition, CursorTextRange } from "./types";
 
 export class ComObjectBridge implements HwpBridge {
   readonly kind = "com-object";
@@ -80,6 +81,79 @@ export class ComObjectBridge implements HwpBridge {
     return ok ?? true;
   }
 
+  async movePos(moveId: number, para?: number, pos?: number): Promise<boolean> {
+    if (!this.raw.MovePos) {
+      throw new Error("MovePos is not available.");
+    }
+
+    const ok =
+      para !== undefined && pos !== undefined
+        ? this.raw.MovePos(moveId, para, pos)
+        : this.raw.MovePos(moveId);
+    if (ok === false) {
+      throw new Error(`MovePos returned false for ${moveId}`);
+    }
+    return ok ?? true;
+  }
+
+  async getPosBySet(): Promise<CursorPosition> {
+    const positionSet = this.raw.GetPosBySet?.();
+    if (!isComItemSet(positionSet)) {
+      throw new Error("GetPosBySet is not available.");
+    }
+
+    return {
+      list: Number(positionSet.Item("List")),
+      para: Number(positionSet.Item("Para")),
+      pos: Number(positionSet.Item("Pos")),
+    };
+  }
+
+  async setPos(position: CursorPosition): Promise<void> {
+    if (!this.raw.SetPos) {
+      throw new Error("SetPos is not available.");
+    }
+
+    this.raw.SetPos(position.list, position.para, position.pos);
+  }
+
+  async setPosBySet(position: CursorPosition): Promise<boolean> {
+    if (!this.raw.SetPosBySet) {
+      throw new Error("SetPosBySet is not available.");
+    }
+
+    const rawParameterSet = this.raw.HParameterSet?.ListParaPos as
+      | (Record<string, unknown> & { HSet?: unknown })
+      | undefined;
+    if (!rawParameterSet) {
+      throw new Error("HParameterSet.ListParaPos is not available.");
+    }
+
+    rawParameterSet.List = position.list;
+    rawParameterSet.Para = position.para;
+    rawParameterSet.Pos = position.pos;
+
+    const ok = this.raw.SetPosBySet(rawParameterSet.HSet);
+    if (ok === false) {
+      throw new Error("SetPosBySet returned false.");
+    }
+
+    return ok ?? true;
+  }
+
+  async selectText(range: CursorTextRange): Promise<boolean> {
+    if (!this.raw.SelectText) {
+      throw new Error("SelectText is not available.");
+    }
+
+    const ok = this.raw.SelectText(range.start.para, range.start.pos, range.end.para, range.end.pos);
+    if (ok === false) {
+      throw new Error("SelectText returned false.");
+    }
+
+    return ok ?? true;
+  }
+
   private resolveParameterSet(parameterSet?: unknown): unknown {
     if (!isParameterSetPayload(parameterSet)) {
       return parameterSet;
@@ -92,10 +166,37 @@ export class ComObjectBridge implements HwpBridge {
       throw new Error(`HParameterSet.${parameterSet.parameterSetId} is not available.`);
     }
 
-    for (const [key, value] of Object.entries(parameterSet.values)) {
-      rawParameterSet[key] = value;
-    }
+    this.applyParameterSetValues(rawParameterSet, parameterSet.values);
 
     return rawParameterSet.HSet;
   }
+
+  private applyParameterSetValues(target: Record<string, unknown>, values: Record<string, unknown>): void {
+    for (const [key, value] of Object.entries(values)) {
+      if (isNestedParameterSetValue(value)) {
+        const nestedSet = this.createNestedParameterSet(target, key);
+        this.applyParameterSetValues(nestedSet, value);
+        continue;
+      }
+
+      target[key] = value;
+    }
+  }
+
+  private createNestedParameterSet(target: Record<string, unknown>, itemId: string): Record<string, unknown> {
+    const createItemSet = target.CreateItemSet;
+    if (typeof createItemSet !== "function") {
+      throw new Error(`Nested HWP parameter set is not available for ${itemId}.`);
+    }
+
+    return createItemSet.call(target, itemId, itemId) as Record<string, unknown>;
+  }
+}
+
+function isNestedParameterSetValue(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function isComItemSet(value: unknown): value is { Item(name: string): unknown } {
+  return !!value && typeof value === "object" && typeof (value as { Item?: unknown }).Item === "function";
 }
