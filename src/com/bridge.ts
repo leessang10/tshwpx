@@ -2,8 +2,6 @@ import { createRequire } from "node:module";
 import { HwpAutomationError } from "./errors";
 import type { HwpComObject, WinaxBridge } from "./types";
 
-const require = createRequire(import.meta.url);
-
 type BridgeOptions = {
   platform?: NodeJS.Platform;
   loadWinax?: () => WinaxBridge;
@@ -11,7 +9,7 @@ type BridgeOptions = {
 
 function loadDefaultWinax(): WinaxBridge {
   try {
-    return require("winax") as WinaxBridge;
+    return getRuntimeRequire()("winax") as WinaxBridge;
   } catch (error) {
     throw new HwpAutomationError(
       "COM_BRIDGE_NOT_FOUND",
@@ -19,6 +17,14 @@ function loadDefaultWinax(): WinaxBridge {
       error,
     );
   }
+}
+
+function getRuntimeRequire(): NodeRequire {
+  const runtimeRequire = Function("return typeof require === 'function' ? require : undefined")() as
+    | NodeRequire
+    | undefined;
+
+  return runtimeRequire ?? createRequire(`${process.cwd()}/package.json`);
 }
 
 export function createHwpObject(options: BridgeOptions = {}): HwpComObject {
