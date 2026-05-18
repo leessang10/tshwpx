@@ -7,7 +7,7 @@ TypeScript wrapper for Hancom HwpAutomation.
 - Windows
 - Node.js 18+
 - Hancom HWP installed
-- A working COM bridge dependency, currently `winax`
+- Windows PowerShell available as `powershell.exe`
 
 Hancom HwpAutomation may have separate commercial-use terms. Check Hancom's official policy before using this package commercially.
 
@@ -23,19 +23,21 @@ npm install tshwpx
 import { App } from "tshwpx";
 
 const app = new App({ visible: true });
-app.open("C:/tmp/input.hwp");
-app.doc.insertText("Hello world");
-app.saveAs("C:/tmp/output.hwp");
-app.quit();
+await app.open("C:/tmp/input.hwp");
+await app.doc.insertText("Hello world");
+await app.saveAs("C:/tmp/output.hwp");
+await app.quit();
 ```
 
 ## Low-Level Access
 
 ```ts
 const app = new App();
-app.low.run("MoveDocBegin");
-app.raw.HAction.Run("MoveDocBegin");
+await app.low.run("MoveDocBegin");
+await app.quit();
 ```
+
+The default bridge is PowerShell-based and keeps HWP state in a child process. Direct JavaScript COM object access is only available when a custom bridge exposes it through `app.raw`.
 
 ## pyhwpx Mapping
 

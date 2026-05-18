@@ -18,7 +18,3 @@ export type HwpComObject = {
   };
 };
 
-export type WinaxBridge = {
-  Object: new (programId: string) => HwpComObject;
-  GetObject?: (programId: string) => HwpComObject;
-};

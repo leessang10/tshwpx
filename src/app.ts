@@ -1,6 +1,8 @@
-import { createHwpObject } from "./com/bridge";
 import { HwpAutomationError } from "./com/errors";
 import type { HwpComObject } from "./com/types";
+import { ComObjectBridge } from "./bridges/com-object";
+import { PowerShellBridge } from "./bridges/powershell";
+import type { HwpBridge } from "./bridges/types";
 import { DocumentApi } from "./doc";
 import { LowLevelApi } from "./low/low-level-api";
 
@@ -15,72 +17,84 @@ export type AppOptions = {
   visible?: boolean;
   reuseExisting?: boolean;
   registerSecurityModule?: boolean;
+  bridge?: HwpBridge;
   createObject?: () => HwpComObject;
 };
 
 export class App {
-  readonly raw: HwpComObject;
+  readonly bridge: HwpBridge;
+  readonly raw: unknown;
   readonly low: LowLevelApi;
   readonly doc: DocumentApi;
+  readonly ready: Promise<void>;
 
   constructor(options: AppOptions = {}) {
-    this.raw = options.createObject?.() ?? createHwpObject();
-    this.low = new LowLevelApi(this.raw);
-    this.doc = new DocumentApi(this.low);
+    this.bridge = options.bridge ?? (options.createObject ? new ComObjectBridge(options.createObject()) : new PowerShellBridge());
+    this.raw = this.bridge.raw ?? this.bridge;
+    this.low = new LowLevelApi(this.bridge);
+    this.doc = new DocumentApi(this.bridge);
+    this.ready = this.initialize(options);
+  }
+
+  async setVisible(visible: boolean): Promise<void> {
+    await this.ensureReady();
+    await this.bridge.setVisible(visible);
+  }
+
+  async open(path: string, options: OpenOptions = {}): Promise<void> {
+    await this.fileOperation("open", () => this.bridge.open(path, options));
+  }
+
+  async save(): Promise<void> {
+    await this.fileOperation("save", () => this.bridge.save());
+  }
+
+  async saveAs(path: string, format: SaveFormat = "HWP", arg = ""): Promise<void> {
+    await this.fileOperation("saveAs", () => this.bridge.saveAs(path, format, arg));
+  }
+
+  async close(): Promise<void> {
+    await this.fileOperation("close", () => this.bridge.close());
+  }
+
+  async quit(): Promise<void> {
+    await this.ready;
+    await this.bridge.quit();
+  }
+
+  private async initialize(options: AppOptions): Promise<void> {
+    if (options.visible === undefined && !options.registerSecurityModule) {
+      return;
+    }
+
+    await this.bridge.init?.();
 
     if (options.visible !== undefined) {
-      this.setVisible(options.visible);
+      await this.bridge.setVisible(options.visible);
     }
 
     if (options.registerSecurityModule) {
-      this.registerSecurityModule();
+      await this.registerSecurityModule();
     }
   }
 
-  setVisible(visible: boolean): void {
-    const window = this.raw.XHwpWindows?.Item(0);
-    if (window) {
-      window.Visible = visible;
-    }
+  private async ensureReady(): Promise<void> {
+    await this.ready;
+    await this.bridge.init?.();
   }
 
-  open(path: string, options: OpenOptions = {}): void {
-    this.fileOperation("open", () => this.raw.Open?.(path, options.format ?? "", options.arg ?? ""));
-  }
-
-  save(): void {
-    this.fileOperation("save", () => this.raw.Save?.());
-  }
-
-  saveAs(path: string, format: SaveFormat = "HWP", arg = ""): void {
-    this.fileOperation("saveAs", () => this.raw.SaveAs?.(path, format, arg));
-  }
-
-  close(): void {
-    this.low.run("FileClose");
-  }
-
-  quit(): void {
-    this.raw.Quit?.();
-  }
-
-  private fileOperation(name: string, operation: () => unknown): void {
+  private async fileOperation(name: string, operation: () => Promise<unknown>): Promise<void> {
     try {
-      const ok = operation();
-      if (ok === false) {
-        throw new Error(`${name} returned false`);
-      }
+      await this.ensureReady();
+      await operation();
     } catch (error) {
       throw new HwpAutomationError("FILE_OPERATION_FAILED", `HWP file operation failed: ${name}`, error);
     }
   }
 
-  private registerSecurityModule(): void {
+  private async registerSecurityModule(): Promise<void> {
     try {
-      const ok = this.raw.RegisterModule?.("FilePathCheckDLL", "FilePathCheckerModule");
-      if (ok === false) {
-        throw new Error("RegisterModule returned false");
-      }
+      await this.bridge.registerSecurityModule?.();
     } catch (error) {
       throw new HwpAutomationError(
         "SECURITY_MODULE_FAILED",

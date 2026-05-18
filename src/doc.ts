@@ -1,22 +1,9 @@
-import { HwpAutomationError } from "./com/errors";
-import { LowLevelApi } from "./low/low-level-api";
-
-type InsertTextParameterSet = {
-  Text: string;
-  HSet: unknown;
-};
+import type { HwpBridge } from "./bridges/types";
 
 export class DocumentApi {
-  constructor(private readonly low: LowLevelApi) {}
+  constructor(private readonly bridge: Pick<HwpBridge, "insertText">) {}
 
-  insertText(text: string): void {
-    const parameterSet = this.low.HParameterSet.HInsertText as InsertTextParameterSet | undefined;
-
-    if (!parameterSet) {
-      throw new HwpAutomationError("ACTION_FAILED", "HInsertText parameter set is not available.");
-    }
-
-    parameterSet.Text = text;
-    this.low.execute("InsertText", parameterSet.HSet);
+  async insertText(text: string): Promise<void> {
+    await this.bridge.insertText(text);
   }
 }

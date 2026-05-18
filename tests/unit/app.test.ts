@@ -2,98 +2,128 @@ import { describe, expect, it, vi } from "vitest";
 import { App, Hwp } from "../../src/app";
 import { HwpAutomationError } from "../../src/com/errors";
 
-function createFakeRaw() {
+function createFakeBridge() {
   return {
-    HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => true) },
-    HParameterSet: { HInsertText: { Text: "", HSet: {} } },
-    XHwpWindows: { Item: vi.fn(() => ({ Visible: false })) },
-    Open: vi.fn(() => true),
-    Save: vi.fn(() => true),
-    SaveAs: vi.fn(() => true),
-    Quit: vi.fn(),
-    RegisterModule: vi.fn(() => true),
+    kind: "fake",
+    raw: { name: "raw" },
+    init: vi.fn(async () => undefined),
+    setVisible: vi.fn(async () => undefined),
+    open: vi.fn(async () => undefined),
+    save: vi.fn(async () => undefined),
+    saveAs: vi.fn(async () => undefined),
+    close: vi.fn(async () => undefined),
+    quit: vi.fn(async () => undefined),
+    insertText: vi.fn(async () => undefined),
+    run: vi.fn(async () => undefined),
+    execute: vi.fn(async () => true),
+    registerSecurityModule: vi.fn(async () => undefined),
   };
 }
 
 describe("App", () => {
   it("exposes doc, low, and raw layers", () => {
-    const raw = createFakeRaw();
-    const app = new App({ createObject: () => raw });
+    const bridge = createFakeBridge();
+    const app = new App({ bridge });
 
-    expect(app.raw).toBe(raw);
+    expect(app.raw).toBe(bridge.raw);
     expect(app.doc).toBeTruthy();
-    expect(app.low.HAction).toBe(raw.HAction);
+    expect(app.low).toBeTruthy();
   });
 
   it("supports Hwp as an alias", () => {
     expect(Hwp).toBe(App);
   });
 
-  it("sets window visibility", () => {
-    const raw = createFakeRaw();
-    const window = { Visible: false };
-    raw.XHwpWindows.Item = vi.fn(() => window);
+  it("uses PowerShell as the default bridge", () => {
+    const app = new App();
 
-    const app = new App({ createObject: () => raw });
-    app.setVisible(true);
-
-    expect(window.Visible).toBe(true);
+    expect(app.bridge.kind).toBe("powershell");
+    void app.quit();
   });
 
-  it("applies visible option during construction", () => {
-    const raw = createFakeRaw();
-    const window = { Visible: false };
-    raw.XHwpWindows.Item = vi.fn(() => window);
+  it("sets window visibility", async () => {
+    const bridge = createFakeBridge();
+    const app = new App({ bridge });
+    await app.setVisible(true);
 
-    new App({ visible: true, createObject: () => raw });
-
-    expect(window.Visible).toBe(true);
+    expect(bridge.setVisible).toHaveBeenCalledWith(true);
   });
 
-  it("opens, saves, and saves as files", () => {
-    const raw = createFakeRaw();
-    const app = new App({ createObject: () => raw });
+  it("applies visible option during initialization", async () => {
+    const bridge = createFakeBridge();
+    const app = new App({ visible: true, bridge });
 
-    app.open("C:/tmp/a.hwp");
-    app.save();
-    app.saveAs("C:/tmp/a.hwpx", "HWPX");
+    await app.ready;
 
-    expect(raw.Open).toHaveBeenCalledWith("C:/tmp/a.hwp", "", "");
-    expect(raw.Save).toHaveBeenCalled();
-    expect(raw.SaveAs).toHaveBeenCalledWith("C:/tmp/a.hwpx", "HWPX", "");
+    expect(bridge.init).toHaveBeenCalled();
+    expect(bridge.setVisible).toHaveBeenCalledWith(true);
   });
 
-  it("closes through the FileClose action", () => {
-    const raw = createFakeRaw();
-    const app = new App({ createObject: () => raw });
+  it("opens, saves, and saves as files", async () => {
+    const bridge = createFakeBridge();
+    const app = new App({ bridge });
 
-    app.close();
+    await app.open("C:/tmp/a.hwp");
+    await app.save();
+    await app.saveAs("C:/tmp/a.hwpx", "HWPX");
 
-    expect(raw.HAction.Run).toHaveBeenCalledWith("FileClose");
+    expect(bridge.open).toHaveBeenCalledWith("C:/tmp/a.hwp", {});
+    expect(bridge.save).toHaveBeenCalled();
+    expect(bridge.saveAs).toHaveBeenCalledWith("C:/tmp/a.hwpx", "HWPX", "");
   });
 
-  it("quits the application", () => {
-    const raw = createFakeRaw();
-    const app = new App({ createObject: () => raw });
+  it("closes through the bridge", async () => {
+    const bridge = createFakeBridge();
+    const app = new App({ bridge });
 
-    app.quit();
+    await app.close();
 
-    expect(raw.Quit).toHaveBeenCalled();
+    expect(bridge.close).toHaveBeenCalled();
   });
 
-  it("registers the security module when requested", () => {
-    const raw = createFakeRaw();
+  it("quits the application", async () => {
+    const bridge = createFakeBridge();
+    const app = new App({ bridge });
 
-    new App({ createObject: () => raw, registerSecurityModule: true });
+    await app.quit();
 
-    expect(raw.RegisterModule).toHaveBeenCalledWith("FilePathCheckDLL", "FilePathCheckerModule");
+    expect(bridge.quit).toHaveBeenCalled();
   });
 
-  it("wraps failed file operations", () => {
-    const raw = createFakeRaw();
-    raw.Open = vi.fn(() => false);
-    const app = new App({ createObject: () => raw });
+  it("waits for initialization before quitting", async () => {
+    let finishInit: (() => void) | undefined;
+    const bridge = createFakeBridge();
+    bridge.init.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve) => {
+          finishInit = () => resolve(undefined);
+        }),
+    );
 
-    expect(() => app.open("C:/tmp/missing.hwp")).toThrow(HwpAutomationError);
+    const app = new App({ bridge, visible: true });
+    const quit = app.quit();
+
+    expect(bridge.quit).not.toHaveBeenCalled();
+    finishInit?.();
+    await quit;
+
+    expect(bridge.quit).toHaveBeenCalled();
+  });
+
+  it("registers the security module when requested", async () => {
+    const bridge = createFakeBridge();
+
+    const app = new App({ bridge, registerSecurityModule: true });
+    await app.ready;
+
+    expect(bridge.registerSecurityModule).toHaveBeenCalled();
+  });
+
+  it("wraps failed file operations", async () => {
+    const bridge = createFakeBridge();
+    bridge.open.mockRejectedValue(new Error("open failed"));
+    const app = new App({ bridge });
+
+    await expect(app.open("C:/tmp/missing.hwp")).rejects.toThrow(HwpAutomationError);
   });
 });

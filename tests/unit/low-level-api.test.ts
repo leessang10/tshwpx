@@ -3,35 +3,36 @@ import { LowLevelApi } from "../../src/low/low-level-api";
 import { HwpAutomationError } from "../../src/com/errors";
 
 describe("LowLevelApi", () => {
-  it("exposes HAction and HParameterSet", () => {
-    const raw = {
-      HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => true) },
-      HParameterSet: { HInsertText: {} },
+  it("runs an action by name", async () => {
+    const bridge = {
+      run: vi.fn(async () => undefined),
+      execute: vi.fn(async () => true),
     };
 
-    const low = new LowLevelApi(raw);
+    await new LowLevelApi(bridge).run("MoveDocBegin");
 
-    expect(low.HAction).toBe(raw.HAction);
-    expect(low.HParameterSet).toBe(raw.HParameterSet);
+    expect(bridge.run).toHaveBeenCalledWith("MoveDocBegin");
   });
 
-  it("runs an action by name", () => {
-    const raw = {
-      HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => true) },
-      HParameterSet: {},
+  it("executes an action by name", async () => {
+    const bridge = {
+      run: vi.fn(async () => undefined),
+      execute: vi.fn(async () => true),
     };
 
-    new LowLevelApi(raw).run("MoveDocBegin");
+    await expect(new LowLevelApi(bridge).execute("InsertText")).resolves.toBe(true);
 
-    expect(raw.HAction.Run).toHaveBeenCalledWith("MoveDocBegin");
+    expect(bridge.execute).toHaveBeenCalledWith("InsertText", undefined);
   });
 
-  it("wraps failed execute calls", () => {
-    const raw = {
-      HAction: { Run: vi.fn(() => true), Execute: vi.fn(() => false) },
-      HParameterSet: {},
+  it("wraps failed execute calls", async () => {
+    const bridge = {
+      run: vi.fn(async () => undefined),
+      execute: vi.fn(async () => {
+        throw new Error("execute failed");
+      }),
     };
 
-    expect(() => new LowLevelApi(raw).execute("InsertText", {})).toThrow(HwpAutomationError);
+    await expect(new LowLevelApi(bridge).execute("InsertText", {})).rejects.toThrow(HwpAutomationError);
   });
 });

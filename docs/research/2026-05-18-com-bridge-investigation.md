@@ -4,7 +4,9 @@ Date: 2026-05-18
 
 ## Summary
 
-Hancom HwpAutomation itself works on this machine. The current blocker is the Node COM bridge, not HWP Automation.
+Hancom HwpAutomation itself works on this machine. The current blocker was the Node COM bridge, not HWP Automation.
+
+Decision update: use the PowerShell bridge as the default implementation for the MVP. Keep `edge-js` as a later extension point, and remove `winax` from package dependencies because native builds failed locally.
 
 Confirmed baseline:
 
@@ -71,9 +73,9 @@ Node 18.20.8 / Node 20.18.3 + winax 3.6.9:
 Additional observation:
 
 ```text
-package.json currently uses "winax": "^3.6.2".
-This allows npm to resolve newer 3.6.x releases such as 3.6.9.
-If we keep winax, we should test and pin a known working version instead of using a caret range.
+package.json previously used "winax": "^3.6.2".
+That allowed npm to resolve newer 3.6.x releases such as 3.6.9.
+The dependency has been removed for the MVP.
 ```
 
 ## Candidate Matrix
@@ -120,21 +122,21 @@ Result:
 edge-js InsertText=true
 ```
 
-This means `edge-js` is currently the strongest alternative bridge candidate.
+This means `edge-js` is a strong future bridge candidate, but it is not part of the MVP dependency tree.
 
 ## Recommended Direction
 
 Short term:
 
-1. Keep `winax` support, but stop assuming it is the only runtime bridge.
+1. Use PowerShell as the default bridge because it is available on normal Windows installations and passed a real HWP insert test.
 2. Introduce a bridge abstraction:
 
 ```ts
-type BridgeKind = "winax" | "edge" | "powershell";
+type BridgeKind = "powershell" | "edge";
 ```
 
-3. Add `edge-js` as the next experimental bridge because it passed a real HWP insert test.
-4. Keep PowerShell bridge as a fallback/diagnostic bridge because it is the simplest proven baseline.
+3. Remove `winax` from runtime dependencies until a reliably buildable version is verified.
+4. Add `edge-js` later as an optional extension bridge because it passed a real HWP insert test.
 
 Medium term:
 
@@ -142,7 +144,6 @@ Medium term:
 
 ```ts
 new App({ bridge: "edge", visible: true });
-new App({ bridge: "winax", visible: true });
 ```
 
 2. Keep `createObject` for test injection and advanced users.
@@ -152,15 +153,13 @@ new App({ bridge: "winax", visible: true });
 ```text
 HWP_INTEGRATION=1 HWP_BRIDGE=edge npm test
 HWP_INTEGRATION=1 HWP_BRIDGE=powershell npm test
-HWP_INTEGRATION=1 HWP_BRIDGE=winax npm test
 ```
 
 ## Next Implementation Proposal
 
 Implement bridge abstraction in this order:
 
-1. Extract current `winax` bridge into `src/bridges/winax.ts`.
-2. Add `src/bridges/edge.ts` using `edge-js`.
-3. Move `createHwpObject` to a bridge resolver.
-4. Add docs and integration test gate for bridge selection.
-5. Leave default as `winax` only if a working version can be pinned; otherwise default to `edge` on Windows.
+1. Add `src/bridges/powershell.ts` as the default bridge.
+2. Keep the public high-level API async because the default bridge is process-based.
+3. Add docs and integration test gate for PowerShell.
+4. Add `src/bridges/edge.ts` later as an optional bridge.
