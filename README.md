@@ -166,15 +166,17 @@ await app.file.template.open({ saveFileName: "C:/tmp/template.hwt", openFormat: 
 await app.quit();
 ```
 
-`app.doc.charShape.set(...)` is backed by the documented `CharShape` action and `CharShape` ParameterSet. Boolean options are converted to HWP's `0`/`1` values.
-The `charShape` group covers the documented `CharShape*` actions, including preset text colors, underline, width, script, bold/italic, height, spacing, face-name navigation, focus helpers, and dialogs.
-`app.doc.tables.*` is backed by documented table actions such as `TableCreate`, `TableInsertLowerRow`, `TableInsertRightColumn`, `TableSplitCell`, and `TableMergeCell`.
-`app.doc.pages.*` is backed by documented page actions such as `BreakPage`, `BreakSection`, `DeletePage`, `PageNumPos`, `PageLandscape`, `PagePortrait`, and `PageSetup`. Page setup values are sent through `SecDef.PageDef`, matching Hancom's nested ParameterSet shape.
-`app.doc.paragraph.*` is backed by documented paragraph actions such as `ParagraphShape`, `ParagraphShapeAlign*`, `ParagraphShapeIncrease*`, `PutBullet`, `PutParaNumber`, and `PutOutlineNumber`.
-`app.doc.styles.*` is backed by documented style actions such as `StyleEx`, `StyleAdd`, `StyleEdit`, `StyleDelete`, `StyleShortcut*`, `StyleChangeToCurrentShape`, `StyleParaNumberBullet`, and `StyleTemplate`.
-`app.doc.cursor.*` is backed by documented cursor actions such as `Move*`, `MoveSel*`, `Select*`, plus automation methods such as `MovePos`, `GetPosBySet`, `SetPosBySet`, and `SelectText`.
-`app.file.*` wraps direct bridge file operations and documented file actions such as `FileNew`, `FileOpen`, `FilePassword`, `FileSetSecurity`, `FileSaveAsImage`, and `FileTemplate`. Existing `app.open(...)`, `app.save(...)`, `app.saveAs(...)`, `app.close()`, and `app.quit()` remain as compatibility aliases.
-`app.doc.insertText(text)` is a high-level text insertion helper backed by HWP's `InsertText` action and `HInsertText` ParameterSet.
+The high-level API is grouped by what you want to edit:
+
+- `app.doc.charShape.*` changes text appearance.
+- `app.doc.paragraph.*` changes paragraph layout, alignment, spacing, and numbering.
+- `app.doc.tables.*` creates and edits tables.
+- `app.doc.pages.*` handles page breaks, sections, numbering, orientation, and page setup.
+- `app.doc.cursor.*` moves the cursor and controls text selection.
+- `app.doc.styles.*` applies and edits HWP styles.
+- `app.file.*` opens, saves, closes, protects, previews, and exports files.
+
+Compatibility aliases are still available: `app.open(...)`, `app.save(...)`, `app.saveAs(...)`, `app.close()`, and `app.quit()`.
 
 ## Raw Bridge Access
 
