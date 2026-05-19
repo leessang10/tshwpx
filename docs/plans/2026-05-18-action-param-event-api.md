@@ -31,7 +31,7 @@
 - Create: `src/spec/index.ts`
 
 **Steps:**
-1. Generate action and parameter set metadata from `docs/api/*.html`.
+1. Generate action and parameter set metadata from `docs/api/v1/*.html`.
 2. Include a curated event metadata list from the event handler and automation references.
 3. Export typed readonly catalog arrays and lookup helpers.
 

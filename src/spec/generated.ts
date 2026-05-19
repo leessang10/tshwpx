@@ -1,6 +1,6 @@
 import type { ActionDefinition, HwpEventDefinition, ParameterSetDefinition } from "./types";
 
-// Generated from docs/api/*.html, which were converted from Hancom's official 2504 HwpAutomation PDFs.
+// Generated from docs/api/v1/*.html, which were converted from Hancom's official 2504 HwpAutomation PDFs.
 // Do not edit entries by hand; regenerate from the local API reference documents.
 export const actionDefinitions: readonly ActionDefinition[] = [
   {

@@ -188,7 +188,7 @@ await app.quit();
 
 The public API is intentionally high-level. `app.raw` is the only escape hatch for unsupported automation. The default PowerShell bridge keeps HWP state in a child process, so direct JavaScript COM object access is only available when a custom bridge exposes it through `app.raw`.
 
-Converted local references are available under `docs/api/`.
+Converted local references are available under `docs/api/`. Original HTML conversions are stored in `docs/api/v1/`, and TSHWPX API notes start in `docs/api/v2/`.
 
 ## pyhwpx Mapping
 

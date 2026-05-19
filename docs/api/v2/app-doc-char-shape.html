@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.charShape</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.charShape</div>
+  <h1>app.doc.charShape</h1>
+  <p class="lead">선택 영역 또는 현재 입력 위치의 글자 모양을 관리합니다.</p>
+</header>
+<main>
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.charShape.set(options)</code></td><td><code>CharShape</code> Action + <code>CharShape</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.charShape.dialog.open(options)</code></td><td><code>CharShapeDialog</code> Action + <code>CharShape</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.charShape.dialog.openWithoutBorder(options)</code></td><td><code>CharShapeDialogWithoutBord</code> Action + <code>CharShape</code> ParameterSet</td></tr>
+  </table>
+
+  <h2>set options</h2>
+  <table>
+    <tr><th>옵션</th><th>ParameterSet item</th><th>설명</th></tr>
+    <tr><td><code>height</code></td><td><code>Height</code></td><td>글자 크기</td></tr>
+    <tr><td><code>bold</code></td><td><code>Bold</code></td><td>굵게</td></tr>
+    <tr><td><code>italic</code></td><td><code>Italic</code></td><td>기울임</td></tr>
+    <tr><td><code>faceName</code></td><td><code>FaceName*</code></td><td>한글, 라틴, 한자, 일본어, 기타, 기호, 사용자 글꼴 이름을 같이 설정</td></tr>
+    <tr><td><code>textColor</code></td><td><code>TextColor</code></td><td>글자색 숫자 값</td></tr>
+  </table>
+
+  <h2>하위 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>bold.toggle()</code></td><td>굵게를 켜거나 끕니다.</td><td><code>CharShapeBold</code></td></tr>
+    <tr><td><code>italic.toggle()</code></td><td>기울임을 켜거나 끕니다.</td><td><code>CharShapeItalic</code></td></tr>
+    <tr><td><code>underline.toggle()</code></td><td>밑줄을 켜거나 끕니다.</td><td><code>CharShapeUnderline</code></td></tr>
+    <tr><td><code>centerline.toggle()</code></td><td>취소선을 켜거나 끕니다.</td><td><code>CharShapeCenterline</code></td></tr>
+    <tr><td><code>outline.toggle()</code></td><td>외곽선 효과를 켜거나 끕니다.</td><td><code>CharShapeOutline</code></td></tr>
+    <tr><td><code>shadow.toggle()</code></td><td>그림자 효과를 켜거나 끕니다.</td><td><code>CharShapeShadow</code></td></tr>
+    <tr><td><code>emboss.toggle()</code></td><td>양각 효과를 켜거나 끕니다.</td><td><code>CharShapeEmboss</code></td></tr>
+    <tr><td><code>engrave.toggle()</code></td><td>음각 효과를 켜거나 끕니다.</td><td><code>CharShapeEngrave</code></td></tr>
+    <tr><td><code>normal.apply()</code></td><td>글자 모양을 기본 상태로 되돌립니다.</td><td><code>CharShapeNormal</code></td></tr>
+    <tr><td><code>height.focus()</code></td><td>글자 크기 입력 위치로 이동합니다.</td><td><code>CharShapeHeight</code></td></tr>
+    <tr><td><code>height.increase()</code></td><td>글자 크기를 키웁니다.</td><td><code>CharShapeHeightIncrease</code></td></tr>
+    <tr><td><code>height.decrease()</code></td><td>글자 크기를 줄입니다.</td><td><code>CharShapeHeightDecrease</code></td></tr>
+    <tr><td><code>spacing.focus()</code></td><td>자간 입력 위치로 이동합니다.</td><td><code>CharShapeSpacing</code></td></tr>
+    <tr><td><code>spacing.increase()</code></td><td>자간을 넓힙니다.</td><td><code>CharShapeSpacingIncrease</code></td></tr>
+    <tr><td><code>spacing.decrease()</code></td><td>자간을 좁힙니다.</td><td><code>CharShapeSpacingDecrease</code></td></tr>
+    <tr><td><code>width.focus()</code></td><td>장평 입력 위치로 이동합니다.</td><td><code>CharShapeWidth</code></td></tr>
+    <tr><td><code>width.increase()</code></td><td>장평을 늘립니다.</td><td><code>CharShapeWidthIncrease</code></td></tr>
+    <tr><td><code>width.decrease()</code></td><td>장평을 줄입니다.</td><td><code>CharShapeWidthDecrease</code></td></tr>
+    <tr><td><code>faceName.next()</code></td><td>다음 글꼴로 변경합니다.</td><td><code>CharShapeNextFaceName</code></td></tr>
+    <tr><td><code>faceName.previous()</code></td><td>이전 글꼴로 변경합니다.</td><td><code>CharShapePrevFaceName</code></td></tr>
+    <tr><td><code>language.focus()</code></td><td>언어별 글꼴 입력 위치로 이동합니다.</td><td><code>CharShapeLang</code></td></tr>
+    <tr><td><code>typeFace.focus()</code></td><td>글꼴 종류 입력 위치로 이동합니다.</td><td><code>CharShapeTypeFace</code></td></tr>
+    <tr><td><code>script.subscript()</code></td><td>아래 첨자를 적용합니다.</td><td><code>CharShapeSubscript</code></td></tr>
+    <tr><td><code>script.superscript()</code></td><td>위 첨자를 적용합니다.</td><td><code>CharShapeSuperscript</code></td></tr>
+    <tr><td><code>script.cycleSuperSubscript()</code></td><td>위/아래 첨자 상태를 순환합니다.</td><td><code>CharShapeSuperSubscript</code></td></tr>
+    <tr><td><code>textColor.set("black")</code></td><td>글자색을 검정으로 바꿉니다.</td><td><code>CharShapeTextColorBlack</code></td></tr>
+    <tr><td><code>textColor.set("blue")</code></td><td>글자색을 파랑으로 바꿉니다.</td><td><code>CharShapeTextColorBlue</code></td></tr>
+    <tr><td><code>textColor.set("bluish")</code></td><td>글자색을 청록 계열로 바꿉니다.</td><td><code>CharShapeTextColorBluish</code></td></tr>
+    <tr><td><code>textColor.set("green")</code></td><td>글자색을 초록으로 바꿉니다.</td><td><code>CharShapeTextColorGreen</code></td></tr>
+    <tr><td><code>textColor.set("red")</code></td><td>글자색을 빨강으로 바꿉니다.</td><td><code>CharShapeTextColorRed</code></td></tr>
+    <tr><td><code>textColor.set("violet")</code></td><td>글자색을 보라로 바꿉니다.</td><td><code>CharShapeTextColorViolet</code></td></tr>
+    <tr><td><code>textColor.set("white")</code></td><td>글자색을 흰색으로 바꿉니다.</td><td><code>CharShapeTextColorWhite</code></td></tr>
+    <tr><td><code>textColor.set("yellow")</code></td><td>글자색을 노랑으로 바꿉니다.</td><td><code>CharShapeTextColorYellow</code></td></tr>
+  </table>
+</main>
+</body>
+</html>

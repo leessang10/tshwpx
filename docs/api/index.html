@@ -3,47 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hancom HwpAutomation API Docs</title>
-<style>:root { color-scheme: light; --bg: #f6f7f9; --surface: #ffffff; --text: #1d2733; --muted: #5c6773; --line: #d9dee5; --accent: #0f6b5f; --code-bg: #fbfcfd; }
+<title>tshwpx API Docs</title>
+<style>
+:root { --bg: #f7f8fa; --surface: #fff; --text: #1f2933; --muted: #667085; --line: #d7dde5; --accent: #0f6b5f; }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif; line-height: 1.55; }
-a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-header { background: var(--surface); border-bottom: 1px solid var(--line); }
-.header-inner, main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
-.header-inner { padding: 28px 0 22px; }
-.breadcrumb { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif; line-height: 1.6; }
+main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0; }
 h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.2; letter-spacing: 0; }
-.description { margin: 0; color: var(--muted); }
-.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; color: var(--muted); font-size: 14px; }
-main { padding: 24px 0 44px; }
-.doc-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; padding: 0; margin: 24px 0 0; list-style: none; }
-.doc-list a { display: block; min-height: 132px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; text-decoration: none; }
-.doc-list strong { display: block; margin-bottom: 8px; color: var(--text); font-size: 17px; }
-.doc-list span { color: var(--muted); }
-.toc { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; margin: 0 0 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
-.toc a { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font-size: 13px; text-decoration: none; }
-.page { margin: 18px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.page h2 { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 14px; font-weight: 600; }
-pre { margin: 0; padding: 16px; overflow-x: auto; background: var(--code-bg); color: var(--text); font-family: "Cascadia Mono", "Consolas", "D2Coding", monospace; font-size: 13px; line-height: 1.45; white-space: pre-wrap; word-break: keep-all; }
-.empty { color: var(--muted); font-style: italic; }
-@media (max-width: 720px) { .header-inner, main { width: min(100% - 24px, 1180px); } h1 { font-size: 25px; } pre { font-size: 12px; white-space: pre; } }</style>
+p { margin: 0; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 28px; }
+a.card { display: block; min-height: 150px; padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: inherit; text-decoration: none; }
+.card strong { display: block; margin-bottom: 8px; font-size: 18px; }
+.card span { color: var(--muted); }
+.note { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; }
+</style>
 </head>
 <body>
-<header>
-  <div class="header-inner">
-    <div class="breadcrumb">docs/api</div>
-    <h1>Hancom HwpAutomation API Docs</h1>
-    <p class="description">HTML conversions of the official 2504 PDF documents used as local API references for tshwpx.</p>
-    <div class="meta">
-      <span>Documents: 4</span>
-      <span>Generated: 2026-05-18 15:35:45</span>
-    </div>
-  </div>
-</header>
 <main>
-<ul class="doc-list">
-<li><a href="action-table-2504.html"><strong>Action Table 2504</strong><span>Hancom HwpAutomation Action ID and ParameterSet mapping table. Pages: 52.</span></a></li><li><a href="hwp-automation-2504.html"><strong>HwpAutomation 2504</strong><span>Hancom HwpAutomation object model, methods, properties, and usage notes. Pages: 69.</span></a></li><li><a href="parameter-set-table-2504.html"><strong>ParameterSet Table 2504</strong><span>Hancom HwpAutomation ParameterSet item IDs, types, subtypes, and descriptions. Pages: 179.</span></a></li><li><a href="event-handler-2504.html"><strong>한글 오토메이션 Event Handler 추가 2504</strong><span>Hancom HwpAutomation event handler setup notes. Pages: 6.</span></a></li>
-</ul>
+  <h1>tshwpx API Docs</h1>
+  <p>Hancom HwpAutomation 2504 원본과 TSHWPX API 문서를 나눴습니다.</p>
+
+  <div class="grid">
+    <a class="card" href="v2/index.html">
+      <strong>v2 TSHWPX API</strong>
+      <span>TSHWPX의 app.* 모듈 목록부터 정리하는 가공 문서입니다.</span>
+    </a>
+    <a class="card" href="v1/index.html">
+      <strong>v1 원본 HTML</strong>
+      <span>공식 2504 PDF 변환본입니다. 원문 확인과 페이지 기준 추적용으로 보관합니다.</span>
+    </a>
+  </div>
+
+  <p class="note">v2는 원문을 다시 옮기는 문서가 아니라, 한글 오토메이션과 TSHWPX 연동 상태를 정리하는 문서입니다.</p>
 </main>
 </body>
 </html>
