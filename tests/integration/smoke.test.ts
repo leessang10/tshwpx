@@ -14,10 +14,10 @@ describe.skipIf(!runIntegration)("HWP integration smoke test", () => {
 
     try {
       await app.ready;
-      await app.doc.insertText("안녕하세요");
-      await app.saveAs(outputPath, "HWP");
+      await app.doc.text.insert("안녕하세요");
+      await app.doc.saveAs(outputPath, "HWP");
     } finally {
-      await app.quit();
+      await app.close();
     }
   }, 60_000);
 });

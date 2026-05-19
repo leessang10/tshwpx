@@ -57,6 +57,16 @@ describe("PowerShellBridge", () => {
     expect(write.mock.calls[1]?.[0]).toContain('"method":"insertText"');
   });
 
+  it("requests the current HWP process id through JSON-RPC", async () => {
+    const { bridge, write } = createBridge();
+
+    await bridge.getPID();
+
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write.mock.calls[0]?.[0]).toContain('"method":"init"');
+    expect(write.mock.calls[1]?.[0]).toContain('"method":"getPID"');
+  });
+
   it("sends structured parameter set payloads for execute calls", async () => {
     const { bridge, write } = createBridge();
 
@@ -120,6 +130,19 @@ describe("PowerShellBridge", () => {
     const script = readFileSync(scriptPath as string, "utf8");
     expect(script).toContain("$nestedSet = $pset.CreateItemSet($name, $name)");
     expect(script).toContain("$nestedSet.$nestedName = $nestedProperty.Value");
+  });
+
+  it("generates powershell script support for resolving HWP process ids", async () => {
+    const { bridge, spawn } = createBridge();
+
+    await bridge.init();
+
+    const spawnArgs = (spawn.mock.calls[0] as unknown[] | undefined)?.[1] as string[] | undefined;
+    const scriptPath = spawnArgs?.[spawnArgs.length - 1];
+    const script = readFileSync(scriptPath as string, "utf8");
+    expect(script).toContain('"getPID"');
+    expect(script).toContain("GetWindowThreadProcessId");
+    expect(script).toContain('ProcessName -match "^Hwp"');
   });
 
   it("sends cursor automation method requests through JSON-RPC", async () => {

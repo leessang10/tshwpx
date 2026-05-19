@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.tables</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.tables</div>
+  <h1>app.doc.tables</h1>
+  <p class="lead">표 생성, 행/열 편집, 셀 병합과 분할을 관리합니다.</p>
+</header>
+<main>
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.tables.insert(options)</code></td><td><code>TableCreate</code> Action + <code>TableCreation</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.tables.rows.*</code></td><td>행 삽입/추가/삭제 Action</td></tr>
+    <tr><td><code>app.doc.tables.columns.*</code></td><td>열 삽입/삭제 Action</td></tr>
+    <tr><td><code>app.doc.tables.cells.*</code></td><td>셀 병합/분할/삭제/크기 배분 Action</td></tr>
+  </table>
+
+  <h2>insert options</h2>
+  <table>
+    <tr><th>옵션</th><th>ParameterSet item</th><th>설명</th></tr>
+    <tr><td><code>rows</code></td><td><code>Rows</code></td><td>생성할 행 수</td></tr>
+    <tr><td><code>cols</code></td><td><code>Cols</code></td><td>생성할 열 수</td></tr>
+    <tr><td><code>rowHeight</code></td><td><code>RowHeight</code></td><td>행 높이 배열</td></tr>
+    <tr><td><code>colWidth</code></td><td><code>ColWidth</code></td><td>열 너비 배열</td></tr>
+    <tr><td><code>cellInfo</code></td><td><code>CellInfo</code></td><td>셀 정보 배열</td></tr>
+    <tr><td><code>widthType</code></td><td><code>WidthType</code></td><td>표 너비 지정 방식</td></tr>
+    <tr><td><code>heightType</code></td><td><code>HeightType</code></td><td>표 높이 지정 방식</td></tr>
+    <tr><td><code>widthValue</code></td><td><code>WidthValue</code></td><td>표 너비 값</td></tr>
+    <tr><td><code>heightValue</code></td><td><code>HeightValue</code></td><td>표 높이 값</td></tr>
+    <tr><td><code>tableTemplateValue</code></td><td><code>TableTemplateValue</code></td><td>표 서식 템플릿 값</td></tr>
+    <tr><td><code>textSelect</code></td><td><code>TextSelect</code></td><td>생성 뒤 표 선택 여부</td></tr>
+  </table>
+
+  <h2>split options</h2>
+  <table>
+    <tr><th>옵션</th><th>ParameterSet item</th><th>설명</th></tr>
+    <tr><td><code>rows</code></td><td><code>Rows</code></td><td>나눌 행 수</td></tr>
+    <tr><td><code>cols</code></td><td><code>Cols</code></td><td>나눌 열 수</td></tr>
+    <tr><td><code>distributeHeight</code></td><td><code>DistributeHeight</code></td><td>높이를 균등 배분</td></tr>
+    <tr><td><code>mergeBeforeSplit</code></td><td><code>Merge</code></td><td>분할 전 병합 처리</td></tr>
+    <tr><td><code>keepAdjust</code></td><td><code>Mode2</code></td><td>기존 조정 상태 유지</td></tr>
+  </table>
+
+  <h2>하위 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>insert(options)</code></td><td>표를 생성합니다.</td><td><code>TableCreate</code></td></tr>
+    <tr><td><code>rows.insertAbove(count)</code></td><td>현재 행 위에 행을 삽입합니다.</td><td><code>TableInsertUpperRow</code></td></tr>
+    <tr><td><code>rows.insertBelow(count)</code></td><td>현재 행 아래에 행을 삽입합니다.</td><td><code>TableInsertLowerRow</code></td></tr>
+    <tr><td><code>rows.append()</code></td><td>표 끝에 행을 추가합니다.</td><td><code>TableAppendRow</code></td></tr>
+    <tr><td><code>rows.delete()</code></td><td>현재 행을 삭제합니다.</td><td><code>TableDeleteRow</code></td></tr>
+    <tr><td><code>columns.insertLeft(count)</code></td><td>현재 열 왼쪽에 열을 삽입합니다.</td><td><code>TableInsertLeftColumn</code></td></tr>
+    <tr><td><code>columns.insertRight(count)</code></td><td>현재 열 오른쪽에 열을 삽입합니다.</td><td><code>TableInsertRightColumn</code></td></tr>
+    <tr><td><code>columns.delete()</code></td><td>현재 열을 삭제합니다.</td><td><code>TableDeleteColumn</code></td></tr>
+    <tr><td><code>cells.merge()</code></td><td>선택한 셀을 병합합니다.</td><td><code>TableMergeCell</code></td></tr>
+    <tr><td><code>cells.split(options)</code></td><td>현재 셀을 여러 행/열로 나눕니다.</td><td><code>TableSplitCell</code></td></tr>
+    <tr><td><code>cells.delete()</code></td><td>현재 셀을 삭제합니다.</td><td><code>TableDeleteCell</code></td></tr>
+    <tr><td><code>cells.distributeHeight()</code></td><td>선택 셀의 높이를 균등하게 맞춥니다.</td><td><code>TableDistributeCellHeight</code></td></tr>
+    <tr><td><code>cells.distributeWidth()</code></td><td>선택 셀의 너비를 균등하게 맞춥니다.</td><td><code>TableDistributeCellWidth</code></td></tr>
+  </table>
+
+  <h2>ParameterSet</h2>
+  <table>
+    <tr><th>API</th><th>ParameterSet</th><th>비고</th></tr>
+    <tr><td><code>insert(options)</code></td><td><code>TableCreation</code></td><td>표 생성 값</td></tr>
+    <tr><td><code>rows.insertAbove(count)</code>, <code>rows.insertBelow(count)</code></td><td><code>TableInsertLine</code></td><td><code>Count</code> 사용</td></tr>
+    <tr><td><code>columns.insertLeft(count)</code>, <code>columns.insertRight(count)</code></td><td><code>TableInsertLine</code></td><td><code>Count</code> 사용</td></tr>
+    <tr><td><code>rows.delete()</code>, <code>columns.delete()</code></td><td><code>TableDeleteLine</code></td><td><code>Type</code>으로 행/열 구분</td></tr>
+    <tr><td><code>cells.split(options)</code></td><td><code>TableSplitCell</code></td><td>분할 값</td></tr>
+  </table>
+</main>
+</body>
+</html>

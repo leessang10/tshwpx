@@ -28,6 +28,50 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
         $hwp.XHwpWindows.Item(0).Visible = [bool]$params.visible
         Send-Response $id $true $true $null
       }
+      "getPID" {
+        $processId = $null
+        try {
+          $window = $hwp.XHwpWindows.Item(0)
+          $handle = $null
+          foreach ($name in @("Hwnd", "HWND", "Handle")) {
+            try {
+              $value = $window.$name
+              if ($null -ne $value -and [int64]$value -ne 0) {
+                $handle = [IntPtr]([int64]$value)
+                break
+              }
+            } catch {}
+          }
+
+          if ($null -ne $handle) {
+            if (-not ("NativeMethods" -as [type])) {
+              Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public static class NativeMethods {
+  [DllImport("user32.dll")]
+  public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+}
+"@
+            }
+
+            $pidValue = [uint32]0
+            [void][NativeMethods]::GetWindowThreadProcessId($handle, [ref]$pidValue)
+            if ($pidValue -ne 0) { $processId = [int]$pidValue }
+          }
+        } catch {}
+
+        if ($null -eq $processId) {
+          $candidate = Get-Process | Where-Object { $_.ProcessName -match "^Hwp" } | Sort-Object StartTime -Descending | Select-Object -First 1
+          if ($null -ne $candidate) { $processId = [int]$candidate.Id }
+        }
+
+        if ($null -eq $processId) {
+          throw "Unable to resolve HWP process ID."
+        }
+
+        Send-Response $id $true $processId $null
+      }
       "registerSecurityModule" {
         $result = $hwp.RegisterModule("FilePathCheckDLL", "FilePathCheckerModuleExample")
         Send-Response $id $true ([bool]$result) $null

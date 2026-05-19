@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app</div>
+  <h1>app</h1>
+  <p class="lead">실행 중인 한글 프로세스/자동화 세션을 나타내는 최상위 인스턴스입니다.</p>
+</header>
+<main>
+  <h2>개념</h2>
+  <table>
+    <tr><th>대상</th><th>의미</th></tr>
+    <tr><td><code>app</code></td><td>한글 프로세스와 자동화 bridge를 소유하는 세션 인스턴스</td></tr>
+    <tr><td><code>app.file</code></td><td>세션과 파일 시스템 사이의 입출력, 내보내기, 파일 보안 작업</td></tr>
+    <tr><td><code>app.doc</code></td><td>현재 활성 문서를 대상으로 하는 편집 작업</td></tr>
+    <tr><td><code>app.raw</code></td><td>고수준 API 밖의 저수준 한글 오토메이션 접근</td></tr>
+  </table>
+
+  <h2>현재 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>상태</th></tr>
+    <tr><td><code>setVisible(visible)</code></td><td>한글 창 표시 여부를 설정합니다.</td><td>구현됨</td></tr>
+    <tr><td><code>getPID()</code></td><td>현재 한글 프로세스 ID를 조회합니다.</td><td>구현됨</td></tr>
+    <tr><td><code>close()</code></td><td>한글 앱/프로세스를 종료합니다.</td><td>구현됨</td></tr>
+  </table>
+</main>
+</body>
+</html>

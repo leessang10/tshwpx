@@ -61,6 +61,7 @@ export {
   DocumentTableColumnsApi,
   DocumentTableRowsApi,
   DocumentTablesApi,
+  DocumentTextApi,
 } from "./doc";
 export {
   FileApi,

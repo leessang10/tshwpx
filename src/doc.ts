@@ -1,4 +1,5 @@
 export { DocumentApi } from "./document/api";
+export { DocumentTextApi } from "./document/text";
 export {
   DocumentCursorApi,
   DocumentCursorBoundaryApi,

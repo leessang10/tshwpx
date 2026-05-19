@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc</div>
+  <h1>app.doc</h1>
+  <p class="lead">현재 활성 문서를 대상으로 하는 작업 진입점입니다.</p>
+</header>
+<main>
+  <h2>개념</h2>
+  <table>
+    <tr><th>대상</th><th>의미</th></tr>
+    <tr><td><a href="app.html"><code>app</code></a></td><td>실행 중인 한글 프로세스/자동화 세션</td></tr>
+    <tr><td><code>app.file</code></td><td>세션에서 문서를 열거나 파일로 내보내는 작업</td></tr>
+    <tr><td><code>app.doc</code></td><td>그 세션의 현재 활성 문서 작업</td></tr>
+  </table>
+
+  <h2>권장 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>내부 동작</th></tr>
+    <tr><td><code>app.doc.save()</code></td><td>현재 문서를 저장합니다.</td><td>Bridge <code>Save</code>를 호출합니다.</td></tr>
+    <tr><td><code>app.doc.saveAs(path, format, arg)</code></td><td>현재 문서를 다른 이름/형식으로 저장합니다.</td><td>Bridge <code>SaveAs</code>를 호출합니다.</td></tr>
+    <tr><td><code>app.doc.close()</code></td><td>현재 문서를 닫습니다. 한글 앱은 유지됩니다.</td><td>Bridge <code>Close</code>를 호출합니다.</td></tr>
+    <tr><td><a href="app-doc-text.html"><code>app.doc.text.insert(text)</code></a></td><td>현재 커서 위치에 텍스트를 입력합니다.</td><td><code>bridge.insertText</code>를 호출합니다.</td></tr>
+    <tr><td><code>app.doc.charShape.set(options)</code></td><td>글자 모양을 적용합니다.</td><td><code>CharShape</code> Action과 ParameterSet을 실행합니다.</td></tr>
+  </table>
+
+  <h2>문서 하위 모듈</h2>
+  <table>
+    <tr><th>모듈</th><th>역할</th><th>상태</th></tr>
+    <tr><td><a href="app-doc-text.html"><code>app.doc.text</code></a></td><td>텍스트 입력</td><td><code>insert(text)</code> 구현됨</td></tr>
+    <tr><td><a href="app-doc-char-shape.html"><code>app.doc.charShape</code></a></td><td>글자 모양 관리</td><td>구현됨</td></tr>
+    <tr><td><a href="app-doc-paragraph.html"><code>app.doc.paragraph</code></a></td><td>문단 모양 관리</td><td>구현됨</td></tr>
+    <tr><td><a href="app-doc-tables.html"><code>app.doc.tables</code></a></td><td>표 관리</td><td>구현됨</td></tr>
+    <tr><td><a href="app-doc-pages.html"><code>app.doc.pages</code></a></td><td>쪽과 구역 관리</td><td>구현됨</td></tr>
+    <tr><td><a href="app-doc-cursor.html"><code>app.doc.cursor</code></a></td><td>커서와 선택 영역 관리</td><td>구현됨</td></tr>
+    <tr><td><a href="app-doc-styles.html"><code>app.doc.styles</code></a></td><td>스타일 관리</td><td>구현됨</td></tr>
+  </table>
+</main>
+</body>
+</html>

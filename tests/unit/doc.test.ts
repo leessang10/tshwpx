@@ -2,7 +2,27 @@ import { describe, expect, it, vi } from "vitest";
 import { DocumentApi } from "../../src/doc";
 
 describe("DocumentApi", () => {
-  it("inserts text through the bridge", async () => {
+  it("saves, saves as, and closes the current document through the bridge", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+      save: vi.fn(async () => undefined),
+      saveAs: vi.fn(async () => undefined),
+      close: vi.fn(async () => undefined),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.save();
+    await doc.saveAs("C:/tmp/output.hwpx", "HWPX", "lock:false");
+    await doc.close();
+
+    expect(bridge.save).toHaveBeenCalled();
+    expect(bridge.saveAs).toHaveBeenCalledWith("C:/tmp/output.hwpx", "HWPX", "lock:false");
+    expect(bridge.close).toHaveBeenCalled();
+  });
+
+  it("inserts text through doc.text.insert", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),
       run: vi.fn(async (_actionId: string) => undefined),
@@ -10,7 +30,7 @@ describe("DocumentApi", () => {
     };
 
     const doc = new DocumentApi(bridge);
-    await doc.insertText("Hello");
+    await doc.text.insert("Hello");
 
     expect(bridge.insertText).toHaveBeenCalledWith("Hello");
   });
@@ -198,6 +218,18 @@ describe("DocumentApi", () => {
         TextColor: 0x0000ff,
       },
     });
+  });
+
+  it("does not expose document-level editing aliases", () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    expect("insertText" in doc).toBe(false);
+    expect("setCharShape" in doc).toBe(false);
   });
 
   it("sets preset text colors through documented CharShapeTextColor actions", async () => {

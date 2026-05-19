@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.pages</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.pages</div>
+  <h1>app.doc.pages</h1>
+  <p class="lead">쪽 나누기, 쪽 이동, 쪽 번호, 용지 방향과 구역 설정을 관리합니다.</p>
+</header>
+<main>
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.pages.delete(options)</code></td><td><code>DeletePage</code> Action + <code>DeletePage</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.pages.setup(options)</code></td><td><code>PageSetup</code> Action + <code>SecDef</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.pages.numbering.position.set(options)</code></td><td><code>PageNumPos</code> Action + <code>PageNumPos</code> ParameterSet</td></tr>
+  </table>
+
+  <h2>options</h2>
+  <table>
+    <tr><th>API</th><th>옵션</th><th>ParameterSet item</th></tr>
+    <tr><td><code>delete</code></td><td><code>range</code>, <code>rangeCustom</code>, <code>usingPageNumber</code></td><td><code>Range</code>, <code>RangeCustom</code>, <code>UsingPagenum</code></td></tr>
+    <tr><td><code>setup</code></td><td><code>paperWidth</code>, <code>paperHeight</code>, <code>landscape</code>, <code>margins</code></td><td><code>PageDef</code> 하위 값</td></tr>
+    <tr><td><code>setup</code></td><td><code>applyTo</code>, <code>applyClass</code></td><td><code>ApplyTo</code>, <code>ApplyClass</code></td></tr>
+    <tr><td><code>numbering.position.set</code></td><td><code>numberFormat</code>, <code>userChar</code>, <code>drawPos</code>, <code>newNumber</code></td><td><code>NumberFormat</code>, <code>UserChar</code>, <code>DrawPos</code>, <code>NewNumber</code></td></tr>
+  </table>
+
+  <h2>하위 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>break()</code></td><td>쪽을 나눕니다.</td><td><code>BreakPage</code></td></tr>
+    <tr><td><code>copy()</code></td><td>현재 쪽을 복사합니다.</td><td><code>CopyPage</code></td></tr>
+    <tr><td><code>paste()</code></td><td>복사한 쪽을 붙여넣습니다.</td><td><code>PastePage</code></td></tr>
+    <tr><td><code>delete(options)</code></td><td>쪽을 삭제합니다.</td><td><code>DeletePage</code></td></tr>
+    <tr><td><code>setup(options)</code></td><td>용지와 구역 설정을 적용합니다.</td><td><code>PageSetup</code></td></tr>
+    <tr><td><code>sections.break()</code></td><td>구역을 나눕니다.</td><td><code>BreakSection</code></td></tr>
+    <tr><td><code>move.begin()</code></td><td>현재 쪽의 처음으로 이동합니다.</td><td><code>MovePageBegin</code></td></tr>
+    <tr><td><code>move.end()</code></td><td>현재 쪽의 끝으로 이동합니다.</td><td><code>MovePageEnd</code></td></tr>
+    <tr><td><code>move.previous()</code></td><td>이전 쪽으로 이동합니다.</td><td><code>MovePageUp</code></td></tr>
+    <tr><td><code>move.next()</code></td><td>다음 쪽으로 이동합니다.</td><td><code>MovePageDown</code></td></tr>
+    <tr><td><code>numbering.insert()</code></td><td>쪽 번호를 삽입합니다.</td><td><code>InsertPageNum</code></td></tr>
+    <tr><td><code>numbering.recalculate()</code></td><td>쪽 수를 다시 계산합니다.</td><td><code>RecalcPageCount</code></td></tr>
+    <tr><td><code>numbering.position.set(options)</code></td><td>쪽 번호 위치와 형식을 설정합니다.</td><td><code>PageNumPos</code></td></tr>
+    <tr><td><code>orientation.landscape()</code></td><td>용지 방향을 가로로 설정합니다.</td><td><code>PageLandscape</code></td></tr>
+    <tr><td><code>orientation.portrait()</code></td><td>용지 방향을 세로로 설정합니다.</td><td><code>PagePortrait</code></td></tr>
+  </table>
+</main>
+</body>
+</html>

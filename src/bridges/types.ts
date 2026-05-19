@@ -22,6 +22,7 @@ export type HwpBridge = {
 
   init?(): Promise<void>;
   setVisible(visible: boolean): Promise<void>;
+  getPID(): Promise<number>;
   registerSecurityModule?(): Promise<void>;
   open(path: string, options?: OpenOptions): Promise<void>;
   save(): Promise<void>;

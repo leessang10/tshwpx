@@ -48,15 +48,17 @@ import { App } from "tshwpx";
 
 const app = new App({ visible: true });
 await app.file.open("C:/tmp/input.hwp");
-await app.doc.insertText("Hello world");
-await app.file.saveAs("C:/tmp/output.hwp");
-await app.file.quit();
+await app.doc.text.insert("Hello world");
+await app.doc.saveAs("C:/tmp/output.hwp");
+await app.close();
 ```
 
 ## High-Level Document API
 
 ```ts
 const app = new App({ visible: true });
+
+await app.doc.text.insert("Hello world");
 
 await app.doc.charShape.set({
   height: 1200,
@@ -163,27 +165,28 @@ await app.file.security.set({ password: "1234567", noPrint: true, noCopy: false 
 await app.file.image.save({ fileName: "C:/tmp/page.png", range: 6, printToFile: true });
 await app.file.template.open({ saveFileName: "C:/tmp/template.hwt", openFormat: "HWP" });
 
-await app.quit();
+await app.close();
 ```
 
 The high-level API is grouped by what you want to edit:
 
+- `app.doc.text.*` inserts text at the current cursor position.
 - `app.doc.charShape.*` changes text appearance.
 - `app.doc.paragraph.*` changes paragraph layout, alignment, spacing, and numbering.
 - `app.doc.tables.*` creates and edits tables.
 - `app.doc.pages.*` handles page breaks, sections, numbering, orientation, and page setup.
 - `app.doc.cursor.*` moves the cursor and controls text selection.
 - `app.doc.styles.*` applies and edits HWP styles.
-- `app.file.*` opens, saves, closes, protects, previews, and exports files.
-
-Compatibility aliases are still available: `app.open(...)`, `app.save(...)`, `app.saveAs(...)`, `app.close()`, and `app.quit()`.
+- `app.doc.save()`, `app.doc.saveAs(...)`, and `app.doc.close()` manage the current document lifecycle.
+- `app.file.*` opens documents, creates documents, protects files, previews, and exports files.
+- `app.close()` closes the HWP application process.
 
 ## Raw Bridge Access
 
 ```ts
 const app = new App();
 const raw = app.raw;
-await app.quit();
+await app.close();
 ```
 
 The public API is intentionally high-level. `app.raw` is the only escape hatch for unsupported automation. The default PowerShell bridge keeps HWP state in a child process, so direct JavaScript COM object access is only available when a custom bridge exposes it through `app.raw`.
@@ -195,6 +198,6 @@ Converted local references are available under `docs/api/`. Original HTML conver
 | pyhwpx | tshwpx |
 | --- | --- |
 | `Hwp` | `App` |
-| `insert_text` | `app.doc.insertText` |
-| `save_as` | `app.saveAs` |
-| `quit` | `app.quit` |
+| `insert_text` | `app.doc.text.insert` |
+| `save_as` | `app.doc.saveAs` |
+| `quit` | `app.close` |

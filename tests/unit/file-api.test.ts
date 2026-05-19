@@ -26,36 +26,23 @@ describe("file API", () => {
     expect(getParameterSetDefinition("Print")?.items.some((item) => item.id === "FileName")).toBe(true);
   });
 
-  it("wraps direct file operations through the app bridge", async () => {
+  it("wraps file open through the app bridge", async () => {
     const bridge = createBridge();
     const app = new App({ bridge });
 
     await app.file.open("C:/tmp/input.hwp", { format: "HWP", arg: "forceopen:true" });
-    await app.file.save();
-    await app.file.saveAs("C:/tmp/output.hwpx", "HWPX", "lock:false");
-    await app.file.close();
-    await app.file.quit();
 
     expect(bridge.open).toHaveBeenCalledWith("C:/tmp/input.hwp", { format: "HWP", arg: "forceopen:true" });
-    expect(bridge.save).toHaveBeenCalled();
-    expect(bridge.saveAs).toHaveBeenCalledWith("C:/tmp/output.hwpx", "HWPX", "lock:false");
-    expect(bridge.close).toHaveBeenCalled();
-    expect(bridge.quit).toHaveBeenCalled();
   });
 
-  it("keeps existing app-level file methods as aliases", async () => {
+  it("keeps file API focused on file input, export, and security", () => {
     const bridge = createBridge();
     const app = new App({ bridge });
 
-    await app.open("C:/tmp/input.hwp");
-    await app.save();
-    await app.saveAs("C:/tmp/output.hwp");
-    await app.close();
-
-    expect(bridge.open).toHaveBeenCalledWith("C:/tmp/input.hwp", {});
-    expect(bridge.save).toHaveBeenCalled();
-    expect(bridge.saveAs).toHaveBeenCalledWith("C:/tmp/output.hwp", "HWP", "");
-    expect(bridge.close).toHaveBeenCalled();
+    expect("save" in app.file).toBe(false);
+    expect("saveAs" in app.file).toBe(false);
+    expect("close" in app.file).toBe(false);
+    expect("quit" in app.file).toBe(false);
   });
 
   it("runs documented file dialog and lifecycle actions", async () => {
@@ -185,6 +172,7 @@ function createBridge() {
     saveAs: vi.fn(async (_path: string, _format = "HWP", _arg = "") => undefined),
     close: vi.fn(async () => undefined),
     quit: vi.fn(async () => undefined),
+    getPID: vi.fn(async () => 1234),
     insertText: vi.fn(async (_text: string) => undefined),
     run: vi.fn(async (_actionId: string) => undefined),
     execute: vi.fn(async () => true),

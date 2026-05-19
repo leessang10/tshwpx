@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.paragraph</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.paragraph</div>
+  <h1>app.doc.paragraph</h1>
+  <p class="lead">선택 영역 또는 현재 입력 위치의 문단 모양을 관리합니다.</p>
+</header>
+<main>
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.paragraph.shape.set(options)</code></td><td><code>ParagraphShape</code> Action + <code>ParaShape</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.paragraph.numbering.set(options)</code></td><td><code>ParagraphShape</code> Action + <code>ParaShape</code> ParameterSet</td></tr>
+  </table>
+
+  <h2>shape options</h2>
+  <table>
+    <tr><th>옵션</th><th>ParameterSet item</th><th>설명</th></tr>
+    <tr><td><code>leftMargin</code></td><td><code>LeftMargin</code></td><td>왼쪽 여백</td></tr>
+    <tr><td><code>rightMargin</code></td><td><code>RightMargin</code></td><td>오른쪽 여백</td></tr>
+    <tr><td><code>indentation</code></td><td><code>Indentation</code></td><td>들여쓰기</td></tr>
+    <tr><td><code>prevSpacing</code></td><td><code>PrevSpacing</code></td><td>문단 위 간격</td></tr>
+    <tr><td><code>nextSpacing</code></td><td><code>NextSpacing</code></td><td>문단 아래 간격</td></tr>
+    <tr><td><code>lineSpacingType</code></td><td><code>LineSpacingType</code></td><td>줄 간격 방식</td></tr>
+    <tr><td><code>lineSpacing</code></td><td><code>LineSpacing</code></td><td>줄 간격 값</td></tr>
+    <tr><td><code>alignType</code></td><td><code>AlignType</code></td><td>정렬 방식</td></tr>
+    <tr><td><code>keepWithNext</code></td><td><code>KeepWithNext</code></td><td>다음 문단과 함께 배치</td></tr>
+    <tr><td><code>keepLinesTogether</code></td><td><code>KeepLinesTogether</code></td><td>문단 줄을 한쪽에 모아 배치</td></tr>
+    <tr><td><code>pageBreakBefore</code></td><td><code>PagebreakBefore</code></td><td>문단 앞에서 쪽 나누기</td></tr>
+    <tr><td><code>headingType</code></td><td><code>HeadingType</code></td><td>개요/문단 번호/글머리표 종류</td></tr>
+    <tr><td><code>level</code></td><td><code>Level</code></td><td>문단 번호나 글머리표 단계</td></tr>
+  </table>
+
+  <h2>하위 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>align.left()</code></td><td>문단을 왼쪽 정렬합니다.</td><td><code>ParagraphShapeAlignLeft</code></td></tr>
+    <tr><td><code>align.center()</code></td><td>문단을 가운데 정렬합니다.</td><td><code>ParagraphShapeAlignCenter</code></td></tr>
+    <tr><td><code>align.right()</code></td><td>문단을 오른쪽 정렬합니다.</td><td><code>ParagraphShapeAlignRight</code></td></tr>
+    <tr><td><code>align.justify()</code></td><td>문단을 양쪽 정렬합니다.</td><td><code>ParagraphShapeAlignJustify</code></td></tr>
+    <tr><td><code>align.distribute()</code></td><td>문단을 배분 정렬합니다.</td><td><code>ParagraphShapeAlignDistrib</code></td></tr>
+    <tr><td><code>align.division()</code></td><td>문단을 나눔 정렬합니다.</td><td><code>ParagraphShapeAlignDivisio</code></td></tr>
+    <tr><td><code>margin.both.increase()</code></td><td>좌우 여백을 늘립니다.</td><td><code>ParagraphShapeIncreaseMarg</code></td></tr>
+    <tr><td><code>margin.both.decrease()</code></td><td>좌우 여백을 줄입니다.</td><td><code>ParagraphShapeDecreaseMarg</code></td></tr>
+    <tr><td><code>margin.left.increase()</code></td><td>왼쪽 여백을 늘립니다.</td><td><code>ParagraphShapeIncreaseLeft</code></td></tr>
+    <tr><td><code>margin.left.decrease()</code></td><td>왼쪽 여백을 줄입니다.</td><td><code>ParagraphShapeDecreaseLeft</code></td></tr>
+    <tr><td><code>margin.right.increase()</code></td><td>오른쪽 여백을 늘립니다.</td><td><code>ParagraphShapeDecreaseRigh</code></td></tr>
+    <tr><td><code>margin.right.decrease()</code></td><td>오른쪽 여백을 줄입니다.</td><td><code>ParagraphShapeIncreaseRigh</code></td></tr>
+    <tr><td><code>lineSpacing.increase()</code></td><td>줄 간격을 늘립니다.</td><td><code>ParagraphShapeIncreaseLine</code></td></tr>
+    <tr><td><code>lineSpacing.decrease()</code></td><td>줄 간격을 줄입니다.</td><td><code>ParagraphShapeDecreaseLine</code></td></tr>
+    <tr><td><code>indentation.positive()</code></td><td>들여쓰기를 적용합니다.</td><td><code>ParagraphShapeIndentPositi</code></td></tr>
+    <tr><td><code>indentation.negative()</code></td><td>내어쓰기를 적용합니다.</td><td><code>ParagraphShapeIndentNegati</code></td></tr>
+    <tr><td><code>indentation.atCaret()</code></td><td>현재 커서 위치를 기준으로 들여씁니다.</td><td><code>ParagraphShapeIndentAtCare</code></td></tr>
+    <tr><td><code>protect.toggle()</code></td><td>문단 보호를 켜거나 끕니다.</td><td><code>ParagraphShapeProtect</code></td></tr>
+    <tr><td><code>singleRow.toggle()</code></td><td>한 줄로 입력을 켜거나 끕니다.</td><td><code>ParagraphShapeSingleRow</code></td></tr>
+    <tr><td><code>withNext.toggle()</code></td><td>다음 문단과 함께를 켜거나 끕니다.</td><td><code>ParagraphShapeWithNext</code></td></tr>
+    <tr><td><code>numbering.set(options)</code></td><td>문단 번호/글머리표 설정을 직접 적용합니다.</td><td><code>ParagraphShape</code></td></tr>
+    <tr><td><code>numbering.clear()</code></td><td>문단 번호와 글머리표를 해제합니다.</td><td><code>ParagraphShape</code></td></tr>
+    <tr><td><code>numbering.bullet(options)</code></td><td>글머리표를 적용합니다.</td><td><code>PutBullet</code></td></tr>
+    <tr><td><code>numbering.paragraph(options)</code></td><td>문단 번호를 적용합니다.</td><td><code>PutParaNumber</code></td></tr>
+    <tr><td><code>numbering.outline(options)</code></td><td>개요 번호를 적용합니다.</td><td><code>PutOutlineNumber</code></td></tr>
+    <tr><td><code>numbering.startNew(options)</code></td><td>새 문단 번호를 시작합니다.</td><td><code>PutNewParaNumber</code></td></tr>
+    <tr><td><code>numbering.levelUp()</code></td><td>번호/글머리표 단계를 올립니다.</td><td><code>ParaNumberBulletLevelUp</code></td></tr>
+    <tr><td><code>numbering.levelDown()</code></td><td>번호/글머리표 단계를 내립니다.</td><td><code>ParaNumberBulletLevelDown</code></td></tr>
+    <tr><td><code>numbering.promote()</code></td><td><code>levelUp()</code> 별칭입니다.</td><td><code>ParaNumberBulletLevelUp</code></td></tr>
+    <tr><td><code>numbering.demote()</code></td><td><code>levelDown()</code> 별칭입니다.</td><td><code>ParaNumberBulletLevelDown</code></td></tr>
+    <tr><td><code>numbering.defaults.bullet()</code></td><td>기본 글머리표 설정을 가져옵니다.</td><td><code>GetDefaultBullet</code></td></tr>
+    <tr><td><code>numbering.defaults.paragraph()</code></td><td>기본 문단 번호 설정을 가져옵니다.</td><td><code>GetDefaultParaNumber</code></td></tr>
+    <tr><td><code>numbering.dialog.bullet(options)</code></td><td>글머리표 대화상자를 엽니다.</td><td><code>BulletDlg</code></td></tr>
+    <tr><td><code>numbering.dialog.paragraph(options)</code></td><td>문단 번호 대화상자를 엽니다.</td><td><code>ParaNumberDlg</code></td></tr>
+    <tr><td><code>numbering.dialog.pictureBullet(options)</code></td><td>그림 글머리표 대화상자를 엽니다.</td><td><code>PictureBulletDlg</code></td></tr>
+  </table>
+</main>
+</body>
+</html>

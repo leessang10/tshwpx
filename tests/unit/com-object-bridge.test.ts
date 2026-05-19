@@ -2,6 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { ComObjectBridge } from "../../src/bridges/com-object";
 
 describe("ComObjectBridge", () => {
+  it("returns the HWP process id from the COM object", async () => {
+    const bridge = new ComObjectBridge({ ProcessID: 4321 });
+
+    await expect(bridge.getPID()).resolves.toBe(4321);
+  });
+
   it("applies structured parameter set payloads before executing actions", async () => {
     const hSet = { id: "hset" };
     const charShape = { HSet: hSet, Height: 0 };

@@ -67,6 +67,11 @@ export class PowerShellBridge implements HwpBridge {
     await this.request("setVisible", { visible });
   }
 
+  async getPID(): Promise<number> {
+    await this.init();
+    return (await this.request("getPID")) as number;
+  }
+
   async registerSecurityModule(): Promise<void> {
     await this.init();
     await this.request("registerSecurityModule");

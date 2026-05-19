@@ -1,4 +1,4 @@
-import type { OpenOptions, SaveFormat } from "../app";
+import type { OpenOptions } from "../app";
 import { HwpAutomationError } from "../com/errors";
 import { FileDialogApi } from "./dialog";
 import { FileImageApi } from "./image";
@@ -20,7 +20,6 @@ export class FileApi {
   constructor(
     private readonly bridge: FileBridge,
     private readonly ensureReady: () => Promise<void>,
-    private readonly waitReady: () => Promise<void> = ensureReady,
   ) {
     this.dialog = new FileDialogApi(bridge, ensureReady);
     this.image = new FileImageApi(bridge, ensureReady);
@@ -32,23 +31,6 @@ export class FileApi {
 
   async open(path: string, options: OpenOptions = {}): Promise<void> {
     await this.fileOperation("open", () => this.bridge.open(path, options));
-  }
-
-  async save(): Promise<void> {
-    await this.fileOperation("save", () => this.bridge.save());
-  }
-
-  async saveAs(path: string, format: SaveFormat = "HWP", arg = ""): Promise<void> {
-    await this.fileOperation("saveAs", () => this.bridge.saveAs(path, format, arg));
-  }
-
-  async close(): Promise<void> {
-    await this.fileOperation("close", () => this.bridge.close());
-  }
-
-  async quit(): Promise<void> {
-    await this.waitReady();
-    await this.bridge.quit();
   }
 
   async new(): Promise<void> {

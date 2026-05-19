@@ -32,11 +32,7 @@ export class App {
     this.bridge = options.bridge ?? (options.createObject ? new ComObjectBridge(options.createObject()) : new PowerShellBridge());
     this.raw = this.bridge.raw ?? this.bridge;
     this.doc = new DocumentApi(this.bridge);
-    this.file = new FileApi(
-      this.bridge,
-      () => this.ensureReady(),
-      () => this.ready,
-    );
+    this.file = new FileApi(this.bridge, () => this.ensureReady());
     this.ready = this.initialize(options);
   }
 
@@ -45,24 +41,14 @@ export class App {
     await this.bridge.setVisible(visible);
   }
 
-  async open(path: string, options: OpenOptions = {}): Promise<void> {
-    await this.file.open(path, options);
-  }
-
-  async save(): Promise<void> {
-    await this.file.save();
-  }
-
-  async saveAs(path: string, format: SaveFormat = "HWP", arg = ""): Promise<void> {
-    await this.file.saveAs(path, format, arg);
-  }
-
   async close(): Promise<void> {
-    await this.file.close();
+    await this.ready;
+    await this.bridge.quit();
   }
 
-  async quit(): Promise<void> {
-    await this.file.quit();
+  async getPID(): Promise<number> {
+    await this.ensureReady();
+    return await this.bridge.getPID();
   }
 
   private async initialize(options: AppOptions): Promise<void> {

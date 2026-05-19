@@ -19,6 +19,15 @@ export class ComObjectBridge implements HwpBridge {
     }
   }
 
+  async getPID(): Promise<number> {
+    const processId = this.raw.ProcessID;
+    if (typeof processId === "number") {
+      return processId;
+    }
+
+    throw new Error("HWP process ID is not available from this COM object.");
+  }
+
   async registerSecurityModule(): Promise<void> {
     const ok = this.raw.RegisterModule?.("FilePathCheckDLL", "FilePathCheckerModuleExample");
     if (ok === false) {

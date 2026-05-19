@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.styles</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.styles</div>
+  <h1>app.doc.styles</h1>
+  <p class="lead">한글 문서의 스타일 적용, 추가, 편집, 삭제와 스타일 템플릿을 관리합니다.</p>
+</header>
+<main>
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.styles.apply(input)</code></td><td><code>StyleEx</code> 또는 <code>Style</code> Action + <code>Style</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.styles.delete(input)</code></td><td><code>StyleDelete</code> Action + <code>StyleDelete</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.styles.changeToCurrentShape(options)</code></td><td><code>StyleChangeToCurrentShape</code> Action + <code>StyleItem</code> ParameterSet</td></tr>
+  </table>
+
+  <h2>options</h2>
+  <table>
+    <tr><th>API</th><th>옵션</th><th>ParameterSet item</th></tr>
+    <tr><td><code>apply</code>, <code>add</code>, <code>edit</code></td><td><code>index</code></td><td><code>Apply</code></td></tr>
+    <tr><td><code>delete</code></td><td><code>target</code>, <code>alternation</code></td><td><code>Target</code>, <code>Alternation</code></td></tr>
+    <tr><td><code>changeToCurrentShape</code></td><td><code>type</code>, <code>localName</code>, <code>englishName</code>, <code>next</code></td><td><code>Type</code>, <code>NameLocal</code>, <code>NameEng</code>, <code>Next</code></td></tr>
+    <tr><td><code>changeToCurrentShape</code></td><td><code>charShape</code>, <code>paraShape</code></td><td><code>CharShape</code>, <code>ParaShape</code></td></tr>
+    <tr><td><code>template.open</code></td><td><code>fileName</code></td><td><code>FileName</code></td></tr>
+  </table>
+
+  <h2>하위 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>apply(index)</code></td><td>스타일을 적용합니다.</td><td><code>StyleEx</code></td></tr>
+    <tr><td><code>apply({ index, version: "legacy" })</code></td><td>레거시 스타일 Action으로 적용합니다.</td><td><code>Style</code></td></tr>
+    <tr><td><code>add(index)</code></td><td>스타일을 추가합니다.</td><td><code>StyleAdd</code></td></tr>
+    <tr><td><code>edit(index)</code></td><td>스타일을 편집합니다.</td><td><code>StyleEdit</code></td></tr>
+    <tr><td><code>delete(input)</code></td><td>스타일을 삭제하거나 대체합니다.</td><td><code>StyleDelete</code></td></tr>
+    <tr><td><code>changeToCurrentShape(options)</code></td><td>현재 모양을 스타일에 반영합니다.</td><td><code>StyleChangeToCurrentShape</code></td></tr>
+    <tr><td><code>clearCharStyle()</code></td><td>글자 스타일을 해제합니다.</td><td><code>StyleClearCharStyle</code></td></tr>
+    <tr><td><code>shortcut(index)</code></td><td>1부터 10까지의 스타일 단축키를 실행합니다.</td><td><code>StyleShortcut1</code>...<code>StyleShortcut10</code></td></tr>
+    <tr><td><code>numbering.set(options)</code></td><td>스타일의 문단 번호/글머리표를 설정합니다.</td><td><code>StyleParaNumberBullet</code></td></tr>
+    <tr><td><code>template.open(fileName)</code></td><td>스타일 템플릿을 불러옵니다.</td><td><code>StyleTemplate</code></td></tr>
+  </table>
+</main>
+</body>
+</html>

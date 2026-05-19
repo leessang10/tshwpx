@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.cursor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.cursor</div>
+  <h1>app.doc.cursor</h1>
+  <p class="lead">커서 이동, 현재 위치 저장/복원, 선택 영역을 관리합니다.</p>
+</header>
+<main>
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.cursor.move.*</code></td><td><code>Move*</code> Action 또는 <code>MovePos</code></td></tr>
+    <tr><td><code>app.doc.cursor.position.*</code></td><td><code>GetPosBySet</code>, <code>SetPosBySet</code></td></tr>
+    <tr><td><code>app.doc.cursor.selection.*</code></td><td><code>Select*</code>, <code>MoveSel*</code>, <code>SelectText</code></td></tr>
+  </table>
+
+  <h2>이동 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동</th></tr>
+    <tr><td><code>move.to(target, options)</code></td><td>이름으로 정의된 위치로 이동합니다.</td><td><code>MovePos</code></td></tr>
+    <tr><td><code>move.byId(moveId, options)</code></td><td>MovePos ID로 직접 이동합니다.</td><td><code>MovePos</code></td></tr>
+    <tr><td><code>move.document.begin()</code>, <code>end()</code></td><td>문서 처음/끝으로 이동합니다.</td><td><code>MoveDocBegin</code>, <code>MoveDocEnd</code></td></tr>
+    <tr><td><code>move.list.begin()</code>, <code>end()</code></td><td>현재 리스트 처음/끝으로 이동합니다.</td><td><code>MoveListBegin</code>, <code>MoveListEnd</code></td></tr>
+    <tr><td><code>move.line.begin()</code>, <code>end()</code>, <code>up()</code>, <code>down()</code></td><td>줄 기준으로 이동합니다.</td><td><code>MoveLine*</code></td></tr>
+    <tr><td><code>move.paragraph.*</code></td><td>문단 처음/끝, 다음/이전 문단으로 이동합니다.</td><td><code>MovePara*</code>, <code>MoveNextParaBegin</code></td></tr>
+    <tr><td><code>move.word.*</code></td><td>낱말 처음/끝, 다음/이전 낱말로 이동합니다.</td><td><code>MoveWord*</code>, <code>MoveNextWord</code></td></tr>
+    <tr><td><code>move.position.*</code></td><td>논리 위치 단위로 앞뒤 이동합니다.</td><td><code>MoveNextPos</code>, <code>MovePrevPos</code></td></tr>
+    <tr><td><code>move.char.*</code></td><td>문자 단위로 앞뒤 이동합니다.</td><td><code>MoveNextChar</code>, <code>MovePrevChar</code></td></tr>
+    <tr><td><code>move.direction.*</code></td><td>화살표 방향으로 이동합니다.</td><td><code>MoveLeft</code>, <code>MoveRight</code>, <code>MoveUp</code>, <code>MoveDown</code></td></tr>
+    <tr><td><code>move.page.*</code></td><td>쪽 기준으로 이동합니다.</td><td><code>MovePage*</code></td></tr>
+    <tr><td><code>move.view.*</code></td><td>화면 기준으로 이동합니다.</td><td><code>MoveView*</code></td></tr>
+    <tr><td><code>move.scroll.*</code></td><td>스크롤 기준으로 이동합니다.</td><td><code>MoveScroll*</code></td></tr>
+    <tr><td><code>move.section.*</code></td><td>다음/이전 구역으로 이동합니다.</td><td><code>MoveSectionDown</code>, <code>MoveSectionUp</code></td></tr>
+    <tr><td><code>move.column.*</code></td><td>단 처음/끝, 다음/이전 단으로 이동합니다.</td><td><code>MoveColumn*</code></td></tr>
+    <tr><td><code>move.cell.*</code></td><td>표 셀 안에서 이동합니다.</td><td><code>MovePos</code></td></tr>
+  </table>
+
+  <h2>위치 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동</th></tr>
+    <tr><td><code>position.get()</code></td><td>현재 커서 위치를 가져옵니다.</td><td><code>GetPosBySet</code></td></tr>
+    <tr><td><code>position.set(position)</code></td><td>저장한 커서 위치로 이동합니다.</td><td><code>SetPosBySet</code></td></tr>
+  </table>
+
+  <h2>선택 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>selection.start()</code></td><td>선택을 시작합니다.</td><td><code>Select</code></td></tr>
+    <tr><td><code>selection.all()</code></td><td>전체 문서를 선택합니다.</td><td><code>SelectAll</code></td></tr>
+    <tr><td><code>selection.column()</code></td><td>칸 선택을 시작합니다.</td><td><code>SelectColumn</code></td></tr>
+    <tr><td><code>selection.objectNext()</code></td><td>다음 개체를 선택합니다.</td><td><code>SelectCtrlFront</code></td></tr>
+    <tr><td><code>selection.objectPrevious()</code></td><td>이전 개체를 선택합니다.</td><td><code>SelectCtrlReverse</code></td></tr>
+    <tr><td><code>selection.cancel()</code></td><td>선택 상태를 해제합니다.</td><td><code>Cancel</code></td></tr>
+    <tr><td><code>selection.range(range)</code></td><td>문자 범위를 직접 선택합니다.</td><td><code>SelectText</code></td></tr>
+    <tr><td><code>selection.extend.*</code></td><td>현재 선택 영역을 문서/줄/문단/낱말/방향 단위로 확장합니다.</td><td><code>MoveSel*</code></td></tr>
+  </table>
+</main>
+</body>
+</html>

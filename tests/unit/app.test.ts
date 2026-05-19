@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { App, Hwp } from "../../src/app";
-import { HwpAutomationError } from "../../src/com/errors";
 
 function createFakeBridge() {
   return {
@@ -13,6 +12,7 @@ function createFakeBridge() {
     saveAs: vi.fn(async () => undefined),
     close: vi.fn(async () => undefined),
     quit: vi.fn(async () => undefined),
+    getPID: vi.fn(async () => 1234),
     insertText: vi.fn(async () => undefined),
     run: vi.fn(async () => undefined),
     execute: vi.fn(async () => true),
@@ -42,7 +42,7 @@ describe("App", () => {
     const app = new App();
 
     expect(app.bridge.kind).toBe("powershell");
-    void app.quit();
+    void app.close();
   });
 
   it("sets window visibility", async () => {
@@ -63,38 +63,27 @@ describe("App", () => {
     expect(bridge.setVisible).toHaveBeenCalledWith(true);
   });
 
-  it("opens, saves, and saves as files", async () => {
+  it("keeps app focused on the automation session", () => {
     const bridge = createFakeBridge();
     const app = new App({ bridge });
 
-    await app.open("C:/tmp/a.hwp");
-    await app.save();
-    await app.saveAs("C:/tmp/a.hwpx", "HWPX");
-
-    expect(bridge.open).toHaveBeenCalledWith("C:/tmp/a.hwp", {});
-    expect(bridge.save).toHaveBeenCalled();
-    expect(bridge.saveAs).toHaveBeenCalledWith("C:/tmp/a.hwpx", "HWPX", "");
+    expect("open" in app).toBe(false);
+    expect("save" in app).toBe(false);
+    expect("saveAs" in app).toBe(false);
+    expect("quit" in app).toBe(false);
   });
 
-  it("closes through the bridge", async () => {
+  it("closes the application through the bridge", async () => {
     const bridge = createFakeBridge();
     const app = new App({ bridge });
 
     await app.close();
 
-    expect(bridge.close).toHaveBeenCalled();
-  });
-
-  it("quits the application", async () => {
-    const bridge = createFakeBridge();
-    const app = new App({ bridge });
-
-    await app.quit();
-
     expect(bridge.quit).toHaveBeenCalled();
+    expect(bridge.close).not.toHaveBeenCalled();
   });
 
-  it("waits for initialization before quitting", async () => {
+  it("waits for initialization before closing", async () => {
     let finishInit: (() => void) | undefined;
     const bridge = createFakeBridge();
     bridge.init.mockImplementation(
@@ -105,13 +94,21 @@ describe("App", () => {
     );
 
     const app = new App({ bridge, visible: true });
-    const quit = app.quit();
+    const close = app.close();
 
     expect(bridge.quit).not.toHaveBeenCalled();
     finishInit?.();
-    await quit;
+    await close;
 
     expect(bridge.quit).toHaveBeenCalled();
+  });
+
+  it("returns the current HWP process id", async () => {
+    const bridge = createFakeBridge();
+    const app = new App({ bridge });
+
+    await expect(app.getPID()).resolves.toBe(1234);
+    expect(bridge.getPID).toHaveBeenCalled();
   });
 
   it("registers the security module when requested", async () => {
@@ -123,11 +120,4 @@ describe("App", () => {
     expect(bridge.registerSecurityModule).toHaveBeenCalled();
   });
 
-  it("wraps failed file operations", async () => {
-    const bridge = createFakeBridge();
-    bridge.open.mockRejectedValue(new Error("open failed"));
-    const app = new App({ bridge });
-
-    await expect(app.open("C:/tmp/missing.hwp")).rejects.toThrow(HwpAutomationError);
-  });
 });

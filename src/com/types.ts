@@ -6,6 +6,7 @@ export type HActionLike = {
 export type HwpComObject = {
   HAction?: HActionLike;
   HParameterSet?: Record<string, unknown>;
+  ProcessID?: number;
   RegisterModule?: (moduleType: string, moduleName: string) => boolean;
   Quit?: () => void;
   Open?: (...args: unknown[]) => boolean;
