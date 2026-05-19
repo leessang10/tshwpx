@@ -17,6 +17,30 @@ Hancom HwpAutomation may have separate commercial-use terms. Check Hancom's offi
 npm install tshwpx
 ```
 
+## HWP Automation Security Module
+
+Hancom HWP may show a security approval prompt when automation opens or saves local files.
+Register the file path checker module explicitly when you want to suppress that prompt for automation file access:
+
+```bash
+npx tshwpx install-security-module
+npx tshwpx doctor
+```
+
+Then enable the runtime registration call when creating the app:
+
+```ts
+const app = new App({ registerSecurityModule: true });
+```
+
+To remove the registry registration and the installed DLL copy:
+
+```bash
+npx tshwpx uninstall-security-module
+```
+
+The CLI writes the registration under `HKCU\Software\HNC\HwpAutomation\Modules`, using the value name `FilePathCheckerModuleExample`.
+
 ## Quick Start
 
 ```ts

@@ -20,7 +20,7 @@ export class ComObjectBridge implements HwpBridge {
   }
 
   async registerSecurityModule(): Promise<void> {
-    const ok = this.raw.RegisterModule?.("FilePathCheckDLL", "FilePathCheckerModule");
+    const ok = this.raw.RegisterModule?.("FilePathCheckDLL", "FilePathCheckerModuleExample");
     if (ok === false) {
       throw new Error("RegisterModule returned false");
     }

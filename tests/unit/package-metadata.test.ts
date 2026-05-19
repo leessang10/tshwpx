@@ -10,6 +10,13 @@ describe("package metadata", () => {
     expect(packageJson).not.toHaveProperty("optionalDependencies.edge-js");
   });
 
+  it("exposes explicit security module CLI commands", () => {
+    expect(packageJson.bin).toMatchObject({
+      tshwpx: "./dist/cli.js",
+    });
+    expect(packageJson.files).toContain("security-module");
+  });
+
   it("does not export low-level or catalog-backed API facades", () => {
     expect("ActionsApi" in tshwpx).toBe(false);
     expect("EventsApi" in tshwpx).toBe(false);

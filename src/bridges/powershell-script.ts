@@ -29,7 +29,7 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
         Send-Response $id $true $true $null
       }
       "registerSecurityModule" {
-        $result = $hwp.RegisterModule("FilePathCheckDLL", "FilePathCheckerModule")
+        $result = $hwp.RegisterModule("FilePathCheckDLL", "FilePathCheckerModuleExample")
         Send-Response $id $true ([bool]$result) $null
       }
       "open" {
