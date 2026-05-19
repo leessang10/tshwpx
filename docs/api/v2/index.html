@@ -13,25 +13,42 @@
   <p class="lead">app은 실행 중인 한글 자동화 세션이고, app.doc은 그 세션의 현재 문서 작업 진입점입니다.</p>
 </header>
 <main>
-  <h2>계층</h2>
+  <h2>모듈 목록</h2>
   <table>
-    <tr><th>모듈</th><th>역할</th><th>상태</th></tr>
-    <tr><td><a href="app.html"><code>app</code></a></td><td>실행 중인 한글 프로세스/자동화 세션</td><td>구현됨</td></tr>
-    <tr><td><a href="app-file.html"><code>app.file</code></a></td><td>세션에서 문서를 열고 저장하고 닫는 파일 작업</td><td>구현됨</td></tr>
-    <tr><td><a href="app-doc.html"><code>app.doc</code></a></td><td>현재 활성 문서 작업 진입점</td><td>구현됨</td></tr>
-    <tr><td><code>app.raw</code></td><td>한글 오토메이션 저수준 연동 방식</td><td>구현됨</td></tr>
-  </table>
-
-  <h2>문서 모듈</h2>
-  <table>
-    <tr><th>모듈</th><th>역할</th><th>상태</th></tr>
-    <tr><td><a href="app-doc-text.html"><code>app.doc.text</code></a></td><td>현재 커서 위치의 텍스트 입력</td><td><code>insert(text)</code> 구현됨</td></tr>
-    <tr><td><a href="app-doc-char-shape.html"><code>app.doc.charShape</code></a></td><td>글자 모양 관리</td><td>구현됨</td></tr>
-    <tr><td><a href="app-doc-paragraph.html"><code>app.doc.paragraph</code></a></td><td>문단 모양 관리</td><td>구현됨</td></tr>
-    <tr><td><a href="app-doc-tables.html"><code>app.doc.tables</code></a></td><td>표 관리</td><td>구현됨</td></tr>
-    <tr><td><a href="app-doc-pages.html"><code>app.doc.pages</code></a></td><td>쪽과 구역 관리</td><td>구현됨</td></tr>
-    <tr><td><a href="app-doc-cursor.html"><code>app.doc.cursor</code></a></td><td>커서와 선택 영역 관리</td><td>구현됨</td></tr>
-    <tr><td><a href="app-doc-styles.html"><code>app.doc.styles</code></a></td><td>스타일 관리</td><td>구현됨</td></tr>
+    <tr><th>모듈명</th><th>역할</th><th>하위 모듈명</th></tr>
+    <tr>
+      <td><a href="app.html"><code>app</code></a></td>
+      <td>실행 중인 한글 프로세스/자동화 세션</td>
+      <td><code>-</code></td>
+    </tr>
+    <tr>
+      <td><a href="app-doc.html"><code>app.doc</code></a></td>
+      <td>현재 활성 문서 작업 진입점</td>
+      <td>
+        <details>
+          <summary>문서 모듈 보기</summary>
+          <ul class="module-list">
+            <li><a href="app-doc-text.html"><code>app.doc.text</code></a> 텍스트 입력</li>
+            <li><a href="app-doc-char-shape.html"><code>app.doc.charShape</code></a> 글자 모양 관리</li>
+            <li><a href="app-doc-paragraph.html"><code>app.doc.paragraph</code></a> 문단 모양 관리</li>
+            <li><a href="app-doc-tables.html"><code>app.doc.tables</code></a> 표 관리</li>
+            <li><a href="app-doc-pages.html"><code>app.doc.pages</code></a> 쪽과 구역 관리</li>
+            <li><a href="app-doc-cursor.html"><code>app.doc.cursor</code></a> 커서와 선택 영역 관리</li>
+            <li><a href="app-doc-styles.html"><code>app.doc.styles</code></a> 스타일 관리</li>
+          </ul>
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="app-file.html"><code>app.file</code></a></td>
+      <td>문서 열기, 파일 내보내기, 파일 보안 작업</td>
+      <td><code>-</code></td>
+    </tr>
+    <tr>
+      <td><code>app.raw</code></td>
+      <td>한글 오토메이션 저수준 연동 방식</td>
+      <td><code>-</code></td>
+    </tr>
   </table>
 </main>
 </body>

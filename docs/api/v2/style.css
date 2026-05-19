@@ -33,6 +33,9 @@ p { margin: 0 0 12px; }
 section { padding: 16px; margin: 14px 0; }
 ul { margin: 8px 0 0; padding-left: 20px; }
 li { margin: 4px 0; }
+details summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.module-list { margin-top: 8px; }
+.module-list li { margin: 6px 0; }
 code { padding: 1px 5px; border-radius: 5px; background: var(--code); font-family: "Cascadia Mono", Consolas, monospace; font-size: 0.95em; }
 table { width: 100%; border-collapse: collapse; overflow: hidden; }
 th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
