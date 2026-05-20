@@ -193,6 +193,9 @@ await app.file.preview.open();
 await app.file.password.set({ password: "secret", fullRange: true, level: 1 });
 await app.file.security.set({ password: "1234567", noPrint: true, noCopy: false });
 await app.file.image.save({ fileName: "C:/tmp/page.png", range: 6, printToFile: true });
+await app.file.print.print({ range: "all", numCopy: 2, collate: true });
+await app.file.print.pdf({ fileName: "C:/tmp/out.pdf", range: "current", printToFile: true });
+await app.file.print.image({ fileName: "C:/tmp/page.png", format: "png", resolution: 200 });
 await app.file.template.open({ saveFileName: "C:/tmp/template.hwt", openFormat: "HWP" });
 
 await app.close();

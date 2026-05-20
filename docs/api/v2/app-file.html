@@ -18,7 +18,7 @@
     <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
     <tr><td><code>app.file.open(path, options)</code></td><td>Bridge <code>Open</code> 호출</td></tr>
     <tr><td><code>app.file.dialog.*</code>, <code>preview.open()</code>, <code>new()</code></td><td><code>File*</code> Action 실행</td></tr>
-    <tr><td><code>app.file.password.*</code>, <code>security.set</code>, <code>image.*</code>, <code>template.open</code></td><td>파일 관련 Action + ParameterSet</td></tr>
+    <tr><td><code>app.file.password.*</code>, <code>security.set</code>, <code>image.*</code>, <code>print.*</code>, <code>template.open</code></td><td>파일 관련 Action + ParameterSet</td></tr>
   </table>
 
   <h2>위치</h2>
@@ -36,6 +36,8 @@
     <tr><td><code>FilePasswordOptions</code></td><td><code>password</code>, <code>fullRange</code>, <code>level</code>, <code>readPassword</code>, <code>writePassword</code></td><td><code>String</code>, <code>FullRange</code>, <code>Level</code>, <code>ReadString</code>, <code>WriteString</code></td></tr>
     <tr><td><code>FileSecurityOptions</code></td><td><code>password</code>, <code>noPrint</code>, <code>noCopy</code></td><td><code>Password</code>, <code>NoPrint</code>, <code>NoCopy</code></td></tr>
     <tr><td><code>FileImageOptions</code></td><td><code>fileName</code>, <code>range</code>, <code>rangeCustom</code>, <code>printToFile</code>, <code>numCopy</code></td><td><code>FileName</code>, <code>Range</code>, <code>RangeCustom</code>, <code>PrintToFile</code>, <code>NumCopy</code></td></tr>
+    <tr><td><code>FilePrintOptions</code></td><td><code>fileName</code>, <code>range</code>, <code>rangeCustom</code>, <code>includeLinkedDocuments</code>, <code>numCopy</code>, <code>collate</code>, <code>printerName</code>, <code>printToFile</code>, <code>reverseOrder</code>, <code>printMemo</code>, <code>printRevision</code>, <code>usingPageNumber</code></td><td><code>FileName</code>, <code>Range</code>, <code>RangeCustom</code>, <code>RangeIncludeLinkedDoc</code>, <code>NumCopy</code>, <code>Collate</code>, <code>PrinterName</code>, <code>PrintToFile</code>, <code>ReverseOrder</code>, <code>PrintMemo</code>, <code>PrintRevision</code>, <code>UsingPagenum</code></td></tr>
+    <tr><td><code>FilePrintImageOptions</code></td><td><code>fileName</code>, <code>format</code>, <code>colorDepth</code>, <code>resolution</code>, <code>range</code>, <code>width</code>, <code>height</code></td><td><code>FileName</code>, <code>Format</code>, <code>ColorDepth</code>, <code>Resolution</code>, <code>Range</code>, <code>Width</code>, <code>Height</code></td></tr>
   </table>
 
   <h2>하위 API</h2>
@@ -55,8 +57,85 @@
     <tr><td><code>security.set(options)</code></td><td>배포/보안 설정을 적용합니다.</td><td><code>FileSetSecurity</code></td></tr>
     <tr><td><code>image.save(options)</code></td><td>문서를 이미지로 저장합니다.</td><td><code>FileSaveAsImage</code></td></tr>
     <tr><td><code>image.options(options)</code></td><td>이미지 저장 옵션을 설정합니다.</td><td><code>FileSaveAsImageOption</code></td></tr>
+    <tr><td><code>print.print(options)</code></td><td>현재 문서를 인쇄합니다.</td><td><code>Print</code></td></tr>
+    <tr><td><code>print.setup(options)</code></td><td>인쇄 설정을 적용합니다.</td><td><code>PrintSetup</code></td></tr>
+    <tr><td><code>print.pdf(options)</code></td><td>PDF 인쇄를 실행합니다.</td><td><code>PrintToPDF</code></td></tr>
+    <tr><td><code>print.image(options)</code></td><td>문서를 이미지로 출력합니다.</td><td><code>PrintToImage</code></td></tr>
     <tr><td><code>template.open(options)</code></td><td>서식 파일을 엽니다.</td><td><code>FileTemplate</code></td></tr>
   </table>
+
+  <h2>print/export</h2>
+  <p><code>app.file.print</code>는 한글 인쇄 Action을 실행합니다. <code>print.print</code>, <code>print.setup</code>, <code>print.pdf</code>는 <code>Print</code> ParameterSet을 사용하고, <code>print.image</code>는 <code>PrintToImage</code> ParameterSet을 사용합니다.</p>
+  <table>
+    <tr><th>API</th><th>Action</th><th>옵션 타입</th></tr>
+    <tr><td><code>print.print(options)</code></td><td><code>Print</code></td><td><code>FilePrintOptions</code></td></tr>
+    <tr><td><code>print.setup(options)</code></td><td><code>PrintSetup</code></td><td><code>FilePrintOptions</code></td></tr>
+    <tr><td><code>print.pdf(options)</code></td><td><code>PrintToPDF</code></td><td><code>FilePrintOptions</code></td></tr>
+    <tr><td><code>print.image(options)</code></td><td><code>PrintToImage</code></td><td><code>FilePrintImageOptions</code></td></tr>
+  </table>
+
+  <h3>FilePrintOptions</h3>
+  <table>
+    <tr><th>옵션</th><th>ParameterSet item</th></tr>
+    <tr><td><code>fileName</code></td><td><code>FileName</code></td></tr>
+    <tr><td><code>range</code></td><td><code>Range</code></td></tr>
+    <tr><td><code>rangeCustom</code></td><td><code>RangeCustom</code></td></tr>
+    <tr><td><code>includeLinkedDocuments</code></td><td><code>RangeIncludeLinkedDoc</code></td></tr>
+    <tr><td><code>numCopy</code></td><td><code>NumCopy</code></td></tr>
+    <tr><td><code>collate</code></td><td><code>Collate</code></td></tr>
+    <tr><td><code>printMethod</code></td><td><code>PrintMethod</code></td></tr>
+    <tr><td><code>printerPaperSize</code></td><td><code>PrinterPaperSize</code></td></tr>
+    <tr><td><code>printerPaperWidth</code></td><td><code>PrinterPaperWidth</code></td></tr>
+    <tr><td><code>printerPaperLength</code></td><td><code>PrinterPaperLength</code></td></tr>
+    <tr><td><code>printerName</code></td><td><code>PrinterName</code></td></tr>
+    <tr><td><code>printToFile</code></td><td><code>PrintToFile</code></td></tr>
+    <tr><td><code>reverseOrder</code></td><td><code>ReverseOrder</code></td></tr>
+    <tr><td><code>pause</code></td><td><code>Pause</code></td></tr>
+    <tr><td><code>printImage</code></td><td><code>PrintImage</code></td></tr>
+    <tr><td><code>printDrawObject</code></td><td><code>PrintDrawObj</code></td></tr>
+    <tr><td><code>printClickHere</code></td><td><code>PrintClickHere</code></td></tr>
+    <tr><td><code>printCropMark</code></td><td><code>PrintCropMark</code></td></tr>
+    <tr><td><code>printWallpaper</code></td><td><code>IdcPrintWallPaper</code></td></tr>
+    <tr><td><code>lastBlankPage</code></td><td><code>LastBlankPage</code></td></tr>
+    <tr><td><code>binderHoleType</code></td><td><code>BinderHoleType</code></td></tr>
+    <tr><td><code>evenOddPageType</code></td><td><code>EvenOddPageType</code></td></tr>
+    <tr><td><code>zoomX</code></td><td><code>ZoomX</code></td></tr>
+    <tr><td><code>zoomY</code></td><td><code>ZoomY</code></td></tr>
+    <tr><td><code>flags</code></td><td><code>Flags</code></td></tr>
+    <tr><td><code>device</code></td><td><code>Device</code></td></tr>
+    <tr><td><code>printFormObject</code></td><td><code>PrintFormObj</code></td></tr>
+    <tr><td><code>printMarkPen</code></td><td><code>PrintMarkPen</code></td></tr>
+    <tr><td><code>printMemo</code></td><td><code>PrintMemo</code></td></tr>
+    <tr><td><code>printMemoContents</code></td><td><code>PrintMemoContents</code></td></tr>
+    <tr><td><code>printRevision</code></td><td><code>PrintRevision</code></td></tr>
+    <tr><td><code>userOrder</code></td><td><code>UserOrder</code></td></tr>
+    <tr><td><code>overlapSize</code></td><td><code>OverlapSize</code></td></tr>
+    <tr><td><code>usingPageNumber</code></td><td><code>UsingPagenum</code></td></tr>
+    <tr><td><code>printBarcode</code></td><td><code>PrintBarcode</code></td></tr>
+    <tr><td><code>printPronounce</code></td><td><code>PrintPronounce</code></td></tr>
+    <tr><td><code>printColorSet</code></td><td><code>PrintColorSet</code></td></tr>
+    <tr><td><code>withoutBlank</code></td><td><code>PrintWithoutBlank</code></td></tr>
+  </table>
+
+  <h3>FilePrintImageOptions</h3>
+  <table>
+    <tr><th>옵션</th><th>ParameterSet item</th></tr>
+    <tr><td><code>fileName</code></td><td><code>FileName</code></td></tr>
+    <tr><td><code>format</code></td><td><code>Format</code></td></tr>
+    <tr><td><code>colorDepth</code></td><td><code>ColorDepth</code></td></tr>
+    <tr><td><code>resolution</code></td><td><code>Resolution</code></td></tr>
+    <tr><td><code>range</code></td><td><code>Range</code></td></tr>
+    <tr><td><code>width</code></td><td><code>Width</code></td></tr>
+    <tr><td><code>height</code></td><td><code>Height</code></td></tr>
+  </table>
+
+  <h3>aliases</h3>
+  <table>
+    <tr><th>항목</th><th>별칭</th><th>값</th></tr>
+    <tr><td><code>range</code></td><td><code>all</code>, <code>current</code>, <code>fromCurrent</code>, <code>toCurrent</code>, <code>custom</code>, <code>selection</code>, <code>document</code>, <code>section</code></td><td><code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>, <code>5</code>, <code>6</code>, <code>7</code></td></tr>
+    <tr><td><code>format</code></td><td><code>bmp</code>, <code>gif</code>, <code>png</code>, <code>jpg</code>, <code>wmf</code></td><td><code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>, <code>5</code></td></tr>
+  </table>
+  <p><code>app.file.print.image()</code>는 <code>PrintToImage</code> Action입니다. 기존 <code>app.file.image.save/options</code>는 계속 <code>FileSaveAsImage</code> API로 남아 있습니다.</p>
 </main>
 </body>
 </html>
