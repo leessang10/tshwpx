@@ -164,11 +164,15 @@ describe("DocumentApi", () => {
       parameterSetId: "BookMark",
       values: { Name: "intro", Type: 0, Command: 1 },
     });
-    expect(bridge.execute).toHaveBeenNthCalledWith(3, "ModifyBookmark", {
+    expect(bridge.execute).toHaveBeenNthCalledWith(3, "Bookmark", {
+      parameterSetId: "BookMark",
+      values: { Name: "intro", Type: 0, Command: 1 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(4, "ModifyBookmark", {
       parameterSetId: "BookMark",
       values: { Name: "intro-renamed", Type: 0, Command: 2 },
     });
-    expect(bridge.execute).toHaveBeenCalledTimes(3);
+    expect(bridge.execute).toHaveBeenCalledTimes(4);
     expect(bridge.run.mock.calls.map((call) => call[0])).toEqual(["BookmarkEditDialog"]);
   });
 
@@ -202,6 +206,31 @@ describe("DocumentApi", () => {
     });
     expect(bridge.execute).toHaveBeenCalledTimes(2);
     expect(bridge.run.mock.calls.map((call) => call[0])).toEqual(["HyperlinkForward", "HyperlinkBackward"]);
+  });
+
+  it("packs non-default hyperlink insert options", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.references.hyperlinks.insert({
+      target: "section-1",
+      linkType: 2,
+      objectType: 9,
+      option: 7,
+      directInsert: false,
+    });
+
+    expect(bridge.execute).toHaveBeenCalledWith("Hyperlink", {
+      parameterSetId: "HyperLink",
+      values: {
+        Command: "section-1;2;9;7",
+        DirectInsert: 0,
+      },
+    });
   });
 
   it("runs comment and memo reference actions", async () => {

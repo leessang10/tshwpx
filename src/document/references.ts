@@ -38,7 +38,8 @@ export class DocumentBookmarkApi {
     await this.execute("Bookmark", name, 1, options);
   }
 
-  async modify(_name: string, newName: string, options: BookmarkOptions = {}): Promise<void> {
+  async modify(name: string, newName: string, options: BookmarkOptions = {}): Promise<void> {
+    await this.moveTo(name, options);
     await this.execute("ModifyBookmark", newName, 2, options);
   }
 
