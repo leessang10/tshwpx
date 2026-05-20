@@ -407,6 +407,141 @@ describe("DocumentApi", () => {
     expect(bridge.run).toHaveBeenNthCalledWith(4, "TableDistributeCellWidth");
   });
 
+  it("runs table cell alignment, border, and shading actions", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.cells.align.leftTop();
+    await doc.tables.cells.align.leftMiddle();
+    await doc.tables.cells.align.leftBottom();
+    await doc.tables.cells.align.centerTop();
+    await doc.tables.cells.align.centerMiddle();
+    await doc.tables.cells.align.centerBottom();
+    await doc.tables.cells.align.rightTop();
+    await doc.tables.cells.align.rightMiddle();
+    await doc.tables.cells.align.rightBottom();
+    await doc.tables.cells.border.all();
+    await doc.tables.cells.border.none();
+    await doc.tables.cells.border.outside();
+    await doc.tables.cells.border.inside();
+    await doc.tables.cells.border.top();
+    await doc.tables.cells.border.bottom();
+    await doc.tables.cells.border.left();
+    await doc.tables.cells.border.right();
+    await doc.tables.cells.border.insideHorizontal();
+    await doc.tables.cells.border.insideVertical();
+    await doc.tables.cells.border.diagonalDown();
+    await doc.tables.cells.border.diagonalUp();
+    await doc.tables.cells.shading.increase();
+    await doc.tables.cells.shading.decrease();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "TableCellAlignLeftTop",
+      "TableCellAlignLeftCenter",
+      "TableCellAlignLeftBottom",
+      "TableCellAlignCenterTop",
+      "TableCellAlignCenterCenter",
+      "TableCellAlignCenterBottom",
+      "TableCellAlignRightTop",
+      "TableCellAlignRightCenter",
+      "TableCellAlignRightBottom",
+      "TableCellBorderAll",
+      "TableCellBorderNo",
+      "TableCellBorderOutside",
+      "TableCellBorderInside",
+      "TableCellBorderTop",
+      "TableCellBorderBottom",
+      "TableCellBorderLeft",
+      "TableCellBorderRight",
+      "TableCellBorderInsideHorz",
+      "TableCellBorderInsideVert",
+      "TableCellBorderDiagonalDow",
+      "TableCellBorderDiagonalUp",
+      "TableCellShadeInc",
+      "TableCellShadeDec",
+    ]);
+  });
+
+  it("runs table formula actions for sum, average, and product directions", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.formulas.sum.auto();
+    await doc.tables.formulas.sum.horizontal();
+    await doc.tables.formulas.sum.vertical();
+    await doc.tables.formulas.average.auto();
+    await doc.tables.formulas.average.horizontal();
+    await doc.tables.formulas.average.vertical();
+    await doc.tables.formulas.product.auto();
+    await doc.tables.formulas.product.horizontal();
+    await doc.tables.formulas.product.vertical();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "TableFormulaSumAuto",
+      "TableFormulaSumHor",
+      "TableFormulaSumVer",
+      "TableFormulaAvgAuto",
+      "TableFormulaAvgHor",
+      "TableFormulaAvgVer",
+      "TableFormulaProAuto",
+      "TableFormulaProHor",
+      "TableFormulaProVer",
+    ]);
+  });
+
+  it("runs table resize actions for cells, tables, lines, and extended resize", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.tables.resize.cell.up();
+    await doc.tables.resize.cell.down();
+    await doc.tables.resize.cell.left();
+    await doc.tables.resize.cell.right();
+    await doc.tables.resize.table.up();
+    await doc.tables.resize.table.down();
+    await doc.tables.resize.table.left();
+    await doc.tables.resize.table.right();
+    await doc.tables.resize.line.up();
+    await doc.tables.resize.line.down();
+    await doc.tables.resize.line.left();
+    await doc.tables.resize.line.right();
+    await doc.tables.resize.extended.up();
+    await doc.tables.resize.extended.down();
+    await doc.tables.resize.extended.left();
+    await doc.tables.resize.extended.right();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "TableResizeCellUp",
+      "TableResizeCellDown",
+      "TableResizeCellLeft",
+      "TableResizeCellRight",
+      "TableResizeUp",
+      "TableResizeDown",
+      "TableResizeLeft",
+      "TableResizeRight",
+      "TableResizeLineUp",
+      "TableResizeLineDown",
+      "TableResizeLineLeft",
+      "TableResizeLineRight",
+      "TableResizeExUp",
+      "TableResizeExDown",
+      "TableResizeExLeft",
+      "TableResizeExRight",
+    ]);
+  });
+
   it("sets character shape through doc.charShape.set", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),

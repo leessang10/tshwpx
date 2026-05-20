@@ -63,8 +63,15 @@ export {
   DocumentPagesApi,
 } from "./document/pages";
 export {
+  DocumentTableCellAlignmentApi,
+  DocumentTableCellBorderApi,
   DocumentTableCellsApi,
+  DocumentTableCellShadingApi,
   DocumentTableColumnsApi,
+  DocumentTableFormulaGroupApi,
+  DocumentTableFormulasApi,
+  DocumentTableResizeApi,
+  DocumentTableResizeDirectionApi,
   DocumentTableRowsApi,
   DocumentTablesApi,
 } from "./document/tables";
