@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.objects</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.objects</div>
+  <h1>app.doc.objects</h1>
+  <p class="lead">현재 선택된 개체 또는 그림을 대상으로 정렬, 순서, 이동, 크기, 그림 효과를 적용합니다.</p>
+</header>
+<main>
+  <h2>주의</h2>
+  <p>이 도우미들은 한글의 현재 선택 개체 또는 현재 선택 그림에 대해 동작합니다. 개체나 그림을 먼저 선택한 뒤 호출해야 합니다.</p>
+  <p>이 릴리스에는 파일 경로에서 새 그림을 직접 삽입하는 기능이나 새 도형을 생성하는 기능은 포함되지 않습니다. <code>picture.change(options)</code>는 선택된 그림의 파일을 바꾸는 용도입니다.</p>
+
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.objects.picture.change(options)</code></td><td><code>PictureChange</code> Action + <code>PictureChange</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.objects.picture.dialog.open()</code></td><td><code>PictureInsertDialog</code> Action</td></tr>
+    <tr><td><code>app.doc.objects.picture.effects.*</code></td><td><code>PictureEffect*</code>, <code>PictureToOriginal</code> Action</td></tr>
+    <tr><td><code>app.doc.objects.align.*</code></td><td><code>ShapeObjAlign*</code> Action</td></tr>
+    <tr><td><code>app.doc.objects.order.*</code></td><td><code>ShapeObjBring*</code>, <code>ShapeObjSend*</code> Action</td></tr>
+    <tr><td><code>app.doc.objects.move.*</code></td><td><code>ShapeObjMove*</code> Action</td></tr>
+    <tr><td><code>app.doc.objects.resize.*</code></td><td><code>ShapeObjResize*</code> Action</td></tr>
+    <tr><td><code>app.doc.objects.copy()</code>, <code>paste()</code>, <code>cut()</code></td><td><code>Copy</code>, <code>Paste</code>, <code>Cut</code> Action</td></tr>
+    <tr><td><code>app.doc.objects.style.copy(options)</code>, <code>style.paste(options)</code></td><td><code>ShapeObjectCopy</code>, <code>ShapeObjectPaste</code> Action + <code>ShapeObjectCopyPaste</code> ParameterSet</td></tr>
+  </table>
+
+  <h2>하위 API</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>picture.change(options)</code></td><td>선택된 그림의 파일 경로와 포함 여부를 바꿉니다.</td><td><code>PictureChange</code></td></tr>
+    <tr><td><code>picture.dialog.open()</code></td><td>그림 넣기 대화상자를 엽니다.</td><td><code>PictureInsertDialog</code></td></tr>
+    <tr><td><code>picture.effects.grayscale()</code></td><td>선택된 그림을 회색조로 바꿉니다.</td><td><code>PictureEffect1</code></td></tr>
+    <tr><td><code>picture.effects.blackWhite()</code></td><td>선택된 그림을 흑백으로 바꿉니다.</td><td><code>PictureEffect2</code></td></tr>
+    <tr><td><code>picture.effects.watermark()</code></td><td>선택된 그림에 워터마크 효과를 적용합니다.</td><td><code>PictureEffect3</code></td></tr>
+    <tr><td><code>picture.effects.none()</code></td><td>선택된 그림 효과를 해제합니다.</td><td><code>PictureEffect4</code></td></tr>
+    <tr><td><code>picture.effects.brightness.increase()</code>, <code>decrease()</code></td><td>선택된 그림의 밝기를 조정합니다.</td><td><code>PictureEffect5</code>, <code>PictureEffect6</code></td></tr>
+    <tr><td><code>picture.effects.contrast.increase()</code>, <code>decrease()</code></td><td>선택된 그림의 대비를 조정합니다.</td><td><code>PictureEffect7</code>, <code>PictureEffect8</code></td></tr>
+    <tr><td><code>picture.effects.restoreOriginal()</code></td><td>선택된 그림을 원래 상태로 되돌립니다.</td><td><code>PictureToOriginal</code></td></tr>
+    <tr><td><code>align.left()</code>, <code>center()</code>, <code>right()</code></td><td>선택 개체를 가로 방향으로 맞춥니다.</td><td><code>ShapeObjAlignLeft</code>, <code>ShapeObjAlignCenter</code>, <code>ShapeObjAlignRight</code></td></tr>
+    <tr><td><code>align.top()</code>, <code>middle()</code>, <code>bottom()</code></td><td>선택 개체를 세로 방향으로 맞춥니다.</td><td><code>ShapeObjAlignTop</code>, <code>ShapeObjAlignMiddle</code>, <code>ShapeObjAlignBottom</code></td></tr>
+    <tr><td><code>align.width()</code>, <code>height()</code>, <code>size()</code></td><td>선택 개체의 너비, 높이, 크기를 맞춥니다.</td><td><code>ShapeObjAlignWidth</code>, <code>ShapeObjAlignHeight</code>, <code>ShapeObjAlignSize</code></td></tr>
+    <tr><td><code>align.horizontalSpacing()</code>, <code>verticalSpacing()</code></td><td>선택 개체 사이의 간격을 맞춥니다.</td><td><code>ShapeObjAlignHorzSpacing</code>, <code>ShapeObjAlignVertSpacing</code></td></tr>
+    <tr><td><code>order.bringForward()</code>, <code>bringToFront()</code></td><td>선택 개체를 앞으로 보냅니다.</td><td><code>ShapeObjBringForward</code>, <code>ShapeObjBringToFront</code></td></tr>
+    <tr><td><code>order.sendBack()</code>, <code>sendToBack()</code></td><td>선택 개체를 뒤로 보냅니다.</td><td><code>ShapeObjSendBack</code>, <code>ShapeObjSendToBack</code></td></tr>
+    <tr><td><code>order.bringInFrontOfText()</code>, <code>sendBehindText()</code></td><td>선택 개체를 글 앞으로 또는 글 뒤로 배치합니다.</td><td><code>ShapeObjBringInFrontOfText</code>, <code>ShapeObjCtrlSendBehindText</code></td></tr>
+    <tr><td><code>move.up()</code>, <code>down()</code>, <code>left()</code>, <code>right()</code></td><td>선택 개체를 조금씩 이동합니다.</td><td><code>ShapeObjMove*</code></td></tr>
+    <tr><td><code>resize.up()</code>, <code>down()</code>, <code>left()</code>, <code>right()</code></td><td>선택 개체의 크기를 조금씩 조정합니다.</td><td><code>ShapeObjResize*</code></td></tr>
+    <tr><td><code>copy()</code>, <code>paste()</code>, <code>cut()</code></td><td>현재 선택 내용을 복사, 붙여넣기, 잘라내기합니다.</td><td><code>Copy</code>, <code>Paste</code>, <code>Cut</code></td></tr>
+    <tr><td><code>style.copy(options)</code>, <code>style.paste(options)</code></td><td>선택 개체의 선, 채우기, 크기, 그림자, 그림 효과 서식을 복사하거나 붙여넣습니다.</td><td><code>ShapeObjectCopy</code>, <code>ShapeObjectPaste</code></td></tr>
+  </table>
+
+  <h2>PictureChangeOptions</h2>
+  <table>
+    <tr><th>옵션</th><th>타입</th><th>ParameterSet item</th><th>설명</th></tr>
+    <tr><td><code>path</code></td><td><code>string</code></td><td><code>PicturePath</code></td><td>선택된 그림을 바꿀 파일 경로입니다.</td></tr>
+    <tr><td><code>embed</code></td><td><code>boolean</code></td><td><code>PictureEmbed</code></td><td>그림 파일을 문서에 포함할지 지정합니다.</td></tr>
+  </table>
+
+  <h2>ObjectStyleCopyOptions</h2>
+  <table>
+    <tr><th>옵션</th><th>타입</th><th>ParameterSet item</th><th>설명</th></tr>
+    <tr><td><code>line</code></td><td><code>boolean</code></td><td><code>ShapeObjectLine</code></td><td>선 서식을 포함합니다.</td></tr>
+    <tr><td><code>fill</code></td><td><code>boolean</code></td><td><code>ShapeObjectFill</code></td><td>채우기 서식을 포함합니다.</td></tr>
+    <tr><td><code>size</code></td><td><code>boolean</code></td><td><code>ShapeObjectSize</code></td><td>크기 서식을 포함합니다.</td></tr>
+    <tr><td><code>shadow</code></td><td><code>boolean</code></td><td><code>ShapeObjectShadow</code></td><td>그림자 서식을 포함합니다.</td></tr>
+    <tr><td><code>pictureEffect</code></td><td><code>boolean</code></td><td><code>ShapeObjectPicEffect</code></td><td>그림 효과 서식을 포함합니다.</td></tr>
+  </table>
+</main>
+</body>
+</html>
