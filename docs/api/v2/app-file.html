@@ -36,7 +36,7 @@
     <tr><td><code>FilePasswordOptions</code></td><td><code>password</code>, <code>fullRange</code>, <code>level</code>, <code>readPassword</code>, <code>writePassword</code></td><td><code>String</code>, <code>FullRange</code>, <code>Level</code>, <code>ReadString</code>, <code>WriteString</code></td></tr>
     <tr><td><code>FileSecurityOptions</code></td><td><code>password</code>, <code>noPrint</code>, <code>noCopy</code></td><td><code>Password</code>, <code>NoPrint</code>, <code>NoCopy</code></td></tr>
     <tr><td><code>FileImageOptions</code></td><td><code>fileName</code>, <code>range</code>, <code>rangeCustom</code>, <code>printToFile</code>, <code>numCopy</code></td><td><code>FileName</code>, <code>Range</code>, <code>RangeCustom</code>, <code>PrintToFile</code>, <code>NumCopy</code></td></tr>
-    <tr><td><code>FilePrintOptions</code></td><td><code>fileName</code>, <code>range</code>, <code>rangeCustom</code>, <code>includeLinkedDocuments</code>, <code>numCopy</code>, <code>collate</code>, <code>printerName</code>, <code>printToFile</code>, <code>reverseOrder</code>, <code>printMemo</code>, <code>printRevision</code>, <code>usingPageNumber</code></td><td><code>FileName</code>, <code>Range</code>, <code>RangeCustom</code>, <code>RangeIncludeLinkedDoc</code>, <code>NumCopy</code>, <code>Collate</code>, <code>PrinterName</code>, <code>PrintToFile</code>, <code>ReverseOrder</code>, <code>PrintMemo</code>, <code>PrintRevision</code>, <code>UsingPagenum</code></td></tr>
+    <tr><td><code>FilePrintOptions</code></td><td>대표 옵션: <code>fileName</code>, <code>range</code>, <code>numCopy</code>, <code>printerName</code>, <code>printToFile</code>, <code>printMemo</code></td><td>전체 매핑은 아래 <code>FilePrintOptions</code> 표 참조</td></tr>
     <tr><td><code>FilePrintImageOptions</code></td><td><code>fileName</code>, <code>format</code>, <code>colorDepth</code>, <code>resolution</code>, <code>range</code>, <code>width</code>, <code>height</code></td><td><code>FileName</code>, <code>Format</code>, <code>ColorDepth</code>, <code>Resolution</code>, <code>Range</code>, <code>Width</code>, <code>Height</code></td></tr>
   </table>
 
@@ -135,7 +135,7 @@
     <tr><td><code>range</code></td><td><code>all</code>, <code>current</code>, <code>fromCurrent</code>, <code>toCurrent</code>, <code>custom</code>, <code>selection</code>, <code>document</code>, <code>section</code></td><td><code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>, <code>5</code>, <code>6</code>, <code>7</code></td></tr>
     <tr><td><code>format</code></td><td><code>bmp</code>, <code>gif</code>, <code>png</code>, <code>jpg</code>, <code>wmf</code></td><td><code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>, <code>5</code></td></tr>
   </table>
-  <p><code>app.file.print.image()</code>는 <code>PrintToImage</code> Action입니다. 기존 <code>app.file.image.save/options</code>는 계속 <code>FileSaveAsImage</code> API로 남아 있습니다.</p>
+  <p><code>app.file.print.image()</code>는 <code>PrintToImage</code> Action입니다. 기존 <code>app.file.image.save()</code>는 계속 <code>FileSaveAsImage</code>, <code>app.file.image.options()</code>는 <code>FileSaveAsImageOption</code> API로 남아 있습니다.</p>
 </main>
 </body>
 </html>
