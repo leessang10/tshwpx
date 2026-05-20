@@ -17,6 +17,10 @@ Hancom HwpAutomation may have separate commercial-use terms. Check Hancom's offi
 npm install tshwpx
 ```
 
+## Current Release
+
+`0.3.0` adds direct picture insertion through `app.doc.objects.picture.insert(...)`, including embedded images, size/effect options, and millimeter-based `width`/`height` values for specific-size insertion.
+
 ## HWP Automation Security Module
 
 Hancom HWP may show a security approval prompt when automation opens or saves local files.
@@ -244,3 +248,20 @@ Converted local references are available under `docs/api/`. Original HTML conver
 | `insert_text` | `app.doc.text.insert` |
 | `save_as` | `app.doc.saveAs` |
 | `quit` | `app.close` |
+
+## Publish Checklist
+
+Before publishing:
+
+```bash
+npm run typecheck
+npm test
+npm run build
+npm pack --dry-run
+```
+
+Publish from a clean working tree after reviewing the dry-run file list:
+
+```bash
+npm publish
+```
