@@ -1,9 +1,10 @@
 import type { HwpBridge } from "../bridges/types";
 import { setBooleanValue, setValue, type ParameterValues } from "../internal/parameter-values";
 import { createParameterSetPayload } from "../internal/parameter-sets";
-import type { ObjectStyleCopyOptions, PictureChangeOptions } from "./types";
+import { requireBridgeMethod } from "./bridge-methods";
+import type { ObjectStyleCopyOptions, PictureChangeOptions, PictureInsertOptions } from "./types";
 
-type DocumentObjectBridge = Pick<HwpBridge, "run" | "execute">;
+type DocumentObjectBridge = Pick<HwpBridge, "run" | "execute" | "insertPicture">;
 
 export class DocumentObjectsApi {
   readonly picture: DocumentObjectPictureApi;
@@ -51,6 +52,18 @@ export class DocumentObjectPictureApi {
     setBooleanValue(values, "PictureEmbed", options.embed);
 
     await this.bridge.execute("PictureChange", createParameterSetPayload("PictureChange", values));
+  }
+
+  async insert(options: PictureInsertOptions): Promise<void> {
+    await requireBridgeMethod(this.bridge.insertPicture, "InsertPicture").call(this.bridge, options.path, {
+      embed: options.embed ?? true,
+      sizeOption: resolvePictureInsertSize(options.size),
+      reverse: options.reverse ?? false,
+      watermark: options.watermark ?? false,
+      effect: resolvePictureInsertEffect(options.effect),
+      width: options.width,
+      height: options.height,
+    });
   }
 }
 
@@ -254,4 +267,32 @@ function createObjectStyleValues(options: ObjectStyleCopyOptions): ParameterValu
   setBooleanValue(values, "ShapeObjectPicEffect", options.pictureEffect);
 
   return values;
+}
+
+function resolvePictureInsertSize(size: PictureInsertOptions["size"]): number {
+  if (typeof size === "number") return size;
+
+  switch (size ?? "real") {
+    case "real":
+      return 0;
+    case "specific":
+      return 1;
+    case "cell":
+      return 2;
+    case "cellRatio":
+      return 3;
+  }
+}
+
+function resolvePictureInsertEffect(effect: PictureInsertOptions["effect"]): number {
+  if (typeof effect === "number") return effect;
+
+  switch (effect ?? "real") {
+    case "real":
+      return 0;
+    case "grayscale":
+      return 1;
+    case "blackWhite":
+      return 2;
+  }
 }

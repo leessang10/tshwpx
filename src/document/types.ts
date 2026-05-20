@@ -37,6 +37,21 @@ export type PictureChangeOptions = {
   embed?: boolean;
 };
 
+export type PictureInsertSize = "real" | "specific" | "cell" | "cellRatio" | number;
+
+export type PictureInsertEffect = "real" | "grayscale" | "blackWhite" | number;
+
+export type PictureInsertOptions = {
+  path: string;
+  embed?: boolean;
+  size?: PictureInsertSize;
+  reverse?: boolean;
+  watermark?: boolean;
+  effect?: PictureInsertEffect;
+  width?: number;
+  height?: number;
+};
+
 export type ObjectStyleCopyOptions = {
   line?: boolean;
   fill?: boolean;

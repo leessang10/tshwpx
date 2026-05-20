@@ -127,6 +127,9 @@ export type {
   StyleDeleteOptions,
   StyleItemOptions,
   PictureChangeOptions,
+  PictureInsertEffect,
+  PictureInsertOptions,
+  PictureInsertSize,
   TableCellSplitOptions,
   TableInsertOptions,
 } from "./document/types";
