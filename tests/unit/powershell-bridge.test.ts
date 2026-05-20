@@ -220,16 +220,22 @@ describe("PowerShellBridge", () => {
     const spawnArgs = (spawn.mock.calls[0] as unknown[] | undefined)?.[1] as string[] | undefined;
     const scriptPath = spawnArgs?.[spawnArgs.length - 1];
     const script = readFileSync(scriptPath as string, "utf8");
+    const normalizedScript = script.replace(/\s+/g, " ").trim();
+    const orderedInsertPictureCall = [
+      "$hwp.InsertPicture(",
+      "[string]$params.path,",
+      "[bool]$params.embed,",
+      "[int16]$params.sizeOption,",
+      "[bool]$params.reverse,",
+      "[bool]$params.watermark,",
+      "[int16]$params.effect,",
+      "[int32]$params.width,",
+      "[int32]$params.height",
+      ")",
+    ].join(" ");
+
     expect(script).toContain('"insertPicture"');
-    expect(script).toContain("$hwp.InsertPicture");
-    expect(script).toContain("[string]$params.path");
-    expect(script).toContain("[bool]$params.embed");
-    expect(script).toContain("[int16]$params.sizeOption");
-    expect(script).toContain("[bool]$params.reverse");
-    expect(script).toContain("[bool]$params.watermark");
-    expect(script).toContain("[int16]$params.effect");
-    expect(script).toContain("[int32]$params.width");
-    expect(script).toContain("[int32]$params.height");
+    expect(normalizedScript).toContain(orderedInsertPictureCall);
     expect(script).toContain("HWP InsertPicture returned false.");
   });
 
