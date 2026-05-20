@@ -10,7 +10,7 @@
 <header>
   <div class="crumb"><a href="index.html">v2</a> / app.doc.text</div>
   <h1>app.doc.text</h1>
-  <p class="lead">현재 활성 문서의 현재 커서 위치에 텍스트를 입력합니다.</p>
+  <p class="lead">현재 활성 문서의 현재 커서 위치에서 텍스트를 입력하고 편집합니다.</p>
 </header>
 <main>
   <h2>개요</h2>
@@ -28,6 +28,11 @@
   <table>
     <tr><th>API</th><th>설명</th><th>연동</th></tr>
     <tr><td><code>insert(text)</code></td><td>현재 커서 위치에 문자열을 입력합니다.</td><td><code>bridge.insertText(text)</code></td></tr>
+    <tr><td><code>lineBreak()</code></td><td>현재 커서 위치에 줄 나누기를 입력합니다.</td><td><code>BreakLine</code> Action</td></tr>
+    <tr><td><code>paragraphBreak()</code></td><td>현재 커서 위치에 문단 나누기를 입력합니다.</td><td><code>BreakPara</code> Action</td></tr>
+    <tr><td><code>tab()</code></td><td>현재 커서 위치에 탭을 입력합니다.</td><td><code>InsertTab</code> Action</td></tr>
+    <tr><td><code>deletePreviousChar()</code></td><td>커서 앞 글자를 삭제합니다.</td><td><code>DeleteBack</code> Action</td></tr>
+    <tr><td><code>deleteNextChar()</code></td><td>커서 뒤 글자를 삭제합니다.</td><td><code>Delete</code> Action</td></tr>
   </table>
 
 </main>
