@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.references</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.references</div>
+  <h1>app.doc.references</h1>
+  <p class="lead">문서 안의 책갈피, 하이퍼링크, 숨은 설명, 메모 이동을 관리합니다.</p>
+</header>
+<main>
+  <h2>책갈피</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>bookmarks.add(name, options)</code></td><td>현재 위치에 책갈피를 추가합니다.</td><td><code>Bookmark</code> Action + <code>BookMark</code> ParameterSet</td></tr>
+    <tr><td><code>bookmarks.moveTo(name, options)</code></td><td>지정한 책갈피로 이동합니다.</td><td><code>Bookmark</code> Action + <code>BookMark</code> ParameterSet</td></tr>
+    <tr><td><code>bookmarks.modify(name, newName, options)</code></td><td>기존 책갈피로 이동한 뒤 새 이름으로 변경합니다.</td><td><code>Bookmark</code>, <code>ModifyBookmark</code> Action + <code>BookMark</code> ParameterSet</td></tr>
+    <tr><td><code>bookmarks.dialog.open()</code></td><td>책갈피 편집 대화상자를 엽니다.</td><td><code>BookmarkEditDialog</code> Action</td></tr>
+  </table>
+
+  <h2>하이퍼링크</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>hyperlinks.insert(options)</code></td><td>현재 위치 또는 선택 영역에 하이퍼링크를 삽입합니다.</td><td><code>Hyperlink</code> Action + <code>HyperLink</code> ParameterSet</td></tr>
+    <tr><td><code>hyperlinks.jump(options)</code></td><td>하이퍼링크 대상으로 이동합니다.</td><td><code>HyperlinkJump</code> Action + <code>HyperlinkJump</code> ParameterSet</td></tr>
+    <tr><td><code>hyperlinks.next()</code></td><td>다음 하이퍼링크로 이동합니다.</td><td><code>HyperlinkForward</code> Action</td></tr>
+    <tr><td><code>hyperlinks.previous()</code></td><td>이전 하이퍼링크로 이동합니다.</td><td><code>HyperlinkBackward</code> Action</td></tr>
+  </table>
+
+  <h2>숨은 설명</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>comments.insert()</code></td><td>숨은 설명을 삽입합니다.</td><td><code>Comment</code> Action</td></tr>
+    <tr><td><code>comments.modify()</code></td><td>숨은 설명을 수정합니다.</td><td><code>CommentModify</code> Action</td></tr>
+    <tr><td><code>comments.delete()</code></td><td>숨은 설명을 삭제합니다.</td><td><code>CommentDelete</code> Action</td></tr>
+  </table>
+
+  <h2>메모</h2>
+  <table>
+    <tr><th>API</th><th>설명</th><th>연동 Action</th></tr>
+    <tr><td><code>memos.next()</code></td><td>다음 메모로 이동합니다.</td><td><code>MemoToNext</code> Action</td></tr>
+    <tr><td><code>memos.previous()</code></td><td>이전 메모로 이동합니다.</td><td><code>MemoToPrev</code> Action</td></tr>
+  </table>
+
+  <h2>옵션</h2>
+  <table>
+    <tr><th>API</th><th>옵션</th><th>ParameterSet item</th></tr>
+    <tr><td><code>bookmarks.*</code></td><td><code>name</code>, <code>type</code></td><td><code>Name</code>, <code>Type</code></td></tr>
+    <tr><td><code>bookmarks.add</code>, <code>bookmarks.moveTo</code>, <code>bookmarks.modify</code></td><td>내부 명령 값</td><td><code>Command</code></td></tr>
+    <tr><td><code>hyperlinks.insert</code></td><td><code>target</code>, <code>text</code>, <code>linkType</code>, <code>objectType</code>, <code>option</code>, <code>directInsert</code></td><td><code>Command</code>, <code>Text</code>, <code>DirectInsert</code></td></tr>
+    <tr><td><code>hyperlinks.jump</code></td><td><code>target</code>, <code>source</code></td><td><code>Target</code>, <code>Source</code></td></tr>
+  </table>
+</main>
+</body>
+</html>

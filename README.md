@@ -157,6 +157,12 @@ await app.doc.styles.numbering.set({ type: "bullet", level: 1 });
 await app.doc.styles.template.open("C:/tmp/base.sty");
 await app.doc.styles.clearCharStyle();
 
+await app.doc.references.bookmarks.add("intro");
+await app.doc.references.bookmarks.moveTo("intro");
+await app.doc.references.hyperlinks.insert({ target: "https://example.com", text: "Example" });
+await app.doc.references.comments.insert();
+await app.doc.references.memos.next();
+
 await app.doc.cursor.move.document.begin();
 await app.doc.cursor.move.word.next();
 await app.doc.cursor.move.to("documentEnd");
@@ -188,6 +194,7 @@ The high-level API is grouped by what you want to edit:
 - `app.doc.pages.*` handles page breaks, sections, numbering, orientation, and page setup.
 - `app.doc.cursor.*` moves the cursor and controls text selection.
 - `app.doc.styles.*` applies and edits HWP styles.
+- `app.doc.references.*` manages bookmarks, hyperlinks, comments, and memo navigation.
 - `app.doc.save()`, `app.doc.saveAs(...)`, and `app.doc.close()` manage the current document lifecycle.
 - `app.file.*` opens documents, creates documents, protects files, previews, and exports files.
 - `app.close()` closes the HWP application process.
