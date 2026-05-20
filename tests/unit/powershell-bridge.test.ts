@@ -222,6 +222,15 @@ describe("PowerShellBridge", () => {
     const script = readFileSync(scriptPath as string, "utf8");
     expect(script).toContain('"insertPicture"');
     expect(script).toContain("$hwp.InsertPicture");
+    expect(script).toContain("[string]$params.path");
+    expect(script).toContain("[bool]$params.embed");
+    expect(script).toContain("[int16]$params.sizeOption");
+    expect(script).toContain("[bool]$params.reverse");
+    expect(script).toContain("[bool]$params.watermark");
+    expect(script).toContain("[int16]$params.effect");
+    expect(script).toContain("[int32]$params.width");
+    expect(script).toContain("[int32]$params.height");
+    expect(script).toContain("HWP InsertPicture returned false.");
   });
 
   it("rejects raw JavaScript parameter set objects", async () => {
