@@ -105,4 +105,43 @@ describe("ComObjectBridge", () => {
     expect(raw.SetPosBySet).toHaveBeenCalledWith(hSet);
     expect(raw.SelectText).toHaveBeenCalledWith(1, 2, 3, 4);
   });
+
+  it("inserts pictures through raw InsertPicture", async () => {
+    const raw = {
+      InsertPicture: vi.fn(() => true),
+    };
+    const bridge = new ComObjectBridge(raw);
+
+    await bridge.insertPicture("C:/tmp/photo.png", {
+      embed: true,
+      sizeOption: 1,
+      reverse: false,
+      watermark: false,
+      effect: 1,
+      width: 50,
+      height: 30,
+    });
+
+    expect(raw.InsertPicture).toHaveBeenCalledWith(
+      "C:/tmp/photo.png",
+      true,
+      1,
+      false,
+      false,
+      1,
+      50,
+      30,
+    );
+  });
+
+  it("throws when raw InsertPicture returns false", async () => {
+    const raw = {
+      InsertPicture: vi.fn(() => false),
+    };
+    const bridge = new ComObjectBridge(raw);
+
+    await expect(bridge.insertPicture("C:/tmp/photo.png")).rejects.toThrow(
+      "HWP InsertPicture returned false.",
+    );
+  });
 });

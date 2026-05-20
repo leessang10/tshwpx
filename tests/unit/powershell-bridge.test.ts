@@ -166,6 +166,34 @@ describe("PowerShellBridge", () => {
     });
   });
 
+  it("sends picture insertion requests through JSON-RPC", async () => {
+    const { bridge, write } = createBridge();
+
+    await bridge.insertPicture("C:/tmp/photo.png", {
+      embed: true,
+      sizeOption: 1,
+      reverse: false,
+      watermark: false,
+      effect: 1,
+      width: 50,
+      height: 30,
+    });
+
+    expect(JSON.parse(write.mock.calls[1]?.[0] ?? "{}")).toMatchObject({
+      method: "insertPicture",
+      params: {
+        path: "C:/tmp/photo.png",
+        embed: true,
+        sizeOption: 1,
+        reverse: false,
+        watermark: false,
+        effect: 1,
+        width: 50,
+        height: 30,
+      },
+    });
+  });
+
   it("generates powershell script support for cursor automation methods", async () => {
     const { bridge, spawn } = createBridge();
 
@@ -182,6 +210,18 @@ describe("PowerShellBridge", () => {
     expect(script).toContain("$hwp.SetPosBySet($pset.HSet)");
     expect(script).toContain('"selectText"');
     expect(script).toContain("$hwp.SelectText");
+  });
+
+  it("generates powershell script support for picture insertion", async () => {
+    const { bridge, spawn } = createBridge();
+
+    await bridge.init();
+
+    const spawnArgs = (spawn.mock.calls[0] as unknown[] | undefined)?.[1] as string[] | undefined;
+    const scriptPath = spawnArgs?.[spawnArgs.length - 1];
+    const script = readFileSync(scriptPath as string, "utf8");
+    expect(script).toContain('"insertPicture"');
+    expect(script).toContain("$hwp.InsertPicture");
   });
 
   it("rejects raw JavaScript parameter set objects", async () => {
