@@ -16,6 +16,16 @@ export type CursorTextRange = {
   end: CursorTextPosition;
 };
 
+export type BridgePictureInsertOptions = {
+  embed?: boolean;
+  sizeOption?: number;
+  reverse?: boolean;
+  watermark?: boolean;
+  effect?: number;
+  width?: number;
+  height?: number;
+};
+
 export type HwpBridge = {
   readonly kind: string;
   readonly raw?: unknown;
@@ -30,6 +40,7 @@ export type HwpBridge = {
   close(): Promise<void>;
   quit(): Promise<void>;
   insertText(text: string): Promise<void>;
+  insertPicture?(path: string, options?: BridgePictureInsertOptions): Promise<void>;
   run(actionName: string): Promise<void>;
   execute(actionName: string, parameterSet?: unknown): Promise<boolean>;
   movePos?(moveId: number, para?: number, pos?: number): Promise<boolean>;

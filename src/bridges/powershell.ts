@@ -6,7 +6,7 @@ import { createInterface } from "node:readline";
 import { HwpAutomationError } from "../com/errors";
 import { isParameterSetPayload } from "../spec";
 import type { OpenOptions, SaveFormat } from "../app";
-import type { HwpBridge } from "./types";
+import type { BridgePictureInsertOptions, HwpBridge } from "./types";
 import type { CursorPosition, CursorTextRange } from "./types";
 import { POWERSHELL_BRIDGE_SCRIPT } from "./powershell-script";
 
@@ -115,6 +115,20 @@ export class PowerShellBridge implements HwpBridge {
   async insertText(text: string): Promise<void> {
     await this.init();
     await this.request("insertText", { text });
+  }
+
+  async insertPicture(path: string, options: BridgePictureInsertOptions = {}): Promise<void> {
+    await this.init();
+    await this.request("insertPicture", {
+      path,
+      embed: options.embed ?? true,
+      sizeOption: options.sizeOption ?? 0,
+      reverse: options.reverse ?? false,
+      watermark: options.watermark ?? false,
+      effect: options.effect ?? 0,
+      width: options.width ?? 0,
+      height: options.height ?? 0,
+    });
   }
 
   async run(actionName: string): Promise<void> {

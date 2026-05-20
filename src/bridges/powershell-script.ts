@@ -103,6 +103,19 @@ public static class NativeMethods {
         $result = $hwp.HAction.Execute("InsertText", $pset.HSet)
         Send-Response $id ([bool]$result) ([bool]$result) "HWP InsertText returned false."
       }
+      "insertPicture" {
+        $result = $hwp.InsertPicture(
+          [string]$params.path,
+          [bool]$params.embed,
+          [int16]$params.sizeOption,
+          [bool]$params.reverse,
+          [bool]$params.watermark,
+          [int16]$params.effect,
+          [int32]$params.width,
+          [int32]$params.height
+        )
+        Send-Response $id ([bool]$result) ([bool]$result) "HWP InsertPicture returned false."
+      }
       "run" {
         $result = $hwp.HAction.Run([string]$params.actionName)
         Send-Response $id ([bool]$result) ([bool]$result) "HWP action returned false."

@@ -1,7 +1,7 @@
 import type { HwpComObject } from "../com/types";
 import { isParameterSetPayload } from "../spec";
 import type { OpenOptions, SaveFormat } from "../app";
-import type { HwpBridge } from "./types";
+import type { BridgePictureInsertOptions, HwpBridge } from "./types";
 import type { CursorPosition, CursorTextRange } from "./types";
 
 export class ComObjectBridge implements HwpBridge {
@@ -72,6 +72,28 @@ export class ComObjectBridge implements HwpBridge {
 
     parameterSet.Text = text;
     await this.execute("InsertText", parameterSet.HSet);
+  }
+
+  async insertPicture(path: string, options: BridgePictureInsertOptions = {}): Promise<void> {
+    const insertPicture = this.raw.InsertPicture;
+    if (typeof insertPicture !== "function") {
+      throw new Error("HWP InsertPicture method is unavailable.");
+    }
+
+    const result = insertPicture.call(
+      this.raw,
+      path,
+      options.embed ?? true,
+      options.sizeOption ?? 0,
+      options.reverse ?? false,
+      options.watermark ?? false,
+      options.effect ?? 0,
+      options.width ?? 0,
+      options.height ?? 0,
+    );
+    if (result === false) {
+      throw new Error("HWP InsertPicture returned false.");
+    }
   }
 
   async run(actionName: string): Promise<void> {
