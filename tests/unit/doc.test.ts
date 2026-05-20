@@ -84,6 +84,65 @@ describe("DocumentApi", () => {
     ]);
   });
 
+  it("runs search dialogs through doc.search.dialog", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.search.dialog.open();
+    await doc.search.dialog.replace();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual(["FindDlg", "ReplaceDlg"]);
+  });
+
+  it("executes find and replace actions with FindReplace payloads", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.search.find("old", { direction: "backward", matchCase: true, wholeWord: true, useRegex: false });
+    await doc.search.replace({ find: "old", replace: "new" });
+    await doc.search.replaceAll({ find: "old", replace: "new", direction: "all" });
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "RepeatFind", {
+      parameterSetId: "FindReplace",
+      values: {
+        FindString: "old",
+        Direction: 1,
+        MatchCase: 1,
+        WholeWordOnly: 1,
+        FindRegExp: 0,
+        ReplaceMode: 0,
+        IgnoreMessage: 1,
+      },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "RepeatFind", {
+      parameterSetId: "FindReplace",
+      values: {
+        FindString: "old",
+        ReplaceString: "new",
+        ReplaceMode: 1,
+        IgnoreMessage: 1,
+      },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(3, "AllReplace", {
+      parameterSetId: "FindReplace",
+      values: {
+        FindString: "old",
+        ReplaceString: "new",
+        Direction: 2,
+        ReplaceMode: 1,
+        IgnoreMessage: 1,
+      },
+    });
+  });
+
   it("inserts tables through the documented TableCreate action and TableCreation parameter set", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),
