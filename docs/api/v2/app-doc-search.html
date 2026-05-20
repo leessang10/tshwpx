@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>app.doc.search</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="index.html">v2</a> / app.doc.search</div>
+  <h1>app.doc.search</h1>
+  <p class="lead">현재 활성 문서에서 문자열을 찾고 바꿉니다.</p>
+</header>
+<main>
+  <h2>개요</h2>
+  <table>
+    <tr><th>TSHWPX API</th><th>한글 오토메이션 연동</th></tr>
+    <tr><td><code>app.doc.search.find(text, options)</code></td><td><code>RepeatFind</code> Action + <code>FindReplace</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.search.replace(options)</code></td><td><code>RepeatFind</code> Action + <code>FindReplace</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.search.replaceAll(options)</code></td><td><code>AllReplace</code> Action + <code>FindReplace</code> ParameterSet</td></tr>
+    <tr><td><code>app.doc.search.dialog.open()</code></td><td><code>FindDlg</code> Action 실행</td></tr>
+    <tr><td><code>app.doc.search.dialog.replace()</code></td><td><code>ReplaceDlg</code> Action 실행</td></tr>
+  </table>
+
+  <h2>옵션</h2>
+  <table>
+    <tr><th>옵션</th><th>FindReplace 항목</th></tr>
+    <tr><td><code>direction</code></td><td><code>Direction</code>: <code>forward</code>=0, <code>backward</code>=1, <code>all</code>=2</td></tr>
+    <tr><td><code>matchCase</code></td><td><code>MatchCase</code></td></tr>
+    <tr><td><code>wholeWord</code></td><td><code>WholeWordOnly</code></td></tr>
+    <tr><td><code>useRegex</code></td><td><code>FindRegExp</code></td></tr>
+  </table>
+</main>
+</body>
+</html>

@@ -28,6 +28,7 @@
     <tr><td><code>app.doc.saveAs(path, format, arg)</code></td><td>현재 문서를 다른 이름/형식으로 저장합니다.</td><td>Bridge <code>SaveAs</code>를 호출합니다.</td></tr>
     <tr><td><code>app.doc.close()</code></td><td>현재 문서를 닫습니다. 한글 앱은 유지됩니다.</td><td>Bridge <code>Close</code>를 호출합니다.</td></tr>
     <tr><td><a href="app-doc-text.html"><code>app.doc.text.insert(text)</code></a></td><td>현재 커서 위치에 텍스트를 입력합니다.</td><td><code>bridge.insertText</code>를 호출합니다.</td></tr>
+    <tr><td><a href="app-doc-search.html"><code>app.doc.search.find(text, options)</code></a></td><td>현재 문서에서 문자열을 찾습니다.</td><td><code>RepeatFind</code> Action과 <code>FindReplace</code> ParameterSet을 실행합니다.</td></tr>
     <tr><td><code>app.doc.charShape.set(options)</code></td><td>글자 모양을 적용합니다.</td><td><code>CharShape</code> Action과 ParameterSet을 실행합니다.</td></tr>
   </table>
 
@@ -35,6 +36,7 @@
   <table>
     <tr><th>모듈</th><th>역할</th></tr>
     <tr><td><a href="app-doc-text.html"><code>app.doc.text</code></a></td><td>텍스트 입력/편집</td></tr>
+    <tr><td><a href="app-doc-search.html"><code>app.doc.search</code></a></td><td>문자열 찾기/바꾸기</td></tr>
     <tr><td><a href="app-doc-char-shape.html"><code>app.doc.charShape</code></a></td><td>글자 모양 관리</td></tr>
     <tr><td><a href="app-doc-paragraph.html"><code>app.doc.paragraph</code></a></td><td>문단 모양 관리</td></tr>
     <tr><td><a href="app-doc-tables.html"><code>app.doc.tables</code></a></td><td>표 관리</td></tr>

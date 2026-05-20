@@ -65,6 +65,11 @@ await app.doc.text.tab();
 await app.doc.text.deletePreviousChar();
 await app.doc.text.deleteNextChar();
 
+await app.doc.search.find("old");
+await app.doc.search.replace({ find: "old", replace: "new" });
+await app.doc.search.replaceAll({ find: "old", replace: "new", direction: "all" });
+await app.doc.search.dialog.open();
+
 await app.doc.charShape.set({
   height: 1200,
   bold: true,
@@ -176,6 +181,7 @@ await app.close();
 The high-level API is grouped by what you want to edit:
 
 - `app.doc.text.*` inserts and edits text at the current cursor position.
+- `app.doc.search.*` finds and replaces text in the active document.
 - `app.doc.charShape.*` changes text appearance.
 - `app.doc.paragraph.*` changes paragraph layout, alignment, spacing, and numbering.
 - `app.doc.tables.*` creates and edits tables.
