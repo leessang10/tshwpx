@@ -37,6 +37,8 @@ describe("package metadata", () => {
       DocumentCursorApi: expect.any(Function),
       DocumentPagesApi: expect.any(Function),
       DocumentParagraphApi: expect.any(Function),
+      DocumentSearchApi: expect.any(Function),
+      DocumentSearchDialogApi: expect.any(Function),
       DocumentStylesApi: expect.any(Function),
       DocumentTablesApi: expect.any(Function),
       FileApi: expect.any(Function),
