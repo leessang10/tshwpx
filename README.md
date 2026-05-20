@@ -124,6 +124,13 @@ await app.doc.pages.setup({
   applyTo: 3,
 });
 
+await app.doc.objects.picture.insert({
+  path: "C:/tmp/photo.png",
+  size: "specific",
+  width: 50,
+  height: 30,
+  effect: "grayscale",
+});
 await app.doc.objects.picture.change({ path: "C:/tmp/new.png", embed: true });
 await app.doc.objects.picture.effects.grayscale();
 await app.doc.objects.align.center();
@@ -209,7 +216,7 @@ The high-level API is grouped by what you want to edit:
 - `app.doc.paragraph.*` changes paragraph layout, alignment, spacing, and numbering.
 - `app.doc.tables.*` creates and edits tables.
 - `app.doc.pages.*` handles page breaks, sections, numbering, orientation, and page setup.
-- `app.doc.objects.*` changes the current selected object or picture.
+- `app.doc.objects.*` inserts pictures and changes the current selected object or picture. Picture insertion `width` and `height` values are millimeters.
 - `app.doc.cursor.*` moves the cursor and controls text selection.
 - `app.doc.styles.*` applies and edits HWP styles.
 - `app.doc.references.*` manages bookmarks, hyperlinks, comments, and memo navigation.
