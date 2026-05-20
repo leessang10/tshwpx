@@ -1,5 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
+import { App as HwpApplication } from "../../src/app";
 import { DocumentApi } from "../../src/doc";
+
+function createMockBridge() {
+  return {
+    insertText: vi.fn(async () => undefined),
+    insertPicture: vi.fn().mockResolvedValue(undefined),
+    run: vi.fn(async (_actionId: string) => undefined),
+    execute: vi.fn(async () => true),
+  };
+}
 
 describe("DocumentApi", () => {
   it("saves, saves as, and closes the current document through the bridge", async () => {
@@ -113,6 +123,65 @@ describe("DocumentApi", () => {
         PictureEmbed: 1,
       },
     });
+  });
+
+  it("inserts pictures through the bridge with default options", async () => {
+    const bridge = createMockBridge();
+    const app = new HwpApplication({ bridge });
+
+    await app.doc.objects.picture.insert({ path: "C:/tmp/photo.png" });
+
+    expect(bridge.insertPicture).toHaveBeenCalledWith("C:/tmp/photo.png", {
+      embed: true,
+      sizeOption: 0,
+      reverse: false,
+      watermark: false,
+      effect: 0,
+      width: undefined,
+      height: undefined,
+    });
+  });
+
+  it("maps picture insertion size and effect aliases", async () => {
+    const bridge = createMockBridge();
+    const app = new HwpApplication({ bridge });
+
+    await app.doc.objects.picture.insert({
+      path: "C:/tmp/photo.png",
+      embed: false,
+      size: "specific",
+      reverse: true,
+      watermark: true,
+      effect: "grayscale",
+      width: 50,
+      height: 30,
+    });
+
+    expect(bridge.insertPicture).toHaveBeenCalledWith("C:/tmp/photo.png", {
+      embed: false,
+      sizeOption: 1,
+      reverse: true,
+      watermark: true,
+      effect: 1,
+      width: 50,
+      height: 30,
+    });
+  });
+
+  it("passes numeric picture insertion constants through", async () => {
+    const bridge = createMockBridge();
+    const app = new HwpApplication({ bridge });
+
+    await app.doc.objects.picture.insert({
+      path: "C:/tmp/photo.png",
+      size: 3,
+      effect: 2,
+    });
+
+    expect(bridge.insertPicture).toHaveBeenCalledWith(
+      "C:/tmp/photo.png",
+      expect.objectContaining({ sizeOption: 3, effect: 2 }),
+    );
   });
 
   it("runs picture dialog and effect actions through object helpers", async () => {
