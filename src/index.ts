@@ -94,6 +94,7 @@ export {
   FileDialogApi,
   FileImageApi,
   FilePasswordApi,
+  FilePrintApi,
   FilePreviewApi,
   FileReadWritePasswordApi,
   FileSecurityApi,
@@ -131,5 +132,14 @@ export type {
   TableCellSplitOptions,
   TableInsertOptions,
 } from "./doc";
-export type { FileImageOptions, FileOpenParameterOptions, FilePasswordOptions, FileSecurityOptions } from "./file";
+export type {
+  FileImageOptions,
+  FileOpenParameterOptions,
+  FilePasswordOptions,
+  FilePrintImageFormat,
+  FilePrintImageOptions,
+  FilePrintOptions,
+  FilePrintRange,
+  FileSecurityOptions,
+} from "./file";
 export type { CursorPosition, CursorTextPosition, CursorTextRange, HwpBridge } from "./bridges/types";

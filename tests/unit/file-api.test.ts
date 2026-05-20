@@ -16,6 +16,10 @@ describe("file API", () => {
     });
     expect(ACTION_MAP.get("FileSaveAsImage")).toMatchObject({ id: "FileSaveAsImage", parameterSetId: "Print" });
     expect(ACTION_MAP.get("FileTemplate")).toMatchObject({ id: "FileTemplate", parameterSetId: "FileOpen" });
+    expect(ACTION_MAP.get("Print")).toMatchObject({ id: "Print", parameterSetId: "Print" });
+    expect(ACTION_MAP.get("PrintSetup")).toMatchObject({ id: "PrintSetup", parameterSetId: "Print" });
+    expect(ACTION_MAP.get("PrintToPDF")).toMatchObject({ id: "PrintToPDF", parameterSetId: "Print" });
+    expect(ACTION_MAP.get("PrintToImage")).toMatchObject({ id: "PrintToImage", parameterSetId: "PrintToImage" });
     expect(getParameterSetDefinition("FileOpen")?.items.some((item) => item.id === "SaveFileName")).toBe(true);
     expect(getParameterSetDefinition("Password")?.items.some((item) => item.id === "String")).toBe(true);
     expect(getParameterSetDefinition("FileSetSecurity")?.items.map((item) => item.id)).toEqual([
@@ -24,6 +28,8 @@ describe("file API", () => {
       "NoCopy",
     ]);
     expect(getParameterSetDefinition("Print")?.items.some((item) => item.id === "FileName")).toBe(true);
+    expect(getParameterSetDefinition("Print")?.items.some((item) => item.id === "PrintMemo")).toBe(true);
+    expect(getParameterSetDefinition("PrintToImage")?.items.some((item) => item.id === "Resolution")).toBe(true);
   });
 
   it("wraps file open through the app bridge", async () => {
@@ -156,6 +162,144 @@ describe("file API", () => {
       values: {
         FileName: "C:/tmp/page.png",
         NumCopy: 2,
+      },
+    });
+  });
+
+  it("executes normal print with documented print parameters", async () => {
+    const bridge = createBridge();
+    const app = new App({ bridge });
+
+    await app.file.print.print({
+      range: "custom",
+      rangeCustom: "1-3",
+      includeLinkedDocuments: true,
+      numCopy: 2,
+      collate: true,
+      printerName: "Hancom PDF",
+      printToFile: true,
+      fileName: "C:/tmp/out.prn",
+      reverseOrder: false,
+      printImage: true,
+      printDrawObject: true,
+      printMemo: false,
+      printRevision: true,
+      printColorSet: 2,
+      withoutBlank: 1,
+    });
+
+    expect(bridge.execute).toHaveBeenCalledWith("Print", {
+      parameterSetId: "Print",
+      values: {
+        Range: 4,
+        RangeCustom: "1-3",
+        RangeIncludeLinkedDoc: 1,
+        NumCopy: 2,
+        Collate: 1,
+        PrinterName: "Hancom PDF",
+        PrintToFile: 1,
+        FileName: "C:/tmp/out.prn",
+        ReverseOrder: 0,
+        PrintImage: 1,
+        PrintDrawObj: 1,
+        PrintMemo: 0,
+        PrintRevision: 1,
+        PrintColorSet: 2,
+        PrintWithoutBlank: 1,
+      },
+    });
+  });
+
+  it("maps all documented print range aliases", async () => {
+    const bridge = createBridge();
+    const app = new App({ bridge });
+    const cases = [
+      ["all", 0],
+      ["current", 1],
+      ["fromCurrent", 2],
+      ["toCurrent", 3],
+      ["custom", 4],
+      ["selection", 5],
+      ["document", 6],
+      ["section", 7],
+    ] as const;
+
+    for (const [range, expected] of cases) {
+      bridge.execute.mockClear();
+
+      await app.file.print.print({ range });
+
+      expect(bridge.execute).toHaveBeenCalledWith("Print", {
+        parameterSetId: "Print",
+        values: { Range: expected },
+      });
+    }
+  });
+
+  it("executes print setup and PDF export with documented print parameters", async () => {
+    const bridge = createBridge();
+    const app = new App({ bridge });
+
+    await app.file.print.setup({ printMemo: true, printMemoContents: true });
+    await app.file.print.pdf({ fileName: "C:/tmp/out.pdf", range: "current", printToFile: true });
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "PrintSetup", {
+      parameterSetId: "Print",
+      values: { PrintMemo: 1, PrintMemoContents: 1 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "PrintToPDF", {
+      parameterSetId: "Print",
+      values: { FileName: "C:/tmp/out.pdf", Range: 1, PrintToFile: 1 },
+    });
+  });
+
+  it("maps all documented image print format aliases", async () => {
+    const bridge = createBridge();
+    const app = new App({ bridge });
+    const cases = [
+      ["bmp", 1],
+      ["gif", 2],
+      ["png", 3],
+      ["jpg", 4],
+      ["wmf", 5],
+    ] as const;
+
+    for (const [format, expected] of cases) {
+      bridge.execute.mockClear();
+
+      await app.file.print.image({ format });
+
+      expect(bridge.execute).toHaveBeenCalledWith("PrintToImage", {
+        parameterSetId: "PrintToImage",
+        values: { Format: expected },
+      });
+    }
+  });
+
+  it("executes image output with documented image print parameters", async () => {
+    const bridge = createBridge();
+    const app = new App({ bridge });
+
+    await app.file.print.image({
+      fileName: "C:/tmp/page.png",
+      format: "png",
+      range: "current",
+      resolution: 200,
+      colorDepth: 24,
+      width: 1200,
+      height: 1600,
+    });
+
+    expect(bridge.execute).toHaveBeenCalledWith("PrintToImage", {
+      parameterSetId: "PrintToImage",
+      values: {
+        FileName: "C:/tmp/page.png",
+        Format: 3,
+        Range: 1,
+        Resolution: 200,
+        ColorDepth: 24,
+        Width: 1200,
+        Height: 1600,
       },
     });
   });

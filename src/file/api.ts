@@ -3,6 +3,7 @@ import { HwpAutomationError } from "../com/errors";
 import { FileDialogApi } from "./dialog";
 import { FileImageApi } from "./image";
 import { FilePasswordApi } from "./password";
+import { FilePrintApi } from "./print";
 import { FilePreviewApi } from "./preview";
 import { FileSecurityApi } from "./security";
 import { FileTemplateApi } from "./template";
@@ -13,6 +14,7 @@ export class FileApi {
   readonly dialog: FileDialogApi;
   readonly image: FileImageApi;
   readonly password: FilePasswordApi;
+  readonly print: FilePrintApi;
   readonly preview: FilePreviewApi;
   readonly security: FileSecurityApi;
   readonly template: FileTemplateApi;
@@ -24,6 +26,7 @@ export class FileApi {
     this.dialog = new FileDialogApi(bridge, ensureReady);
     this.image = new FileImageApi(bridge, ensureReady);
     this.password = new FilePasswordApi(bridge, ensureReady);
+    this.print = new FilePrintApi(bridge, ensureReady);
     this.preview = new FilePreviewApi(bridge, ensureReady);
     this.security = new FileSecurityApi(bridge, ensureReady);
     this.template = new FileTemplateApi(bridge, ensureReady);

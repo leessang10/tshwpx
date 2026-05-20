@@ -68,6 +68,7 @@ describe("package metadata", () => {
       FileDialogApi: expect.any(Function),
       FileImageApi: expect.any(Function),
       FilePasswordApi: expect.any(Function),
+      FilePrintApi: expect.any(Function),
       FileSecurityApi: expect.any(Function),
       FileTemplateApi: expect.any(Function),
       PowerShellBridge: expect.any(Function),
