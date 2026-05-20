@@ -143,6 +143,88 @@ describe("DocumentApi", () => {
     });
   });
 
+  it("executes bookmark reference actions with BookMark payloads", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.references.bookmarks.add("intro");
+    await doc.references.bookmarks.moveTo("intro");
+    await doc.references.bookmarks.modify("intro", "intro-renamed");
+    await doc.references.bookmarks.dialog.open();
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "Bookmark", {
+      parameterSetId: "BookMark",
+      values: { Name: "intro", Type: 0, Command: 0 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "Bookmark", {
+      parameterSetId: "BookMark",
+      values: { Name: "intro", Type: 0, Command: 1 },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(3, "ModifyBookmark", {
+      parameterSetId: "BookMark",
+      values: { Name: "intro-renamed", Type: 0, Command: 2 },
+    });
+    expect(bridge.run).toHaveBeenCalledWith("BookmarkEditDialog");
+  });
+
+  it("executes hyperlink reference actions with HyperLink payloads", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.references.hyperlinks.insert({ target: "https://example.com", text: "Example" });
+    await doc.references.hyperlinks.jump({ target: "https://example.com", source: "current" });
+    await doc.references.hyperlinks.next();
+    await doc.references.hyperlinks.previous();
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "Hyperlink", {
+      parameterSetId: "HyperLink",
+      values: {
+        Text: "Example",
+        Command: "https://example.com;1;0;0",
+        DirectInsert: 1,
+      },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "HyperlinkJump", {
+      parameterSetId: "HyperlinkJump",
+      values: {
+        Source: "current",
+        Target: "https://example.com",
+      },
+    });
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual(["HyperlinkForward", "HyperlinkBackward"]);
+  });
+
+  it("runs comment and memo reference actions", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.references.comments.insert();
+    await doc.references.comments.modify();
+    await doc.references.comments.delete();
+    await doc.references.memos.next();
+    await doc.references.memos.previous();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "Comment",
+      "CommentModify",
+      "CommentDelete",
+      "MemoToNext",
+      "MemoToPrev",
+    ]);
+  });
+
   it("inserts tables through the documented TableCreate action and TableCreation parameter set", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),
