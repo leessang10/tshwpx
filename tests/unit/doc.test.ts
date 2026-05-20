@@ -168,7 +168,8 @@ describe("DocumentApi", () => {
       parameterSetId: "BookMark",
       values: { Name: "intro-renamed", Type: 0, Command: 2 },
     });
-    expect(bridge.run).toHaveBeenCalledWith("BookmarkEditDialog");
+    expect(bridge.execute).toHaveBeenCalledTimes(3);
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual(["BookmarkEditDialog"]);
   });
 
   it("executes hyperlink reference actions with HyperLink payloads", async () => {
@@ -199,6 +200,7 @@ describe("DocumentApi", () => {
         Target: "https://example.com",
       },
     });
+    expect(bridge.execute).toHaveBeenCalledTimes(2);
     expect(bridge.run.mock.calls.map((call) => call[0])).toEqual(["HyperlinkForward", "HyperlinkBackward"]);
   });
 
