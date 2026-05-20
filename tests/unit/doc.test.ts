@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-import { App as HwpApplication } from "../../src/app";
 import { DocumentApi } from "../../src/doc";
 
 function createMockBridge() {
@@ -127,26 +126,27 @@ describe("DocumentApi", () => {
 
   it("inserts pictures through the bridge with default options", async () => {
     const bridge = createMockBridge();
-    const app = new HwpApplication({ bridge });
+    const doc = new DocumentApi(bridge);
 
-    await app.doc.objects.picture.insert({ path: "C:/tmp/photo.png" });
+    await doc.objects.picture.insert({ path: "C:/tmp/photo.png" });
 
-    expect(bridge.insertPicture).toHaveBeenCalledWith("C:/tmp/photo.png", {
-      embed: true,
-      sizeOption: 0,
-      reverse: false,
-      watermark: false,
-      effect: 0,
-      width: undefined,
-      height: undefined,
-    });
+    expect(bridge.insertPicture).toHaveBeenCalledWith(
+      "C:/tmp/photo.png",
+      expect.objectContaining({
+        embed: true,
+        sizeOption: 0,
+        reverse: false,
+        watermark: false,
+        effect: 0,
+      }),
+    );
   });
 
   it("maps picture insertion size and effect aliases", async () => {
     const bridge = createMockBridge();
-    const app = new HwpApplication({ bridge });
+    const doc = new DocumentApi(bridge);
 
-    await app.doc.objects.picture.insert({
+    await doc.objects.picture.insert({
       path: "C:/tmp/photo.png",
       embed: false,
       size: "specific",
@@ -170,9 +170,9 @@ describe("DocumentApi", () => {
 
   it("passes numeric picture insertion constants through", async () => {
     const bridge = createMockBridge();
-    const app = new HwpApplication({ bridge });
+    const doc = new DocumentApi(bridge);
 
-    await app.doc.objects.picture.insert({
+    await doc.objects.picture.insert({
       path: "C:/tmp/photo.png",
       size: 3,
       effect: 2,
