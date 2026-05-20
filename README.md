@@ -97,6 +97,12 @@ await app.doc.tables.rows.insertBelow(1);
 await app.doc.tables.columns.insertRight(1);
 await app.doc.tables.cells.split({ rows: 2, cols: 2 });
 await app.doc.tables.cells.merge();
+await app.doc.tables.cells.align.centerMiddle();
+await app.doc.tables.cells.border.outside();
+await app.doc.tables.cells.shading.increase();
+await app.doc.tables.formulas.sum.auto();
+await app.doc.tables.resize.cell.right();
+await app.doc.tables.resize.table.down();
 
 await app.doc.pages.break();
 await app.doc.pages.sections.break();
