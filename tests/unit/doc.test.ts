@@ -61,6 +61,29 @@ describe("DocumentApi", () => {
     expect(bridge.insertText).toHaveBeenCalledWith("Hello");
   });
 
+  it("runs text editing shortcut actions through doc.text helpers", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.text.lineBreak();
+    await doc.text.paragraphBreak();
+    await doc.text.tab();
+    await doc.text.deletePreviousChar();
+    await doc.text.deleteNextChar();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "BreakLine",
+      "BreakPara",
+      "InsertTab",
+      "DeleteBack",
+      "Delete",
+    ]);
+  });
+
   it("inserts tables through the documented TableCreate action and TableCreation parameter set", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),
