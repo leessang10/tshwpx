@@ -186,3 +186,23 @@ export type StyleItemOptions = {
   charShape?: ParameterSetValues;
   paraShape?: ParameterSetValues;
 };
+
+export type BookmarkType = "normal" | "block";
+
+export type BookmarkOptions = {
+  type?: BookmarkType;
+};
+
+export type HyperlinkInsertOptions = {
+  target: string;
+  text?: string;
+  linkType?: 0 | 1 | 2 | 3;
+  objectType?: number;
+  option?: number;
+  directInsert?: boolean;
+};
+
+export type HyperlinkJumpOptions = {
+  target: string;
+  source?: string;
+};

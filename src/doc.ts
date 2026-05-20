@@ -34,6 +34,14 @@ export {
   DocumentStyleTemplateApi,
 } from "./document/styles";
 export {
+  DocumentBookmarkApi,
+  DocumentBookmarkDialogApi,
+  DocumentCommentApi,
+  DocumentHyperlinkApi,
+  DocumentMemoApi,
+  DocumentReferencesApi,
+} from "./document/references";
+export {
   DocumentParagraphAdjustApi,
   DocumentParagraphAlignApi,
   DocumentParagraphApi,
@@ -74,9 +82,13 @@ export {
   CharacterShapeWidthApi,
 } from "./document/char-shape";
 export type {
+  BookmarkOptions,
+  BookmarkType,
   CharShapeOptions,
   CharShapePresetColor,
   CursorMoveOptions,
+  HyperlinkInsertOptions,
+  HyperlinkJumpOptions,
   CursorMoveTarget,
   PageDeleteOptions,
   PageNumberingPositionOptions,
