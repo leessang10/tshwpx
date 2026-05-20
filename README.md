@@ -59,6 +59,11 @@ await app.close();
 const app = new App({ visible: true });
 
 await app.doc.text.insert("Hello world");
+await app.doc.text.lineBreak();
+await app.doc.text.paragraphBreak();
+await app.doc.text.tab();
+await app.doc.text.deletePreviousChar();
+await app.doc.text.deleteNextChar();
 
 await app.doc.charShape.set({
   height: 1200,
@@ -170,7 +175,7 @@ await app.close();
 
 The high-level API is grouped by what you want to edit:
 
-- `app.doc.text.*` inserts text at the current cursor position.
+- `app.doc.text.*` inserts and edits text at the current cursor position.
 - `app.doc.charShape.*` changes text appearance.
 - `app.doc.paragraph.*` changes paragraph layout, alignment, spacing, and numbering.
 - `app.doc.tables.*` creates and edits tables.
