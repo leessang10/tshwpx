@@ -41,15 +41,15 @@ export class DocumentApi {
   }
 
   async save(): Promise<void> {
-    await requireBridgeMethod(this.bridge.save, "Save")();
+    await requireBridgeMethod(this.bridge.save, "Save").call(this.bridge);
   }
 
   async saveAs(path: string, format: SaveFormat = "HWP", arg = ""): Promise<void> {
-    await requireBridgeMethod(this.bridge.saveAs, "SaveAs")(path, format, arg);
+    await requireBridgeMethod(this.bridge.saveAs, "SaveAs").call(this.bridge, path, format, arg);
   }
 
   async close(): Promise<void> {
-    await requireBridgeMethod(this.bridge.close, "Close")();
+    await requireBridgeMethod(this.bridge.close, "Close").call(this.bridge);
   }
 
 }

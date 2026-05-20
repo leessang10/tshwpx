@@ -22,6 +22,32 @@ describe("DocumentApi", () => {
     expect(bridge.close).toHaveBeenCalled();
   });
 
+  it("preserves the bridge receiver for document file operations", async () => {
+    const calls: string[] = [];
+    const bridge = {
+      marker: "bridge",
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+      async save(this: { marker: string }) {
+        calls.push(`save:${this.marker}`);
+      },
+      async saveAs(this: { marker: string }, _path: string) {
+        calls.push(`saveAs:${this.marker}`);
+      },
+      async close(this: { marker: string }) {
+        calls.push(`close:${this.marker}`);
+      },
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.save();
+    await doc.saveAs("C:/tmp/output.hwp");
+    await doc.close();
+
+    expect(calls).toEqual(["save:bridge", "saveAs:bridge", "close:bridge"]);
+  });
+
   it("inserts text through doc.text.insert", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),
