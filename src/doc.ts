@@ -1,5 +1,6 @@
 export { DocumentApi } from "./document/api";
 export { DocumentTextApi } from "./document/text";
+export { DocumentSearchApi, DocumentSearchDialogApi } from "./document/search";
 export {
   DocumentCursorApi,
   DocumentCursorBoundaryApi,
@@ -85,6 +86,9 @@ export type {
   ParagraphNumberingSetOptions,
   ParagraphNumberingType,
   ParagraphShapeOptions,
+  SearchDirection,
+  SearchOptions,
+  SearchReplaceOptions,
   StyleActionVersion,
   StyleApplyOptions,
   StyleDeleteOptions,

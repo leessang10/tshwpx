@@ -3,6 +3,7 @@ import { CharacterShapeApi } from "./char-shape";
 import { DocumentCursorApi } from "./cursor";
 import { DocumentPagesApi } from "./pages";
 import { DocumentParagraphApi } from "./paragraph";
+import { DocumentSearchApi } from "./search";
 import { DocumentStylesApi } from "./styles";
 import { DocumentTablesApi } from "./tables";
 import { DocumentTextApi } from "./text";
@@ -26,6 +27,7 @@ export class DocumentApi {
   readonly cursor: DocumentCursorApi;
   readonly pages: DocumentPagesApi;
   readonly paragraph: DocumentParagraphApi;
+  readonly search: DocumentSearchApi;
   readonly styles: DocumentStylesApi;
   readonly tables: DocumentTablesApi;
   readonly text: DocumentTextApi;
@@ -35,6 +37,7 @@ export class DocumentApi {
     this.cursor = new DocumentCursorApi(bridge);
     this.pages = new DocumentPagesApi(bridge);
     this.paragraph = new DocumentParagraphApi(bridge);
+    this.search = new DocumentSearchApi(bridge);
     this.styles = new DocumentStylesApi(bridge);
     this.tables = new DocumentTablesApi(bridge);
     this.text = new DocumentTextApi(bridge);

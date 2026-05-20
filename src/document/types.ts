@@ -38,6 +38,20 @@ export type PageDeleteOptions = {
   usingPageNumber?: boolean;
 };
 
+export type SearchDirection = "forward" | "backward" | "all";
+
+export type SearchOptions = {
+  direction?: SearchDirection;
+  matchCase?: boolean;
+  wholeWord?: boolean;
+  useRegex?: boolean;
+};
+
+export type SearchReplaceOptions = SearchOptions & {
+  find: string;
+  replace: string;
+};
+
 export type PageNumberingPositionOptions = {
   numberFormat?: number;
   userChar?: number;
