@@ -1,6 +1,7 @@
 import type { HwpBridge } from "../bridges/types";
 import { CharacterShapeApi } from "./char-shape";
 import { DocumentCursorApi } from "./cursor";
+import { DocumentObjectsApi } from "./objects";
 import { DocumentPagesApi } from "./pages";
 import { DocumentParagraphApi } from "./paragraph";
 import { DocumentReferencesApi } from "./references";
@@ -26,6 +27,7 @@ type DocumentBridge = Pick<
 export class DocumentApi {
   readonly charShape: CharacterShapeApi;
   readonly cursor: DocumentCursorApi;
+  readonly objects: DocumentObjectsApi;
   readonly pages: DocumentPagesApi;
   readonly paragraph: DocumentParagraphApi;
   readonly references: DocumentReferencesApi;
@@ -37,6 +39,7 @@ export class DocumentApi {
   constructor(private readonly bridge: DocumentBridge) {
     this.charShape = new CharacterShapeApi(bridge);
     this.cursor = new DocumentCursorApi(bridge);
+    this.objects = new DocumentObjectsApi(bridge);
     this.pages = new DocumentPagesApi(bridge);
     this.paragraph = new DocumentParagraphApi(bridge);
     this.references = new DocumentReferencesApi(bridge);

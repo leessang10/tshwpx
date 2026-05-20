@@ -32,6 +32,19 @@ export type TableCellSplitOptions = {
   keepAdjust?: boolean;
 };
 
+export type PictureChangeOptions = {
+  path: string;
+  embed?: boolean;
+};
+
+export type ObjectStyleCopyOptions = {
+  line?: boolean;
+  fill?: boolean;
+  size?: boolean;
+  shadow?: boolean;
+  pictureEffect?: boolean;
+};
+
 export type PageDeleteOptions = {
   range?: number;
   rangeCustom?: string;

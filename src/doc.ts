@@ -63,6 +63,19 @@ export {
   DocumentPagesApi,
 } from "./document/pages";
 export {
+  DocumentObjectAlignApi,
+  DocumentObjectMoveApi,
+  DocumentObjectOrderApi,
+  DocumentObjectPictureApi,
+  DocumentObjectPictureBrightnessApi,
+  DocumentObjectPictureContrastApi,
+  DocumentObjectPictureDialogApi,
+  DocumentObjectPictureEffectsApi,
+  DocumentObjectResizeApi,
+  DocumentObjectsApi,
+  DocumentObjectStyleApi,
+} from "./document/objects";
+export {
   DocumentTableCellAlignmentApi,
   DocumentTableCellBorderApi,
   DocumentTableCellsApi,
@@ -96,6 +109,7 @@ export type {
   CursorMoveOptions,
   HyperlinkInsertOptions,
   HyperlinkJumpOptions,
+  ObjectStyleCopyOptions,
   CursorMoveTarget,
   PageDeleteOptions,
   PageNumberingPositionOptions,
@@ -112,6 +126,7 @@ export type {
   StyleApplyOptions,
   StyleDeleteOptions,
   StyleItemOptions,
+  PictureChangeOptions,
   TableCellSplitOptions,
   TableInsertOptions,
 } from "./document/types";

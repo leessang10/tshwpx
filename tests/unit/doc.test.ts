@@ -84,6 +84,184 @@ describe("DocumentApi", () => {
     ]);
   });
 
+  it("exposes object helpers through doc.objects", () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+
+    expect(doc.objects).toBeDefined();
+  });
+
+  it("changes pictures through the PictureChange action", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.objects.picture.change({ path: "C:/tmp/new.png", embed: true });
+
+    expect(bridge.execute).toHaveBeenCalledWith("PictureChange", {
+      parameterSetId: "PictureChange",
+      values: {
+        PicturePath: "C:/tmp/new.png",
+        PictureEmbed: 1,
+      },
+    });
+  });
+
+  it("runs picture dialog and effect actions through object helpers", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.objects.picture.dialog.open();
+    await doc.objects.picture.effects.grayscale();
+    await doc.objects.picture.effects.blackWhite();
+    await doc.objects.picture.effects.watermark();
+    await doc.objects.picture.effects.none();
+    await doc.objects.picture.effects.brightness.increase();
+    await doc.objects.picture.effects.brightness.decrease();
+    await doc.objects.picture.effects.contrast.increase();
+    await doc.objects.picture.effects.contrast.decrease();
+    await doc.objects.picture.effects.restoreOriginal();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "PictureInsertDialog",
+      "PictureEffect1",
+      "PictureEffect2",
+      "PictureEffect3",
+      "PictureEffect4",
+      "PictureEffect5",
+      "PictureEffect6",
+      "PictureEffect7",
+      "PictureEffect8",
+      "PictureToOriginal",
+    ]);
+  });
+
+  it("runs object alignment and ordering actions through object helpers", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.objects.align.left();
+    await doc.objects.align.center();
+    await doc.objects.align.right();
+    await doc.objects.align.top();
+    await doc.objects.align.middle();
+    await doc.objects.align.bottom();
+    await doc.objects.align.width();
+    await doc.objects.align.height();
+    await doc.objects.align.size();
+    await doc.objects.align.horizontalSpacing();
+    await doc.objects.align.verticalSpacing();
+
+    await doc.objects.order.bringForward();
+    await doc.objects.order.bringToFront();
+    await doc.objects.order.sendBack();
+    await doc.objects.order.sendToBack();
+    await doc.objects.order.bringInFrontOfText();
+    await doc.objects.order.sendBehindText();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "ShapeObjAlignLeft",
+      "ShapeObjAlignCenter",
+      "ShapeObjAlignRight",
+      "ShapeObjAlignTop",
+      "ShapeObjAlignMiddle",
+      "ShapeObjAlignBottom",
+      "ShapeObjAlignWidth",
+      "ShapeObjAlignHeight",
+      "ShapeObjAlignSize",
+      "ShapeObjAlignHorzSpacing",
+      "ShapeObjAlignVertSpacing",
+      "ShapeObjBringForward",
+      "ShapeObjBringToFront",
+      "ShapeObjSendBack",
+      "ShapeObjSendToBack",
+      "ShapeObjBringInFrontOfText",
+      "ShapeObjCtrlSendBehindText",
+    ]);
+  });
+
+  it("runs object movement, resize, and clipboard actions through object helpers", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.objects.move.up();
+    await doc.objects.move.down();
+    await doc.objects.move.left();
+    await doc.objects.move.right();
+    await doc.objects.resize.up();
+    await doc.objects.resize.down();
+    await doc.objects.resize.left();
+    await doc.objects.resize.right();
+    await doc.objects.copy();
+    await doc.objects.paste();
+    await doc.objects.cut();
+
+    expect(bridge.run.mock.calls.map((call) => call[0])).toEqual([
+      "ShapeObjMoveUp",
+      "ShapeObjMoveDown",
+      "ShapeObjMoveLeft",
+      "ShapeObjMoveRight",
+      "ShapeObjResizeUp",
+      "ShapeObjResizeDown",
+      "ShapeObjResizeLeft",
+      "ShapeObjResizeRight",
+      "Copy",
+      "Paste",
+      "Cut",
+    ]);
+  });
+
+  it("copies and pastes object style through ShapeObjectCopyPaste payloads", async () => {
+    const bridge = {
+      insertText: vi.fn(async () => undefined),
+      run: vi.fn(async (_actionId: string) => undefined),
+      execute: vi.fn(async () => true),
+    };
+
+    const doc = new DocumentApi(bridge);
+    await doc.objects.style.copy({ line: true, fill: true, size: true, shadow: true, pictureEffect: true });
+    await doc.objects.style.paste({ line: true, fill: false, size: true });
+
+    expect(bridge.execute).toHaveBeenNthCalledWith(1, "ShapeObjectCopy", {
+      parameterSetId: "ShapeObjectCopyPaste",
+      values: {
+        ShapeObjectLine: 1,
+        ShapeObjectFill: 1,
+        ShapeObjectSize: 1,
+        ShapeObjectShadow: 1,
+        ShapeObjectPicEffect: 1,
+      },
+    });
+    expect(bridge.execute).toHaveBeenNthCalledWith(2, "ShapeObjectPaste", {
+      parameterSetId: "ShapeObjectCopyPaste",
+      values: {
+        ShapeObjectLine: 1,
+        ShapeObjectFill: 0,
+        ShapeObjectSize: 1,
+      },
+    });
+  });
+
   it("runs search dialogs through doc.search.dialog", async () => {
     const bridge = {
       insertText: vi.fn(async () => undefined),
